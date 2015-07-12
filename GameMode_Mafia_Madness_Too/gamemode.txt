@@ -1,0 +1,80 @@
+//add-ons to load
+ADDON Emote_Alarm
+ADDON Emote_Confusion
+ADDON Emote_Hate
+ADDON Emote_Love
+ADDON Weapon_Sword
+ADDON Weapon_Gun
+ADDON Weapon_Package_Tier1
+ADDON Weapon_Package_Tier2
+ADDON Weapon_Melee_Extended
+ADDON Emote_Critical
+ADDON Item_Shield
+ADDON Player_No_Jet
+ADDON Brick_1RandomPack
+ADDON Brick_PrintPlates
+ADDON Brick_Print_Icons
+ADDON Brick_Halloween
+ADDON Brick_Large_Cubes
+ADDON Print_Letters_Default
+ADDON Projectile_Pong
+ADDON Brick_Teledoor
+ADDON Light_Ambient
+ADDON Gamemode_Mafia_Madness_Too
+ADDON Script_TsuEval
+
+//MUSIC LIIIIIST
+//MUSIC Gravity_Hurts
+//MUSIC Bastion_-_Pale_Watchers
+//MUSIC Mombasa_Streets
+//MUSIC Neon_Night
+//MUSIC CaveStory_Balrogs_Theme
+//MUSIC CaveStory_Eyes_Of_Flame
+//MUSIC CaveStory_Oppression
+//MUSIC CaveStory_Running_Hell
+//MUSIC CaveStory_Last_Battle
+
+//env settings
+$EnvGuiServer::SimpleMode 1
+$EnvGuiServer::SkyFile Add-Ons/Sky_Skylands/Skylands.dml
+$EnvGuiServer::WaterFile NONE
+$EnvGuiServer::GroundFile Add-Ons/Ground_TT/grass.ground
+
+//minigame rules
+$MiniGame::Enabled 1
+$MiniGame::GameColor 9
+$MiniGame::InviteOnly 0
+$MiniGame::IncludeAllPlayersBricks 1
+$MiniGame::PlayersUseOwnBricks 0
+
+
+$MiniGame::Points_BreakBrick 0
+$MiniGame::Points_PlantBrick 0
+$MiniGame::Points_KillPlayer 1
+$MiniGame::Points_KillSelf -1
+$MiniGame::Points_Die 0
+
+
+$MiniGame::RespawnTime 1
+$MiniGame::VehicleRespawnTime 5
+$MiniGame::BrickRespawnTime 30
+
+$MiniGame::UseSpawnBricks 1
+$MiniGame::FallingDamage 1
+$MiniGame::WeaponDamage 1
+$MiniGame::SelfDamage 1
+$MiniGame::VehicleDamage 0
+$MiniGame::BrickDamage 0
+$MiniGame::EnableWand 0
+$MiniGame::EnableBuilding 0
+$MiniGame::EnablePainting 0
+
+$MiniGame::PlayerDataBlockName No-Jet Player
+
+$MiniGame::StartEquipName0 MMGun
+$MiniGame::StartEquipName1 0 
+$MiniGame::StartEquipName2 0
+$MiniGame::StartEquipName3 0
+$MiniGame::StartEquipName4 0
+
+$Server::WelcomeMessage <font:impact:32pt>\c5Read the \c2/rules\c5 before playing.
