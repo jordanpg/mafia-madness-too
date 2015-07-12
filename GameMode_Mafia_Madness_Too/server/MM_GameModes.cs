@@ -27,6 +27,12 @@ function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCt
 		%ct = getWord(%mafCts, %i);
 		%r = getWord(%mafRoles, %i);
 
+		if(!isObject($MM::RoleKey[%r]))
+		{
+			warn("No role exists for letter" SPC %r SPC ", using M instead.");
+			%r = "M";
+		}
+
 		for(%j = 0; %j < %ct; %j++)
 		{
 			%str = %str SPC %r;
@@ -50,6 +56,12 @@ function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCt
 	{
 		%ct = getWord(%innoCts, %i);
 		%r = getWord(%innoRoles, %i);
+
+		if(!isObject($MM::RoleKey[%r]))
+		{
+			warn("No role exists for letter" SPC %r SPC ", using I instead.");
+			%r = "I";
+		}
 
 		for(%j = 0; %j < %ct; %j++)
 		{
