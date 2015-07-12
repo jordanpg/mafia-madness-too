@@ -3,3 +3,7 @@ if(!$MM::LoadedRole)
 
 exec("./innocent.cs");
 exec("./mafia.cs");
+
+exec("./abductor.cs");
+exec("./crazy.cs");
+exec("./fingerprintExpert.cs");

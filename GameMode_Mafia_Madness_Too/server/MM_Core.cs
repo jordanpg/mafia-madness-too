@@ -662,6 +662,28 @@ function GameConnection::MM_DisplayStartText(%this)
 	%this.messageLines(%this.role.getHelpText());
 }
 
+function GameConnection::MM_GiveEquipment(%this)
+{
+	if(!isObject(%this.player))
+		return;
+	
+	%this.player.MM_AddGun(%this.gun);
+
+	if(!isObject(%this.role))
+		return;
+
+	%ct = %this.getDatablock().maxTools - 1;
+
+	for(%i = 0; %i < %ct; %i++)
+	{
+		if(!isObject(%this.role.equipment[%i]))
+			continue;
+
+		%this.player.tool[%i + 1] = %this.role.equipment[%i];
+		messageClient(%this, 'MsgItemPickup', '', 1, %this.role.equipment[%i]);
+	}
+}
+
 package MM_Core
 {
 	// function MinigameSO::onAdd(%this)
@@ -865,7 +887,7 @@ package MM_Core
 			// MMDebug("butt" SPC %this.player);
 
 			%this.player.setShapeNameDistance(13.5);
-			%this.player.MM_AddGun(%this.gun);
+			%this.MM_GiveEquipment();
 		}
 
 		if(isObject(%this.role))

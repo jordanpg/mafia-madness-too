@@ -12,6 +12,33 @@ $MM::CorpseThrowSpeed = 5;
 $MM::CorpseGrabRange = 8;
 $MM::CorpseInvestigationRange = 5;
 
+function AIPlayer::MM_getCorpseName(%this)
+{
+	if(!%this.isCorpse)
+		return "";
+
+	return %this.name;
+}
+
+function AIPlayer::MM_getRole(%this)
+{
+	if(!%this.isCorpse)
+		return -1;
+
+	return %this.role;
+}
+
+function AIPlayer::MM_getRoleName(%this)
+{
+	if(!%this.isCorpse)
+		return -1;
+
+	if(!isObject(%r = %this.MM_getRole()))
+		return -1;
+
+	return %r.getCorpseName();
+}
+
 function AIPlayer::MM_onCorpseSpawn(%this, %mini, %client, %killerClient)
 {
 	//mostly here for other modules and whatnot to hook in
@@ -32,8 +59,8 @@ function AIPlayer::MM_Investigate(%this, %client)
 	if(!%this.isCorpse)
 		return false;
 
-	messageClient(%client, '', "\c2Name\c3:" SPC %this.name);
-	messageClient(%client, '', "\c2Job\c3:" SPC %this.role.getCorpseName());
+	messageClient(%client, '', "\c2Name\c3:" SPC %this.MM_getCorpseName());
+	messageClient(%client, '', "\c2Job\c3:" SPC %this.MM_getRoleName());
 	messageClient(%client, '', "\c2Cause of death\c3:" SPC $MM::CauseOfDeath[%this.suicide]);
 }
 

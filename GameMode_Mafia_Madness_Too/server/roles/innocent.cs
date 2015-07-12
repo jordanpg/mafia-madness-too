@@ -19,6 +19,7 @@ if(!isObject(MMRole_Innocent))
 		canInvestigate = false;
 		canImpersonate = false;
 		canCommunicate = false;
+		canFingerprint = false;
 
 		alignment = 0;
 

@@ -77,35 +77,39 @@ function Player::MM_Abduct(%this, %mini, %obj)
 }
 
 //HOOKS
-function MMRole_Abductor::onTrigger(%this, %mini, %client, %obj, %slot, %val)
+package MM_Abductor
 {
-	parent::onTrigger(%this, %mini, %client, %obj, %slot, %val); //Call base MMRole functionality (most likely nothing)
+	function MMRole::onTrigger(%this, %mini, %client, %obj, %slot, %val) //ok we're not just making a class thing since we need to also account for allAbduct
+	{
+		parent::onTrigger(%this, %mini, %client, %obj, %slot, %val); //Call base MMRole functionality (most likely nothing)
 
-	if(!isObject(%client.player) || %client.getControlObject() != %client.player || !%client.MM_canAbduct())
-		return;
+		if(!isObject(%client.player) || %client.getControlObject() != %client.player || !%client.MM_canAbduct())
+			return;
 
-	%start = %obj.getEyePoint();
-	%vec = %obj.getEyeVector();
-	%end = VectorAdd(%start, VectorScale(%vec, $MM::AbductionRange));
+		%start = %obj.getEyePoint();
+		%vec = %obj.getEyeVector();
+		%end = VectorAdd(%start, VectorScale(%vec, $MM::AbductionRange));
 
-	%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
-	%aObj = firstWord(%ray);
-	if(!isObject(%aObj) || %aObj.getClassName() !$= "Player" || !isObject(%cl = %aObj.getControllingClient()))
-		return;
+		%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
+		%aObj = firstWord(%ray);
+		if(!isObject(%aObj) || %aObj.getClassName() !$= "Player" || !isObject(%cl = %aObj.getControllingClient()))
+			return;
 
-	%aObj.gagged = true;
-	%aObj.schedule($MM::AbductionDelay, MM_Abduct, %mini, %obj);
+		%aObj.gagged = true;
+		%aObj.schedule($MM::AbductionDelay, MM_Abduct, %mini, %obj);
 
-	%client.abducted[%mini.day] = true;
+		%client.abducted[%mini.day] = true;
 
-	%mini.MM_LogEvent(%client.MM_GetName() SPC "\c6abducted" SPC %cl.MM_GetName());
-	messageClient(%client, '', "\c2Abducted\c3" SPC %cl.getSimpleName() @ "\c2.");
-}
+		%mini.MM_LogEvent(%client.MM_GetName() SPC "\c6abducted" SPC %cl.MM_GetName());
+		messageClient(%client, '', "\c2Abducted\c3" SPC %cl.getSimpleName() @ "\c2.");
+	}
 
-function MMRole_Abductor::onCleanup(%this, %mini, %client)
-{
-	parent::onCleanup(%this, %mini, %client);
+	function MMRole::onCleanup(%this, %mini, %client)
+	{
+		parent::onCleanup(%this, %mini, %client);
 
-	for(%i = 0; %i <= %mini.day; %i++)
-		%client.abducted[%i] = "";
-}
+		for(%i = 0; %i <= %mini.day; %i++)
+			%client.abducted[%i] = "";
+	}
+};
+activatePackage(MM_Abductor);

@@ -22,6 +22,7 @@ if(!isObject(MMRole_Mafia))
 		canInvestigate = false;
 		canImpersonate = false;
 		canCommunicate = false;
+		canFingerprint = false;
 
 		alignment = 1;
 

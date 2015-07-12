@@ -7,11 +7,15 @@ exec("./guns/Magnum Research.cs");
 exec("./guns/Colt Python.cs");
 exec("./guns/Tanaka Works.cs");
 
+exec("./bricks.cs");
+
 exec("./MM_Core.cs");
 exec("./MM_Role.cs");
 exec($MM::Roles @ "main.cs");
 exec("./MM_GameModes.cs");
 
 exec("./afterlife.cs");
+exec("./ahole.cs");
 exec("./chat.cs");
 exec("./cmd.cs");
+exec("./corpses.cs");
