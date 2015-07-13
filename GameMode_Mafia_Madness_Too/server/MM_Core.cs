@@ -4,6 +4,8 @@
 
 $MM::LoadedCore = true;
 
+$MM::DediRoundDelay = 30000;
+
 package disableToolCmds { function serverCmdDuplicator() { } function serverCmdFillcan() { } function serverCmdUsePrintGun() { } };
 
 function MM_isValidGameMode(%modeName)
@@ -201,7 +203,13 @@ function MinigameSO::MM_AssignRoles(%this)
 		if(%client.forceRole !$= "")
 		{
 			if(%this.MM_SetRole(%client, %client.forceRole))
+			{
+				MMDebug("Init client" SPC %client SPC "with role" SPC %role);
+
+				%client.lives = 1;
+				%client.isGhost = false;
 				continue;
+			}
 		}
 
 		%r = getRandom(getWordCount(%roles) - 1);
@@ -227,11 +235,12 @@ function MinigameSO::MM_InitRound(%this)
 		%this.MM_Init();
 
 	%this.MM_ResetVals(); //doing this here for administration between rounds
+	%this.MM_ClearEventLog();
 
 	if(%this.MM_GetNumPlayers() < 1)
 	{
 		if(%this.MMDedi)
-			%this.MMNextGame = %this.schedule(10000, MM_InitRound);
+			%this.MMNextGame = %this.schedule($MM::DediRoundDelay, MM_InitRound);
 
 		return;
 	}
@@ -315,7 +324,6 @@ function MinigameSO::MM_Stop(%this)
 
 	MMDebug("Destroying event log", %this);
 	%this.MM_ChatEventLog();
-	%this.MM_ClearEventLog();
 
 	talk("DM until the next round starts!");
 
@@ -329,7 +337,7 @@ function MinigameSO::MM_Stop(%this)
 	if(%this.MMDedi)
 	{
 		MMDebug("Scheduling next game", %this);
-		%this.MMNextGame = %this.schedule(10000, MM_InitRound);
+		%this.MMNextGame = %this.schedule($MM::DediRoundDelay, MM_InitRound);
 	}
 }
 
@@ -589,26 +597,6 @@ function GameConnection::MM_canImpersonate(%this)
 	return true;
 }
 
-function GameConnection::MM_canInvestigate(%this)
-{
-	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)
-		return false;
-
-	if(!isObject(%this.role))
-		return false;
-
-	if(%this.MM_isMaf())
-		return false;
-
-	if(!%this.role.getCanInvestigate() && !%mini.allInv)
-		return false;
-
-	if(%this.investigated[%mini.day])
-		return false;
-
-	return true;
-}
-
 function GameConnection::MM_canComm(%this)
 {
 	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)
@@ -696,12 +684,15 @@ function GameConnection::MM_GiveEquipment(%this)
 			continue;
 
 		%this.player.tool[%i + 1] = %this.role.equipment[%i];
-		messageClient(%this, 'MsgItemPickup', '', 1, %this.role.equipment[%i]);
+		messageClient(%this, 'MsgItemPickup', '', %i + 1, %this.role.equipment[%i]);
 	}
 }
 
 function GameConnection::applyMMSilhouette(%this)
 {
+	if(%this.isGhost || %this.lives < 1)
+		return;
+
 	%player = %this.player;
 
 	if(!isObject(%player)) {
@@ -770,10 +761,7 @@ package MM_Core
 			return parent::applyBodyColors(%this);
 
 		if(%mini.running && !%mini.isDay)
-		{
-			if(isObject(%client = %this.getControlObject()))
-				%client.applyMMSilhouette();
-		}
+			%this.applyMMSilhouette();
 		else
 			parent::applyBodyColors(%this);
 
@@ -908,27 +896,33 @@ package MM_Core
 
 	function Armor::damage(%db, %this, %obj, %pos, %amt, %type)
 	{
+		parent::damage(%db, %this, %obj, %pos, %amt, %type);
+	}
+
+	function Player::damage(%this, %obj, %pos, %amt, %type)
+	{
+		%db = %this.getDatablock();
 		%techAmt = %this.isCrouched() ? %amt * 2.1 : %amt;
 
 		if(%this.getName() $= "botCorpse") return;
 
 		if(!isObject(%cl = %this.client))
-			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
+			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(%this.getDamageLevel() + %techAmt < %db.maxDamage)
-			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
+			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(!isObject(%mini = getMiniGameFromObject(%cl)))
-			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
+			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(!$DefaultMinigame.running || !%mini.isMM)
-			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
+			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(%this.dying)
-			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
+			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(%type $= $DamageType::Impact || %type $= $DamageType::Fall || %type $= $DamageType::Direct || %type $= $DamageType::Suicide || %type $= $DamageType::CombatKnife)
-			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
+			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		MMDebug("Player" SPC %cl.getPlayerName() SPC "is now dying", %cl);
 		%this.setDatablock(bracketsHatesTGE(%db));
@@ -937,6 +931,9 @@ package MM_Core
 		%this.schedule(1000, damage, %obj, %pos, %amt, %type);
 		%this.setDamageFlash(0.75);
 		%this.emote(PainMidImage);
+
+		%cl.applyBodyParts();
+		%cl.applyBodyColors();
 	
 		return;
 	}

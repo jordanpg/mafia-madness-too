@@ -144,7 +144,7 @@ package MM_Chat
 {
 	function serverCmdMessageSent(%this, %msg)
 	{
-		if(!$DefaultMinigame.running || !(%mini = getMiniGameFromObject(%this).isMM))
+		if(!$DefaultMinigame.running || !(%mini = getMiniGameFromObject(%this).isMM) || $DefaultMinigame.resolved)
 			return parent::serverCmdMessageSent(%this, %msg);
 
 		%msg = stripMLControlChars(%msg);
@@ -194,7 +194,7 @@ package MM_Chat
 
 	function serverCmdTeamMessageSent(%this, %msg)
 	{
-		if(!$DefaultMinigame.running || !(%mini = getMiniGameFromObject(%this).isMM))
+		if(!$DefaultMinigame.running || !(%mini = getMiniGameFromObject(%this).isMM) || $DefaultMinigame.resolved)
 			return parent::serverCmdTeamMessageSent(%this, %msg);
 
 		%msg = stripMLControlChars(%msg);

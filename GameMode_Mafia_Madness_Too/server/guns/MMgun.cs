@@ -339,6 +339,7 @@ function serverCmdListGuns(%this)
 
 function serverCmdSetGun(%this, %gun1, %gun2, %gun3)
 {
+	%gun = %gun1;
 	%sgun = trim(%gun1 SPC %gun2 SPC %gun3);
 
 	if((%sgun | 0) !$= %sgun)

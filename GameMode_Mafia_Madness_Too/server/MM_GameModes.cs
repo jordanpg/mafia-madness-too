@@ -5,7 +5,8 @@ $MM::LoadedGameModes = true;
 
 $MM::GameMode[0] = "Standard";
 $MM::GameMode[1] = "Classic";
-$MM::GameModes = 2;
+$MM::GameMode[2] = "Crazy";
+$MM::GameModes = 3;
 
 function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCts, %innoCts, %mafFill, %innoFill)
 {
@@ -171,6 +172,36 @@ function MM_InitModeClassic(%this)
 	MMDebug("   +Mafias:" SPC %mafs);
 
 	%this.roles = MM_BuildRolesString(%mafs, %members);
+
+	MMDebug("   +Roles:" SPC %this.roles);
+
+	%this.allAbduct = false;
+	%this.allComm = false;
+	%this.allImp = false;
+	%this.allInv = false;
+}
+
+function MM_InitModeCrazy(%this)
+{
+	MMDebug("MM_InitModeCrazy" SPC %this);
+
+	%members = %this.MM_GetNumPlayers();
+
+	MMDebug("   +Members:" SPC %members);
+
+	%mafs = mFloor(%members / 1.75);
+	if(%mafs < 1)
+		%mafs = 1;
+
+	MMDebug("   +Mafias:" SPC %mafs);
+
+	%mafRoles = "C";
+	%mafCts = %mafs;
+
+	MMDebug("   +Maf Roles:" SPC %mafRoles);
+	MMDebug("   +Maf Count:" SPC %mafCts);
+
+	%this.roles = MM_BuildRolesString(%mafs, %members, %mafRoles, "", %mafCts, "");
 
 	MMDebug("   +Roles:" SPC %this.roles);
 
