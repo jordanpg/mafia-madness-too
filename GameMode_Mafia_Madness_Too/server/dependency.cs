@@ -39,7 +39,7 @@ function getRandomFloat( %min, %max )
 	return %min + getRandom() * ( %max - %min );
 }
 
-function pointBetween(%point, %cornerA, %cornerB, %xy)
+function pointBetween(%point, %vectA, %vectB, %xy)
 {
 	%xA = getWord(%vectA, 0);
 	%yA = getWord(%vectA, 1);
@@ -77,7 +77,6 @@ function pointBetween(%point, %cornerA, %cornerB, %xy)
 		return false;
 	if((%z < %zA || %z > %zB) && !%xy)
 		return false;
-
 	return true;
 }
 

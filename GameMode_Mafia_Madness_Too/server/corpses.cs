@@ -61,7 +61,7 @@ function AIPlayer::MM_Investigate(%this, %client)
 
 	messageClient(%client, '', "\c2Name\c3:" SPC %this.MM_getCorpseName());
 	messageClient(%client, '', "\c2Job\c3:" SPC %this.MM_getRoleName());
-	messageClient(%client, '', "\c2Cause of death\c3:" SPC $MM::CauseOfDeath[%this.suicide]);
+	messageClient(%client, '', "\c2Cause of death\c3:" SPC $MM::CauseOfDeath[%this.causeOfDeath]);
 }
 
 function Player::MM_PickUpCorpse(%this, %obj)
@@ -108,8 +108,11 @@ package MM_Corpses
 		if(%this.player.isGhost)
 			return parent::onDeath(%this, %srcObj, %srcClient, %damageType, %loc);
 
+		MMDebug("Creating corpse for" SPC %this.getPlayerName(), %this, %mini);
+
 		if(isObject(%this.player.heldCorpse))
 		{
+			MMDebug("Dropping corpse", %this, %mini);
 			%this.player.heldCorpse.dismount();
 			%this.player.heldCorpse = "";
 		}
@@ -122,6 +125,7 @@ package MM_Corpses
 
 		if(%this.player.getName() $= "botCorpse")
 		{
+			MMDebug("Creating new corpse", %this, %mini);
 			%this.player.setName("oldBotCorpse");
 			%corpse = new AIPlayer(botCorpse : oldBotCorpse);
 			%corpse.client = 0;
@@ -129,6 +133,7 @@ package MM_Corpses
 		}
 		else
 		{
+			MMDebug("Creating corpse", %this, %mini);
 			%corpse = new AIPlayer(botCorpse)
 						{
 							datablock = PlayerNoJet;
@@ -153,35 +158,41 @@ package MM_Corpses
 		}
 
 		if(isObject(%img = %this.player.getMountedImage(0)))
+		{
+			MMDebug("Mounting image", %this, %mini);
 			%corpse.mountImage(%img, 0);
+		}
 
+		MMDebug("Warping corpse", %this, %mini);
 		%corpse.setTransform(%this.player.getTransform());
 
+		MMDebug("Removing body", %this, %mini);
 		%this.player.removeBody();
 
+		MMDebug("Preparing corpse", %this, %mini);
 		%corpse.setNodeColor("ALL", "1 0 0 1");
 		%corpse.mountImage(BlankImage, 3);
 		%corpse.setImageTrigger(3, 1);
 		%corpse.playThread(3, "death1");
 
 		if(!%notARealDeath)
-		{
 			%this.corpse = %corpse;
-			%this.lives--;
-		}
 		else
 			%corpse.originalClient.corpse = %corpse;
 
+		MMDebug("Setting camera orbit", %this, %mini);
 		%this.camera.setMode("Corpse", %corpse);
 		%this.setControlObject(%this.camera);
+
+		return parent::onDeath(%this, %srcObj, %srcClient, %damageType, %loc);
 	}
 
-	function Armor::onTrigger(%this, %obj, %slot, %val)
+	function Observer::onTrigger(%this, %obj, %slot, %val)
 	{
 		if(!isObject(%cl = %obj.getControllingClient()) || !isObject(%mini = getMiniGameFromObject(%cl)) || !$DefaultMinigame.running)
 			return parent::onTrigger(%this, %obj, %slot, %val);
 
-		if(%cl.isGhost || %cl.lives < 1)
+		if(!%val)
 			return parent::onTrigger(%this, %obj, %slot, %val);
 
 		switch(%slot)
@@ -194,11 +205,40 @@ package MM_Corpses
 				%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 				%hObj = firstWord(%ray);
 				if(!isObject(%hObj) || !%hObj.isCorpse || %hObj.getClassName() !$= "AIPlayer")
-					return;
+					return parent::onTrigger(%this, %obj, %slot, %val);
+
+				%hObj.MM_Investigate(%cl);
+		}
+
+		return parent::onTrigger(%this, %obj, %slot, %val);
+	}
+
+	function Armor::onTrigger(%this, %obj, %slot, %val)
+	{
+		if(!isObject(%cl = %obj.getControllingClient()) || !isObject(%mini = getMiniGameFromObject(%cl)) || !$DefaultMinigame.running)
+			return parent::onTrigger(%this, %obj, %slot, %val);
+
+		if(!%val)
+			return parent::onTrigger(%this, %obj, %slot, %val);
+
+		switch(%slot)
+		{
+			case 0:
+				%start = %obj.getEyePoint();
+				%vec = %obj.getEyeVector();
+				%end = VectorAdd(%start, VectorScale(%vec, $MM::CorpseInvestigationRange));
+
+				%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
+				%hObj = firstWord(%ray);
+				if(!isObject(%hObj) || !%hObj.isCorpse || %hObj.getClassName() !$= "AIPlayer")
+					return parent::onTrigger(%this, %obj, %slot, %val);
 
 				%hObj.MM_Investigate(%cl);
 
 			case 4:
+				if(%cl.isGhost || %cl.lives < 1)
+					return parent::onTrigger(%this, %obj, %slot, %val);
+			
 				if(!isObject(%obj.heldCorpse))
 				{
 					%start = %obj.getEyePoint();
@@ -208,7 +248,11 @@ package MM_Corpses
 					%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 					%hObj = firstWord(%ray);
 					if(!isObject(%hObj) || !%hObj.isCorpse || %hObj.getClassName() !$= "AIPlayer")
-						return;
+						return parent::onTrigger(%this, %obj, %slot, %val);
+
+					%obj.MM_PickUpCorpse(%hObj);
+
+					return;
 				}
 
 				%obj.MM_ThrowCorpse();

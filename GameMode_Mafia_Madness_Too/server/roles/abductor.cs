@@ -6,9 +6,9 @@ $MM::LoadedRole_Abductor = true;
 $MM::AbductionRange = 8;
 $MM::AbductionDelay = 3000;
 
-if(!isObject(MMRole_Mafia))
+if(!isObject(MMRole_Abductor))
 {
-	new ScriptObject(MMRole_Mafia)
+	new ScriptObject(MMRole_Abductor)
 	{
 		class = "MMRole";
 
@@ -54,6 +54,9 @@ function GameConnection::MM_canAbduct(%this)
 	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)
 		return false;
 
+	if(%mini.isDay)
+		return false;
+
 	if(!isObject(%this.role))
 		return false;
 
@@ -73,7 +76,7 @@ function Player::MM_Abduct(%this, %mini, %obj)
 {
 	%pos = MM_getAbductionPos();
 	%this.setTransform(%pos);
-	%hit.damage(%obj, %obj.getPosition(), %this.getDatablock().maxDamage, $DamageType::Direct);
+	%this.damage(%obj, %obj.getPosition(), %this.getDatablock().maxDamage, $DamageType::Direct);
 }
 
 //HOOKS
@@ -84,6 +87,10 @@ package MM_Abductor
 		parent::onTrigger(%this, %mini, %client, %obj, %slot, %val); //Call base MMRole functionality (most likely nothing)
 
 		if(!isObject(%client.player) || %client.getControlObject() != %client.player || !%client.MM_canAbduct())
+			return;
+
+		// talk(%slot SPC %val);
+		if(%slot != 4 || !%val)
 			return;
 
 		%start = %obj.getEyePoint();

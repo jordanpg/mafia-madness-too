@@ -74,10 +74,12 @@ function MinigameSO::MM_GetInArena(%this, %point)
 			if(%this.afterLifeLoc !$= "")
 				%cornerA = %this.arenaLoc;
 
-			if($Pref::Server::MMAfterLifeLoc !$= "")
+			if($Pref::Server::MMArenaLoc !$= "")
 				%cornerA = $Pref::Server::MMArenaLoc;
 
 			%cornerB = VectorAdd(%cornerA, "12 12 0");
+
+			// talk(%cornerA SPC %cornerB);
 
 			return pointBetween(%point, %cornerA, %cornerB, true);
 	}
@@ -104,9 +106,14 @@ function Camera::MM_activateSpectator(%obj, %cl, %backward)
 
 		if(!%backward)
 		{
-			for(%i = ((%cl.spexIndex + 1) % %mini.numMembers); %i != %cl.specIndex; %i++)
+			%start = %cl.specIndex + 1;
+			if(%start >= %mini.numMembers)
+				%start -= %mini.numMembers;
+
+			for(%i = %start; %i != %cl.specIndex; %i++)
 			{
-				%i %= %mini.numMembers;
+				if(%i >= %mini.numMembers)
+					%i -= %mini.numMembers;
 
 				%cl2 = %mini.member[%i];
 
@@ -270,13 +277,14 @@ package MM_AfterLife
 		switch(%slot)
 		{
 			case 0:
-				if(!%val && !%cl.specMode)
+				if(!%val || !%cl.specMode)
 					return;
 
 				%cl.centerPrint("");
 
 				%cl.specIndex++;
-				%cl.specIndex %= %mini.numMembers;
+				if(%cl.specIndex >= %mini.numMembers)
+					%cl.specIndex -= %mini.numMembers;
 
 				// if(isObject(%pl = %mini.member[%cl.specIndex].player) && !%pl.isGhost)
 				// {

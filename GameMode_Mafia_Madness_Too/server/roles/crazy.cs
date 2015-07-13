@@ -72,7 +72,7 @@ package MM_Crazy
 		if(%this.disfigured)
 			return $MM::CrazyReplaceRole;
 
-		return parent::MM_getCorpseName(%this);
+		return parent::MM_getRoleName(%this);
 	}
 
 	function AIPlayer::MM_InvestigateFingerprints(%this, %client)

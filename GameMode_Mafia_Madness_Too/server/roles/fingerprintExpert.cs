@@ -99,5 +99,18 @@ package MM_FingerprintExpert
 		%this.fingerprints[%this.fingerprintCt] = %n;
 		%this.fingerprintCt++;
 	}
+
+	function Player::MM_Abduct(%this, %mini, %obj)
+	{
+		%cl = %this.client;
+
+		parent::MM_Abduct(%this, %mini, %obj);
+
+		if(isObject(%cl.corpse) || isObject(%aCl = %obj.getControllingClient()))
+		{
+			%cl.corpse.fingerprints[%cl.corpse.fingerprintCt] = %aCl.getSimpleName();
+			%cl.corpse.fingerprintCt++;
+		}
+	}
 };
 activatePackage(MM_FingerprintExpert);

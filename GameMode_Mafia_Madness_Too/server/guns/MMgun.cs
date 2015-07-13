@@ -387,6 +387,9 @@ package MM_Gun
 			}
 		}
 
+		if($DefaultMinigame.running)
+			return;
+
 		parent::serverCmdLight(%this);
 	}
 

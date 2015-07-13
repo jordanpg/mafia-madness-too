@@ -126,7 +126,7 @@ function GameConnection::MM_Chat(%this, %type, %msg, %excludeList, %pre2, %condi
 		{
 			%dist = VectorDist(%clp.getPosition(), %pos);
 
-			MMDebug(%dist);
+			// MMDebug(%dist);
 
 			if(VectorDist(%clp.getPosition(), %pos) > %rad)
 				continue;

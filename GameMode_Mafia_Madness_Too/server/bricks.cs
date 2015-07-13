@@ -38,9 +38,9 @@ function BrickDumpsterPointData::onPlant(%this, %obj)
 	if(!isObject(MMAbductionSpawns))
 		new SimSet(MMAbductionSpawns);
 
-	%this.setColliding(false);
-	%this.setRendering(false);
-	%this.setRayCasting(false);
+	%obj.setColliding(false);
+	%obj.setRendering(false);
+	%obj.setRayCasting(false);
 
 	MMAbductionSpawns.add(%obj);
 }

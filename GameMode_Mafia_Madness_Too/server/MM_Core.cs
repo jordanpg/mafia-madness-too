@@ -296,6 +296,8 @@ function MinigameSO::MM_ClearRoles(%this)
 
 function MinigameSO::MM_Stop(%this)
 {
+	MMDebug("Ending MM round", %this);
+
 	%this.running = false;
 
 	%this.doombot = false;
@@ -305,22 +307,30 @@ function MinigameSO::MM_Stop(%this)
 	$EnvGuiServer::DayCycleEnabled = 0;
 	DayCycle.setEnabled(false);
 	
+
+	MMDebug("Clearing corpses", %this);
 	MM_clearCorpses();
 
 	talk("The Mafia Madness game is now over.");
 
+	MMDebug("Destroying event log", %this);
 	%this.MM_ChatEventLog();
 	%this.MM_ClearEventLog();
 
 	talk("DM until the next round starts!");
 
+	MMDebug("Resetting minigame", %this);
 	%this.reset(0);
 
+	MMDebug("Clearing bottomprints", %this);
 	for(%i = 0; %i < %this.numMembers; %i++)
 		bottomPrint(%this.member[%i], "", 0);
 
 	if(%this.MMDedi)
+	{
+		MMDebug("Scheduling next game", %this);
 		%this.MMNextGame = %this.schedule(10000, MM_InitRound);
+	}
 }
 
 function MinigameSO::MM_Time(%this, %day)
@@ -482,6 +492,8 @@ function MinigameSO::MM_WinCheck(%this, %cl)
 	if(%this.resolved)
 		return;
 
+	MMDebug("Checking for wins...", %this, %cl);
+
 	for(%i = 0; %i < %this.numMembers; %i++)
 	{
 		%cl = %this.member[%i];
@@ -506,12 +518,15 @@ function MinigameSO::MM_WinCheck(%this, %cl)
 	if(!%foundMaf && %foundInno)
 	{
 		talk("The last Mafia is dead!  The Innocents have won.");
+		MMDebug("Inno win", %this, %cl);
+
 		%this.resolved = 1;
 		%this.schedule(3000, MM_Stop);
 	}
 	else if(%foundMaf && !%foundInno)
 	{
 		talk("The last Innocent is dead!  The Mafia have won.");
+		MMDebug("Maf win", %this, %cl);
 
 		%this.resolved = 1;
 		%this.schedule(3000, MM_Stop);
@@ -519,6 +534,7 @@ function MinigameSO::MM_WinCheck(%this, %cl)
 	else if(!%foundMaf && !%foundInno)
 	{
 		talk("Everyone is dead.  The game has ended in a draw.");
+		MMDebug("Tie", %this, %cl);
 
 		%this.resolved = 1;
 		%this.schedule(3000, MM_Stop);
@@ -618,7 +634,7 @@ function GameConnection::MM_UpdateUI(%client)
 		return;
 	}
 
-	%client.bottomPrint("\c5You are:" SPC %client.MM_GetName() SPC " " SPC "\c5ROLES\c6:" SPC %client.minigame.roles);
+	%client.bottomPrint("\c5You are:" SPC %client.role.getColour() @ %client.role.getDisplayName() SPC " " SPC "\c5ROLES\c6:" SPC %client.minigame.roles);
 }
 
 function GameConnection::MM_DisplayMafiaList(%this)
@@ -672,7 +688,7 @@ function GameConnection::MM_GiveEquipment(%this)
 	if(!isObject(%this.role))
 		return;
 
-	%ct = %this.getDatablock().maxTools - 1;
+	%ct = %this.player.getDatablock().maxTools - 1;
 
 	for(%i = 0; %i < %ct; %i++)
 	{
@@ -682,6 +698,47 @@ function GameConnection::MM_GiveEquipment(%this)
 		%this.player.tool[%i + 1] = %this.role.equipment[%i];
 		messageClient(%this, 'MsgItemPickup', '', 1, %this.role.equipment[%i]);
 	}
+}
+
+function GameConnection::applyMMSilhouette(%this)
+{
+	%player = %this.player;
+
+	if(!isObject(%player)) {
+		return;
+	}
+	if(%player.getName() $= "botCorpse") {
+		%player.setNodeColor("ALL","1 0 0 1");
+	}
+	else {
+		%player.setNodeColor("ALL","0.0 0.0 0.0 1.0");
+	}
+	if(%player.doombot) {
+		%player.unHideNode("ALL");
+		%player.setFaceName("smiley");
+		%player.setDecalName("AAA-None");
+		return;
+	}
+	if(fileName(%player.getDatablock().shapeFile) !$= "m.dts") {
+		return;
+	}
+	%player.hideNode("ALL");
+	
+	if(isObject((%o = %player.getControlObject())) && %o.getDatablock().getName() $= "SkiVehicle") {
+		%player.unHideNode("lski");
+		%player.unHideNode("rski");
+	}
+	%player.unHideNode("headSkin");
+	%player.unHideNode("chest");
+	%player.unHideNode("pants");
+	%player.unHideNode("LShoe");
+	%player.unHideNode("RShoe");
+	%player.unHideNode("LArm");
+	%player.unHideNode("RArm");
+	%player.unHideNode("LHand");
+	%player.unHideNode("RHand");
+	%player.setFaceName("smiley");
+	%player.setDecalName("AAA-None");
 }
 
 package MM_Core
@@ -698,7 +755,7 @@ package MM_Core
 
 	function GameConnection::applyBodyParts(%this)
 	{
-		if(!isObject(%mini = getMiniGameFromObject(%this)))
+		if(!isObject(%mini = getMiniGameFromObject(%this)) || %this.isGhost || %this.lives < 1)
 			return parent::applyBodyParts(%this);
 
 		if(%mini.running && !%mini.isDay)
@@ -709,12 +766,12 @@ package MM_Core
 
 	function GameConnection::applyBodyColors(%this)
 	{
-		if(!isObject(%mini = getMiniGameFromObject(%this)))
+		if(!isObject(%mini = getMiniGameFromObject(%this)) || %this.isGhost || %this.lives < 1)
 			return parent::applyBodyColors(%this);
 
 		if(%mini.running && !%mini.isDay)
 		{
-			if(isObject(%this.getControlObject()))
+			if(isObject(%client = %this.getControlObject()))
 				%client.applyMMSilhouette();
 		}
 		else
@@ -747,9 +804,13 @@ package MM_Core
 		if(!%mini.running || !%mini.isMM)
 			return parent::onDeath(%this, %srcObj, %srcClient, %damageType, %loc);
 
-		if(%this.player.isGhost)
-			return parent::onDeath(%this, %srcObj, %srcClient, %damageType, %loc);
+		if(%this.isGhost || %this.lives < 1)
+		{
+			%this.schedule(3000, spawnPlayer);
+			return;
+		}
 
+		MMDebug("Player death of" SPC %this.getPlayerName(), %this, %mini);
 		if(%srcClient == %this)
 			%mini.MM_LogEvent(%this.MM_GetName() SPC "\c6committed suicide");
 		else if(isObject(%srcClient))
@@ -763,12 +824,17 @@ package MM_Core
 
 		%this.MMSpecMode = 0;
 
+		if(%this.player.getName() !$= "botCorpse")
+			%this.lives--;
+
 		if(%this.lives < 1)
 		{
+			MMDebug("Checking win status", %this, %mini);
 			%this.isGhost = 1;
 			%mini.MM_WinCheck(%this);
 		}
 
+		MMDebug("Scheduling spawn", %this, %mini);
 		%this.schedule(3000, spawnPlayer);
 	}
 
@@ -791,6 +857,8 @@ package MM_Core
 	function Armor::onTrigger(%this, %obj, %slot, %val)
 	{
 		parent::onTrigger(%this, %obj, %slot, %val);
+
+		// MMDebug(%slot SPC %val);
 
 		if(!isObject(%cl = %obj.getControllingClient()) || !isObject(%mini = getMiniGameFromObject(%cl)) || !$DefaultMinigame.running)
 			return;
@@ -856,12 +924,13 @@ package MM_Core
 		if(!$DefaultMinigame.running || !%mini.isMM)
 			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
 
-		if(%this.dying || %this.getName() $= "botCorpse")
+		if(%this.dying)
 			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
 
 		if(%type $= $DamageType::Impact || %type $= $DamageType::Fall || %type $= $DamageType::Direct || %type $= $DamageType::Suicide || %type $= $DamageType::CombatKnife)
 			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
 
+		MMDebug("Player" SPC %cl.getPlayerName() SPC "is now dying", %cl);
 		%this.setDatablock(bracketsHatesTGE(%db));
 
 		%this.dying = true;
