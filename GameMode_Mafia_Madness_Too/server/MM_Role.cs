@@ -15,14 +15,18 @@ function MMRole::getRoleName(%this)
 	return %this.name;
 }
 
-function MMRole::getColour(%this)
+function MMRole::getColour(%this, %forceNorm)
 {
+	if(!%forceNorm && %this.displayColour !$= "")
+		return %this.displayColour;
+
 	return %this.colour;
 }
 
-function MMRole::getColor(%this)
+function MMRole::getColor(%this, %forceNorm)
 {
-	return %this.getColour();
+
+	return %this.getColour(%forceNorm);
 }
 
 function MMRole::getCorpseName(%this)
@@ -127,17 +131,17 @@ function MMRole::onSpawn(%this, %mini, %client)
 	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received spawn event for" SPC %client.getSimpleName() SPC "(" @ %client @ ")", %this, %mini, %client);
 }
 
-function MMRole::onChat(%this, %mini, %client, %msg)
+function MMRole::onChat(%this, %mini, %client, %msg, %type)
 {
-	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received chat event for" SPC %client.getSimpleName() SPC "(" @ %client @ ")", %this, %mini, %client);
+	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received chat event for" SPC %client.getSimpleName() SPC "(" @ %client @ "," @ %type @ ")", %this, %mini, %client);
 	MMDebug("   +Msg:" SPC %msg, %this, %mini, %client);
 
 	return 0;
 }
 
-function MMRole::onTeamChat(%this, %mini, %client, %msg)
+function MMRole::onTeamChat(%this, %mini, %client, %msg, %type)
 {
-	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received team chat event for" SPC %client.getSimpleName() SPC "(" @ %client @ ")", %this, %mini, %client);
+	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received team chat event for" SPC %client.getSimpleName() SPC "(" @ %client @ "," @ %type @ ")", %this, %mini, %client);
 	MMDebug("   +Msg:" SPC %msg, %this, %mini, %client);
 
 	return 0;

@@ -427,7 +427,7 @@ function serverCmdMMRoleList(%this)
 	{
 		%role = $DefaultMinigame.role[$DefaultMinigame.memberCache[%i]];
 		%name = $DefaultMinigame.memberCacheName[%i];
-		%c = %role.getColour();
+		%c = %role.getColour(1);
 
 		messageClient(%this, '', %c @ %name SPC "\c6(" @ %c @ %role.getRoleName() @ "\c6)");
 	}
@@ -447,49 +447,6 @@ function serverCmdMMIgnoreMe(%this)
 	%this.MMIgnore ^= 1;
 
 	messageAll('', "\c3" @ %this.getPlayerName() SPC "\c1is" SPC (!%this.MMIgnore ? "now" : "no longer") SPC "being included in Mafia Madness games.");
-}
-
-//TODO: move this to vent role script instead, move functionality to a method, and add /impU as well
-function serverCmdImp(%this, %v0, %v1, %v2, %v3, %v4)
-{
-	if(!$DefaultMinigame.running || !isObject(%mini = getMinigameFromObject(%this)) || !%mini.isMM)
-		return;
-
-	if(!%mini.MM_canImp(%this))
-		return;
-
-	%v = trim(%v0 SPC %v1 SPC %v2 SPC %v3 SPC %v4);
-	%c = findClientByName(%v);
-
-	if(%v $= "" || %c == %this)
-	{
-		%this.MMImpersonate = "";
-		%this.MMUnnoticeable = false;
-		messageClient(%this, '', "\c4You are no longer impersonating anyone.");
-
-		return;
-	}
-
-	if(!isObject(%this))
-	{
-		%c = findClientByBL_ID($Pref::Server::MMNicknames[%v]);
-		if(!isObject(%c))
-		{
-			messageClient(%this, '', "\c4Could not locate client\c3" SPC %v @ "\c4.");
-			return;
-		}
-	}
-
-	if((%c.MMIgnore && %c.lives < 1) || %c.minigame != %mini)
-	{
-		messageClient(%this, '', "\c4That client is not part of the game!");
-		return;
-	}
-
-	%this.MMImpersonate = %c;
-	%this.MMUnnoticeable = false;
-
-	messageClient(%this, '', "\c4You are now impersonating\c3" SPC %c.getPlayerName() @ "\c4!");
 }
 
 function serverCmdGetNickname(%this, %v0, %v1, %v2, %v3, %v4)

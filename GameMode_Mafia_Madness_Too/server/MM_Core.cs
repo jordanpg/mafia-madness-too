@@ -100,16 +100,16 @@ function MinigameSO::MM_GetGameMode(%this)
 
 function MinigameSO::MM_SetRole(%this, %client, %role)
 {
-	if(!isObject(%client) || %client.MMIgnore)
+	if(!isObject(%client))
 		return false;
 
-	if(!isObject(%role))
-	{
-		if(%role $= "")
-		{
-			if(isObject(%client.role))
-				%client.role.onCleanup(%this, %client);
+	if(isObject(%client.role))
+		%client.role.onCleanup(%this, %client);
 
+	if(!isObject(%role) || %client.MMIgnore)
+	{
+		if(%role $= "" || %client.MMIgnore)
+		{
 			%client.role = "";
 			%this.role[%client] = "";
 			return true;
@@ -123,6 +123,7 @@ function MinigameSO::MM_SetRole(%this, %client, %role)
 	%this.role[%client] = %role;
 	%this.memberCache[%this.memberCacheLen | 0] = %client;
 	%this.memberCacheName[%this.memberCacheLen | 0] = %client.getPlayerName();
+	%this.memberCacheRole[%this.memberCacheLen | 0] = %role;
 	%this.memberCacheLen++; 
 
 	%role.onAssign(%this, %client);
@@ -147,6 +148,9 @@ function MinigameSO::MM_ResetVals(%this)
 	%this.allFingerprint = false;
 
 	%this.roles = "";
+
+	%this.forcedARole = false;
+	%this.forcedRoleStr = "";
 
 	%this.MM_ClearRoles();
 }
@@ -208,6 +212,9 @@ function MinigameSO::MM_AssignRoles(%this)
 
 				%client.lives = 1;
 				%client.isGhost = false;
+
+				%this.forcedARole = true;
+
 				continue;
 			}
 		}
@@ -271,6 +278,10 @@ function MinigameSO::MM_InitRound(%this)
 	%this.day = 0;
 	%this.isDay = false;
 
+	%this.reset(0);
+
+	%this.MM_DayCycle(1);
+
 	if(%this.allAbduct)
 		messageAll('', "<color:FF0000><font:impact:32pt>All mafia can abduct this round.  Just try to survive.");
 	if(%this.allComm)
@@ -281,10 +292,6 @@ function MinigameSO::MM_InitRound(%this)
 		messageAll('', "<color:FF0000><font:impact:32pt>All mafia can impersonate this round. That\'ll be fun.");
 	if(%this.allFingerprint)
 		messageAll('', "<color:00FF00><font:impact:32pt>All innocent can examine fingerprints this round. Hope you have gloves.");
-
-	%this.reset(0);
-
-	%this.MM_DayCycle(1);
 
 	%this.roundStart = $Sim::Time;
 }
@@ -298,6 +305,7 @@ function MinigameSO::MM_ClearRoles(%this)
 	{
 		%this.memberCache[%i] = "";
 		%this.memberCacheName[%i] = "";
+		%this.memberCacheRole[%i] = "";
 	}
 
 	%this.memberCacheLen = 0;
@@ -563,11 +571,48 @@ function MinigameSO::MM_GetMafList(%this)
 	return trim(%list);
 }
 
-function GameConnection::MM_GetName(%this)
+function MinigameSO::MM_getRolesList(%this)
+{
+	if(!%this.forcedARole)
+		return %this.roles;
+
+
+	if(%this.forcedRoleStr $= "")
+	{
+		%str = "";
+
+		for(%i = 0; %i < %this.memberCacheLen; %i++)
+			%str = %str SPC %this.memberCacheRole[%i];
+
+		%str = trim(%str);
+
+		//sort 'em for consistency
+
+		%mStr = "";
+		%iStr = "";
+
+		%ct = getWordCount(%str);
+		for(%i = 0; %i < %ct; %i++)
+		{
+			%r = getWord(%str, %i);
+
+			if(%r.getAlignment() == 1)
+				%mStr = %mStr SPC %r.getLetter();
+			else
+				%iStr = %iStr SPC %r.getLetter();
+		}
+
+		return (%this.forcedRoleStr = trim(%mStr) SPC trim(%iStr));
+	}
+
+	return %this.forcedRoleStr;
+}
+
+function GameConnection::MM_GetName(%this, %forceNorm)
 {
 	%pre = "";
 	if(isObject(%this.role))
-		%pre = %this.role.getColour();
+		%pre = %this.role.getColour(%forceNorm);
 
 	return %pre @ %this.getSimpleName();
 }
@@ -580,40 +625,6 @@ function GameConnection::MM_isMaf(%this)
 	return %this.role.getAlignment() == 1;
 }
 
-function GameConnection::MM_canImpersonate(%this)
-{
-	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)
-		return false;
-
-	if(!isObject(%this.role))
-		return false;
-
-	if(!%this.MM_isMaf())
-		return false;
-
-	if(!%this.role.getCanImpersonate() && !%mini.allImp)
-		return false;
-
-	return true;
-}
-
-function GameConnection::MM_canComm(%this)
-{
-	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)
-		return false;
-
-	if(!isObject(%this.role))
-		return false;
-
-	if(!%this.MM_isMaf())
-		return false;
-
-	if(!%this.role.getCanCommunicate() && !%mini.allComm)
-		return false;
-
-	return true;
-}
-
 function GameConnection::MM_UpdateUI(%client)
 {
 	if(!isObject(%client.role) || %client.isGhost || %client.lives < 1)
@@ -622,7 +633,7 @@ function GameConnection::MM_UpdateUI(%client)
 		return;
 	}
 
-	%client.bottomPrint("\c5You are:" SPC %client.role.getColour() @ %client.role.getDisplayName() SPC " " SPC "\c5ROLES\c6:" SPC %client.minigame.roles);
+	%client.bottomPrint("\c5You are:" SPC %client.role.getColour() @ %client.role.getDisplayName() SPC " " SPC "\c5ROLES\c6:" SPC %client.minigame.MM_getRolesList());
 }
 
 function GameConnection::MM_DisplayMafiaList(%this)
@@ -664,6 +675,12 @@ function GameConnection::MM_DisplayStartText(%this)
 	}
 
 	%this.messageLines(%this.role.getHelpText());
+
+	%this.centerprint("<font:impact:32pt><color:00FF00>Your role has been delivered.  Look at the chat for a description.", 10);
+	%this.schedule(500, centerprint, "<font:impact:32pt><color:00FFFF>Your role has been delivered.  Look at the chat for a description.", 9.5);
+	%this.schedule(1000, centerprint, "<font:impact:32pt><color:00FF00>Your role has been delivered.  Look at the chat for a description.", 9);
+	%this.schedule(1500, centerprint, "<font:impact:32pt><color:00FFFF>Your role has been delivered.  Look at the chat for a description.", 8.5);
+	%this.player.setWhiteOut(0.75);
 }
 
 function GameConnection::MM_GiveEquipment(%this)
@@ -800,15 +817,15 @@ package MM_Core
 
 		MMDebug("Player death of" SPC %this.getPlayerName(), %this, %mini);
 		if(%srcClient == %this)
-			%mini.MM_LogEvent(%this.MM_GetName() SPC "\c6committed suicide");
+			%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6committed suicide");
 		else if(isObject(%srcClient))
 		{
-			%mini.MM_LogEvent(%srcClient.MM_GetName() SPC "\c6killed" SPC %this.MM_GetName());
+			%mini.MM_LogEvent(%srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1));
 
 			%this.bottomPrint("\c5You were killed by:" SPC (%srcClient.MM_isMaf() ? "\c0" : "\c2") @ %srcClient.getSimpleName());
 		}
 		else
-			%mini.MM_LogEvent(%this.MM_GetName() SPC "\c6fell to their death");
+			%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6fell to their death");
 
 		%this.MMSpecMode = 0;
 
@@ -918,7 +935,7 @@ package MM_Core
 		if(!$DefaultMinigame.running || !%mini.isMM)
 			return parent::damage(%this, %obj, %pos, %amt, %type);
 
-		if(%this.dying)
+		if(%this.dying || %this.isGhost || %this.client.lives < 1)
 			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(%type $= $DamageType::Impact || %type $= $DamageType::Fall || %type $= $DamageType::Direct || %type $= $DamageType::Suicide || %type $= $DamageType::CombatKnife)
@@ -928,7 +945,7 @@ package MM_Core
 		%this.setDatablock(bracketsHatesTGE(%db));
 
 		%this.dying = true;
-		%this.schedule(1000, damage, %obj, %pos, %amt, %type);
+		%this.schedule(1000, damage, %obj, %pos, %db.maxDamage, %type);
 		%this.setDamageFlash(0.75);
 		%this.emote(PainMidImage);
 

@@ -75,8 +75,12 @@ function Player::MM_PickUpCorpse(%this, %obj)
 	if(isObject(%this.heldCorpse))
 		%this.MM_ThrowCorpse();
 
+	if(isObject(%obj.holder))
+		%obj.holder.heldCorpse = "";
+
 	%this.mountObject(%obj, 0);
 	%this.heldCorpse = %obj;
+	%obj.holder = %this;
 
 	%obj.MM_onCorpsePickUp(%this);
 }
@@ -89,6 +93,7 @@ function Player::MM_ThrowCorpse(%this)
 	%this.mountObject(%obj, 8);
 	%obj.dismount();
 	%obj.addVelocity(VectorScale(%this.getForwardVector(), $MM::CorpseThrowSpeed));
+	%obj.holder = "";
 
 	%this.heldCorpse = 0;
 

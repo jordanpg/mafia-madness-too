@@ -6,7 +6,8 @@ $MM::LoadedGameModes = true;
 $MM::GameMode[0] = "Standard";
 $MM::GameMode[1] = "Classic";
 $MM::GameMode[2] = "Crazy";
-$MM::GameModes = 3;
+$MM::GameMode[3] = "StandardPlusLaw";
+$MM::GameModes = 4;
 
 function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCts, %innoCts, %mafFill, %innoFill)
 {
@@ -202,6 +203,83 @@ function MM_InitModeCrazy(%this)
 	MMDebug("   +Maf Count:" SPC %mafCts);
 
 	%this.roles = MM_BuildRolesString(%mafs, %members, %mafRoles, "", %mafCts, "");
+
+	MMDebug("   +Roles:" SPC %this.roles);
+
+	%this.allAbduct = false;
+	%this.allComm = false;
+	%this.allImp = false;
+	%this.allInv = false;
+}
+
+function MM_InitModeStandardPlusLaw(%this)
+{
+	MMDebug("MM_InitModeStandardPlusLaw" SPC %this);
+
+	%members = %this.MM_GetNumPlayers();
+
+	MMDebug("   +Members:" SPC %members);
+
+	%mafs = mFloor(%members / 3.5);
+	if(%mafs < 1)
+		%mafs = 1;
+
+	MMDebug("   +Mafias:" SPC %mafs);
+
+	%roles = "LAW A V G C M F O P I";
+
+	%mafRoles = "LAW A V G C";
+	%innoRoles = "F O P L";
+
+	%ctA = 1;
+	%ctL = %this.numMillers;
+
+	if(%members > 3)
+	{
+		if(%mafs > 1)
+		{
+			%ctO = 1;
+
+			if(%mafs < 3)
+				%ctV = getRandom(1);
+			else
+			{
+				%ctV = 1;
+
+				if(%mafs > 3)
+					%ctC = 1;
+			}
+
+			if(%members > 11)
+				%ctF = 1;
+
+			if(%members > 9)
+				%ctP = 1;
+
+			%ctG = 1;
+		}
+		else
+			%ctF = 1;
+	}
+
+	for(%i = 0; %i < $MM::LawCt; %i++)
+		%ctLAW += getRandom() < $MM::LawChance;
+
+	for(%i = 0; %i < 5; %i++)
+		%mafCts = %mafCts SPC (%ct[getWord(%mafRoles, %i)] | 0);
+	%mafCts = trim(%mafCts);
+
+	MMDebug("   +Maf Roles:" SPC %mafRoles);
+	MMDebug("   +Maf Count:" SPC %mafCts);
+
+	for(%i = 0; %i < 4; %i++)
+		%innoCts = %innoCts SPC (%ct[getWord(%innoRoles, %i)] | 0);
+	%innoCts = trim(%innoCts);
+
+	MMDebug("   +Inno Roles:" SPC %innoRoles);
+	MMDebug("   +Inno Count:" SPC %innoCts);
+
+	%this.roles = MM_BuildRolesString(%mafs, %members, %mafRoles, %innoRoles, %mafCts, %innoCts);
 
 	MMDebug("   +Roles:" SPC %this.roles);
 

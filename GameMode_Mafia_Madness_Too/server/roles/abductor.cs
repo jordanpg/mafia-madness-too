@@ -107,7 +107,7 @@ package MM_Abductor
 
 		%client.abducted[%mini.day] = true;
 
-		%mini.MM_LogEvent(%client.MM_GetName() SPC "\c6abducted" SPC %cl.MM_GetName());
+		%mini.MM_LogEvent(%client.MM_GetName(1) SPC "\c6abducted" SPC %cl.MM_GetName(1));
 		messageClient(%client, '', "\c2Abducted\c3" SPC %cl.getSimpleName() @ "\c2.");
 	}
 

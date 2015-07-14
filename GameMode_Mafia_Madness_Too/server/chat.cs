@@ -5,7 +5,7 @@ $MM::LoadedChat = true;
 
 $MM::ChatRadiusMod = 1;
 
-function GameConnection::MM_Chat(%this, %type, %msg, %excludeList, %pre2, %condition, %a0, %a1, %a2, %a3, %a4)
+function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, %condition, %a0, %a1, %a2, %a3, %a4)
 {
 	// MMDebug("MM_Chat" SPC %this SPC %type);
 	// MMDebug(%msg);
@@ -46,7 +46,10 @@ function GameConnection::MM_Chat(%this, %type, %msg, %excludeList, %pre2, %condi
 
 		case 4: //Whisper
 			%pre = "\c4[\c6Whisper\c4]\c7";
-			%rad = 1;
+			%rad = 2;
+
+		case -1: //Global
+			%rad = -2;
 
 		default:
 			return 2;
@@ -93,18 +96,43 @@ function GameConnection::MM_Chat(%this, %type, %msg, %excludeList, %pre2, %condi
 
 				return 0;
 
+			case -2:
+				for(%i = 0; %i < %ct; %i++)
+				{
+					%ap = false;
+
+					%cl = ClientGroup.getObject(%i);
+
+					if(isInList(%excludeList, %cl)) continue;
+
+					if(%condition !$= "" && (%cr = call(%condition, %this, %cl, %a0, %a1, %a2, %a3, %a4)))
+					{
+						if(%cr == 2)
+							continue;
+
+						%ap = true;
+					}
+
+					commandToClient(%cl, 'chatMessage', %this, '', '', %format, (%ap ? %pre_2 : %pre), %this.getSimpleName(), %this.clanSuffix, %msg);
+				}
+
+				return 0;
+
 			default:
 				return 2;
 		}
 	}
-	else if(!isObject(%p = %this.player))
-		return 1;
+	else if(!isObject(%p = %obj))
+	{
+		if(!isObject(%p = %this.player))
+			return 1;
+	}
 
 	// MMDebug("Checking Radius");
 
 	%rad *= $MM::ChatRadiusMod;
 
-	%pos = %p.getPosition();
+	%pos = %p.getEyePoint();
 
 	for(%i = 0; %i < %ct; %i++)
 	{
@@ -124,11 +152,12 @@ function GameConnection::MM_Chat(%this, %type, %msg, %excludeList, %pre2, %condi
 
 		if(isObject(%clp = %cl.player) && %cl.lives > 0)
 		{
-			%dist = VectorDist(%clp.getPosition(), %pos);
+			%pos2 = %clp.getEyePoint();
+			%dist = VectorDist(%pos2, %pos);
 
 			// MMDebug(%dist);
 
-			if(VectorDist(%clp.getPosition(), %pos) > %rad)
+			if(VectorDist(%pos2, %pos) > %rad && %cr != 3)
 				continue;
 
 			commandToClient(%cl, 'chatMessage', %this, '', '', %format, (%ap ? %pre_2 : %pre), %this.getSimpleName(), %this.clanSuffix, %msg);
@@ -179,14 +208,14 @@ package MM_Chat
 
 		if(isObject(%this.role))
 		{
-			%e = %this.role.onChat(%mini, %this, %msg);
+			%e = %this.role.onChat(%mini, %this, %msg, %type);
 			if(%e == 1)
 				return;
 			else if(%e == 2)
 				return parent::serverCmdMessageSent(%this, %msg);
 		}
 
-		%r = %this.MM_Chat(%type, %msg);
+		%r = %this.MM_Chat(%this.player, %type, %msg);
 
 		if(%r == 2)
 			return parent::serverCmdMessageSent(%this, %msg);
@@ -203,16 +232,7 @@ package MM_Chat
 		if(%msg $= "")
 			return;
 
-		if(isObject(%this.role))
-		{
-			%e = %this.role.onTeamChat(%mini, %this, %msg);
-			if(%e == 1)
-				return;
-			else if(%e == 2)
-				return parent::serverCmdTeamMessageSent(%this, %msg);
-		}
-
-		if(isObject(%this.player))
+		if(isObject(%this.player) && %this.lives > 0)
 		{
 			%mark = getSubStr(%msg, 0, 1);
 			%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
@@ -230,7 +250,16 @@ package MM_Chat
 		else
 			%type = 0;
 
-		%r = %this.MM_Chat(%type, %msg);
+		if(isObject(%this.role))
+		{
+			%e = %this.role.onTeamChat(%mini, %this, %msg, %type);
+			if(%e == 1)
+				return;
+			else if(%e == 2)
+				return parent::serverCmdTeamMessageSent(%this, %msg);
+		}
+
+		%r = %this.MM_Chat(%this.player, %type, %msg);
 
 		if(%r == 2)
 			return parent::serverCmdTeamMessageSent(%this, %msg);

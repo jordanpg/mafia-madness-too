@@ -16,7 +16,7 @@ if(!isObject(MMRole_Mafia))
 		letter = "M";
 
 		colour = "<color:FF0040>";
-		nameColour = "1 0 0";
+		nameColour = "1 0 0.376";
 
 		canAbduct = false;
 		canInvestigate = false;

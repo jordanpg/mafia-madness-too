@@ -396,6 +396,9 @@ package MM_Gun
 
 	function serverCmdUnUseTool(%this)
 	{
+		if($DefaultMinigame.running)
+			%this.MM_UpdateUI();
+
 		if(!isObject(%this.player))
 			return parent::serverCmdUnUseTool(%this);
 

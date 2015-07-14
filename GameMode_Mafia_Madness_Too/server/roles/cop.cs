@@ -43,16 +43,24 @@ if(!isObject(MMRole_Cop))
 		helpText = 	"\c4You are also the <color:1122CC>Cop\c4!  Type /inv [name] to find out whether someone is inno or mafia!" NL
 					"\c4If there's a P in the roles list however, there's a chance you might be <color:CC4444>Paranoid.\c4  But surely you aren't, right?" NL
 					"\c2...Right?";
+
+		forceInvResult = -1;
 	};
 }
 
 //SUPPORT
 function MM_getInvResult(%cop, %target)
 {
-	if(%target.MM_isMaf())
-		return true;
+	if($MM::InvStatus[%cop.role.forceInvResult] !$= "")
+		return %cop.role.forceInvResult;
 
-	return false;
+	if($MM::InvStatus[%target.role.forceInvStatus] !$= "")
+		return %target.role.forceInvStatus;
+
+	if(%target.MM_isMaf())
+		return 1;
+
+	return 0;
 }
 
 function GameConnection::MM_canInvestigate(%this, %target)
@@ -105,7 +113,7 @@ function GameConnection::MM_InvestigatePlayer(%this, %target)
 
 	messageClient(%this, '', $MM::InvStatus[%r], %target.getSimpleName());
 
-	%mini.MM_LogEvent(%this.MM_getName() SPC "\c6investigated" SPC %target.MM_getName());
+	%mini.MM_LogEvent(%this.MM_getName(1) SPC "\c6investigated" SPC %target.MM_getName(1));
 
 	%this.investigated[%mini.day] = true;
 }

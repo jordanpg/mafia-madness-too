@@ -106,7 +106,7 @@ package MM_FingerprintExpert
 
 		parent::MM_Abduct(%this, %mini, %obj);
 
-		if(isObject(%cl.corpse) || isObject(%aCl = %obj.getControllingClient()))
+		if(isObject(%cl.corpse) && isObject(%aCl = %obj.getControllingClient()))
 		{
 			%cl.corpse.fingerprints[%cl.corpse.fingerprintCt] = %aCl.getSimpleName();
 			%cl.corpse.fingerprintCt++;

@@ -6,5 +6,10 @@ exec("./mafia.cs");
 
 exec("./abductor.cs");
 exec("./cop.cs");
+exec("./cop_variants.cs");
 exec("./crazy.cs");
 exec("./fingerprintExpert.cs");
+exec("./godfather.cs");
+exec("./miller.cs");
+exec("./theLaw.cs");
+exec("./ventriloquist.cs");

@@ -396,11 +396,14 @@ package MM_AfterLife
 		if(!isObject(%mini = getMiniGameFromObject(%this)) || !$DefaultMinigame.running)
 			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
 
-		if(%this.isGhost)
+		if(%this.isGhost || (isObject(%this.client) && %this.client.lives < 1))
 		{
 			%pos = %this.getPosition();
 
-			if(!%mini.MM_GetInArena(%pos))
+			if(isObject(%obj.client) && !%mini.MM_GetInArena(%obj.client.player.getPosition()))
+				return;
+
+			if(!%mini.MM_GetInArena(%pos) || !%mini.MM_GetInArena(%obj.getPosition()))
 				return;
 		}
 
