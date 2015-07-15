@@ -160,36 +160,57 @@ function aholeDoombot(%client) {
 
 package MM_AHole
 {
-	function serverCmdMessageSent(%this, %msg)
+	function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, %condition, %a0, %a1, %a2, %a3, %a4)
 	{
+		%r = parent::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, %condition, %a0, %a1, %a2, %a3, %a4);
+
 		if(!$MM::EnableAHoleCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
-			return parent::serverCmdMessageSent(%this, %msg);
+			return %r;
 
-		%mark = getSubStr(%msg, 0, 1);
-		%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
+		%rCl = (isObject(%obj.getControllingClient()) ? %obj.client : %this);
 
-		if(%mark $= "!" || (strCmp(strUpr(%msg), %msg) == 0 && strCmp(strLwr(%msg), %msg) != 0))
-			aholeCmdShoutCheck(%this, %rmsg);
-		else
-			aholeCmdSayCheck(%this, %msg);
+		if(%type == 1)
+			aholeCmdSayCheck(%rCl, %msg);
+		else if(%type == 2)
+			aholeCmdShoutCheck(%rCl, %msg);
+		else if(%type == 3)
+			aholeCmdLowCheck(%rCl, %msg);
+		else if(%type == 4)
+			aholeCmdWhisperCheck(%rCl, %msg);
 
-		parent::serverCmdMessageSent(%this, %msg);
+		return %r;
 	}
 
-	function serverCmdTeamMessageSent(%this, %msg)
-	{
-		if(!$MM::EnableAHoleCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
-			return parent::serverCmdTeamMessageSent(%this, %msg);
+	// function serverCmdMessageSent(%this, %msg)
+	// {
+	// 	if(!$MM::EnableAHoleCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
+	// 		return parent::serverCmdMessageSent(%this, %msg);
 
-		%mark = getSubStr(%msg, 0, 1);
-		%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
+	// 	%mark = getSubStr(%msg, 0, 1);
+	// 	%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
 
-		if(%mark $= "!")
-			aholeCmdWhisperCheck(%this, %rmsg);
-		else
-			aholeCmdLowCheck(%this, %msg);
+	// 	if(%mark $= "!" || (strCmp(strUpr(%msg), %msg) == 0 && strCmp(strLwr(%msg), %msg) != 0))
+	// 		aholeCmdShoutCheck(%this, %rmsg);
+	// 	else
+	// 		aholeCmdSayCheck(%this, %msg);
 
-		parent::serverCmdMessageSent(%this, %msg);
-	}
+	// 	parent::serverCmdMessageSent(%this, %msg);
+	// }
+
+	// function serverCmdTeamMessageSent(%this, %msg)
+	// {
+	// 	if(!$MM::EnableAHoleCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
+	// 		return parent::serverCmdTeamMessageSent(%this, %msg);
+
+	// 	%mark = getSubStr(%msg, 0, 1);
+	// 	%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
+
+	// 	if(%mark $= "!")
+	// 		aholeCmdWhisperCheck(%this, %rmsg);
+	// 	else
+	// 		aholeCmdLowCheck(%this, %msg);
+
+	// 	parent::serverCmdMessageSent(%this, %msg);
+	// }
 };
 activatePackage(MM_AHole);

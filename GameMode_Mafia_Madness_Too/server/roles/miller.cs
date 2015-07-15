@@ -21,6 +21,6 @@ if(!isObject(MMRole_Miller))
 
 		displayColour = "<color:00FF00>";
 
-		forceInvStatus = 1;
+		forceInvAlignment = 1;
 	};
 }

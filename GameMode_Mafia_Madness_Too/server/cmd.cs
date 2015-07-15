@@ -565,19 +565,19 @@ function serverCmdRules(%client,%cat,%subcat) {
 		case "special":
 			switch$(strLwr(%subcat)) {
 				case "abductor":
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["A"] @ "Abductor\c4==");
+					messageClient(%client,'',"\c4-MMRules- ==<color:2D1A4A>Abductor\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6The Abductor is a member of the Mafia who abducts Innocents.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Abductor's ability works by right-clicking an Innocent at close range.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Abductor's ability only works at night, and only works once per night.");
 					messageClient(%client,'',"\c4-MMRules- \c6The body of the person abducted by the Abductor goes to the basement.");
 					messageClient(%client,'',"\c4-MMRules- \c6The specific section it goes to is always opposite the spawn point in the basement.");
-					messageClient(%client,'',"\c4-MMRules- \c6The Abductor shows up as" SPC $MMRoleColor["A"] @ "dark purple\c6 on the /maflist.");
+					messageClient(%client,'',"\c4-MMRules- \c6The Abductor shows up as <color:2D1A4A>dark purple\c6 on the /maflist.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Abductor's ability does not work on mafia members.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Abductor's ability is hard to spot, but some players can spot it, so use it in crowds.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Abductor is \c3essential\c6 to the mafia for eliminating the Cop and Fingerprint Expert.");
 					messageClient(%client,'',"\c4-MMRules- \c6Abducting someone leaves a fingerprint on the corpse.");
 					messageClient(%client,'',"\c4-MMRules- \c6Therefor, it is essential that the Mafia prevent the Fingerprint Expert from seeing the bodies.");
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["A"] @ "Abductor\c4==");
+					messageClient(%client,'',"\c4-MMRules- ==<color:2D1A4A>Abductor\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6Use \c3PGUp\c6 and \c3PGDown\c6 to scroll the rules up and down.");
 					%client.rules[3,"A"] = 1;
 					$MMReadRules[%client.bl_id, 3, "A"] = 1;
@@ -631,7 +631,9 @@ function serverCmdRules(%client,%cat,%subcat) {
 					messageClient(%client,'',"\c4-MMRules- \c6However, it can be somewhat inconvenient for that purpose compared to a gun.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Crazy's role in a game is often to lurk beneath the roof, killing any innocents he sees and disfiguring the bodies.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Crazy can also help the mafia by going to the Basement and disfiguring any bodies there.  (See Abductor role.)");
-					messageClient(%client,'',"\c4-MMRules- \c6The Crazy will only appear in a game that already has 4 Mafia under the standard game-mode.");
+					// messageClient(%client,'',"\c4-MMRules- \c6The Crazy will only appear in a game that already has 4 Mafia under the standard game-mode.");
+					messageClient(%client,'',"\c4-MMRules- \c6The Crazy may also spawn as <color:400040>The Law \c6on rare occasions.");
+					messageClient(%client,'',"\c4-MMRules- \c6The Law receives, in addition to all Crazy abilities and equipment, a machine gun!");
 					messageClient(%client,'',"\c4-MMRules- ==\c5Crazy\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6Use \c3PGUp\c6 and \c3PGDown\c6 to scroll the rules up and down.");
 					%client.rules[3,"C"] = 1;
@@ -651,7 +653,7 @@ function serverCmdRules(%client,%cat,%subcat) {
 					messageClient(%client,'',"\c4-MMRules- \c3A brief summary of each role will be given below.  To get a more extensive summary, type \c6/rules special [role name]");
 					messageClient(%client,'',"\c4-MMRules- \c6In addition, even for roles lacking a summary, if you spawn as a role, you will receive a chat message detailing it.");
 					messageClient(%client,'',"\c4-MMRules- \c6Here is the list of special roles:");
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["A"] @ "Abductor\c4== \c3/rules special Abductor");
+					messageClient(%client,'',"\c4-MMRules- ==<color:2D1A4A>Abductor\c4== \c3/rules special Abductor");
 					messageClient(%client,'',"\c4-MMRules- \c6The Abductor is a mafia member who can abduct one person per night in perfect silence!");
 					messageClient(%client,'',"\c4-MMRules- \c6When the Abductor abducts someone, they die instantly, and their body goes to the basement.");
 					messageClient(%client,'',"\c4-MMRules- \c6Abducting someone leaves a fingerprint detectable by the Fingerprint Expert.");
@@ -664,23 +666,30 @@ function serverCmdRules(%client,%cat,%subcat) {
 					messageClient(%client,'',"\c4-MMRules- ==\c5Crazy\c4== \c3/rules special Crazy");
 					messageClient(%client,'',"\c4-MMRules- \c6The Crazy is a mafia member who spawns with a knife which he can use to disfigure bodies!");
 					messageClient(%client,'',"\c4-MMRules- \c6You can't get any information from a body which the Crazy has used his knife on!");
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["F"] @ "Fingerprint Expert\c4==");
+					messageClient(%client,'',"\c4-MMRules- ==<color:400040>The Law\c4==");
+					messageClient(%client,'',"\c4-MMRules- \c6The Crazy may also spawn as <color:400040>The Law \c6on rare occasions.");
+					messageClient(%client,'',"\c4-MMRules- \c6The Law receives, in addition to all Crazy abilities and equipment, a machine gun!");
+					messageClient(%client,'',"\c4-MMRules- \c6Note that The Law is a \c3joke role\c6, but is still a mafia!");
+					messageClient(%client,'',"\c4-MMRules- ==<color:C9FFF2>Fingerprint Expert\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6The Fingerprint Expert is an innocent who can check a body for fingerprints!");
 					messageClient(%client,'',"\c4-MMRules- \c6The Fingerprint Expert will get a list of people who picked up a body, in order.");
 					messageClient(%client,'',"\c4-MMRules- \c6The Fingerprint Expert can also see the relative time of death of the body.");
 					messageClient(%client,'',"\c4-MMRules- ==<color:1122CC>Cop\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6The Cop is an innocent who can investigate players and learn whether they're innocent or mafia using /inv [name]!");
 					messageClient(%client,'',"\c4-MMRules- \c6The Cop can only investigate one person each night.  He is a very important role to the innocents!");
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["P"] @ "Paranoid Cop\c4==");
+					messageClient(%client,'',"\c4-MMRules- ==<color:CC4444>Paranoid Cop\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6The Paranoid Cop thinks he's a normal Cop, but will get \"suspicious\" every time he investigates anyone!");
 					messageClient(%client,'',"\c4-MMRules- \c6Make sure you're not the Paranoid Cop before you kill someone for being suspicious, if you're a cop!");
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["N"] @ "Naive Cop\c4==");
+					messageClient(%client,'',"\c4-MMRules- ==<color:58C2FF>Naive Cop\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6The Naive Cop is basically the same as the Paranoid Cop, but gets \"innocent\" instead when he investigates.");
-					messageClient(%client,'',"\c4-MMRules- \c6The Naive Cop doesn't appear in standard games currently.  You can identify them in the roles list as \"N\".");
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["L"] @ "Miller\c4==");
-					messageClient(%client,'',"\c4-MMRules- \c6[]'s Notes: i added the miller recently as an experimental role, so he \c3might \c2appear in a game");
-					messageClient(%client,'',"\c4-MMRules- \c6his initial is L and he's an inno who thinks he's a normal inno but cop and para think he's Guilty when they /inv him");
-					messageClient(%client,'',"\c4-MMRules- ==" @ $MMRoleColor["D"] @ "Devil\c4==");
+					messageClient(%client,'',"\c4-MMRules- \c6You can identify the Naive Cop in the roles list as \"N\".");
+					messageClient(%client,'',"\c4-MMRules- ==<color:FF40FF>Insane Cop\c4==");
+					messageClient(%client,'',"\c4-MMRules- \c6The Insane Cop is also similar to the Naive and Paranoid cops, but gets random investigation results!");
+					messageClient(%client,'',"\c4-MMRules- \c6The Insane Cop can be identified in the roles list as \"IC\".");
+					messageClient(%client,'',"\c4-MMRules- ==<color:667C00>Miller\c4==");
+					messageClient(%client,'',"\c4-MMRules- \c6The Miller is a more rare innocent who comes up as suspicious in investigations.");
+					messageClient(%client,'',"\c4-MMRules- \c6It can be identified by \"L\" in the roles list.");
+					messageClient(%client,'',"\c4-MMRules- ==<color:B40450>Devil\c4==");
 					messageClient(%client,'',"\c4-MMRules- \c6The Devil is a mafia role who can investigate Innocents like the cop.");
 					messageClient(%client,'',"\c4-MMRules- \c6Instead of just learning whether a person is innocent or mafia, the Devil will learn their full role, such as Cop or Fingerprint Expert.");
 					messageClient(%client,'',"\c4========Special Roles========");
@@ -877,6 +886,9 @@ function serverCmdRules(%client,%cat,%subcat) {
 			messageClient(%client,'',"\c4-MMRules- \c3November 30th\c6:");
 			messageClient(%client,'',"\c4-MMRules- \c6Fixed some bugs in Just Try To Survive, including one which allowed all innocents to abduct along with the mafia.");
 			messageClient(%client,'',"\c4-MMRules- \c6Added Day, Night, and Dead Rising notifications to the Kill List.");
+			messageClient(%client,'',"\c4-MMRules- \c3July, 2015\c6:");
+			messageClient(%client,'',"\c4-MMRules- \c6Welcome to \c3ottosparks\c6's Mafia Madness Too!");
+			messageClient(%client,'',"\c4-MMRules- \c6Things are a bit different (to say the least), but this is the same for now!");
 			%client.rules[7] = 1;
 			$MMReadRules[%client.bl_id, 7] = 1;
 		default:

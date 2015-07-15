@@ -12,6 +12,8 @@ $MM::ImpError[5] = "";
 $MM::ImpError[6] = "\c4You are no longer impersonating anyone.";
 $MM::ImpError[7] = "\c4That client is not part of the game!";
 
+$MM::VentGodfatherChat = true;
+
 if(!isObject(MMRole_Ventriloquist))
 {
 	new ScriptObject(MMRole_Ventriloquist)
@@ -68,7 +70,7 @@ function GameConnection::MM_canImpersonate(%this, %target)
 	if(nameToID(%this) == nameToID(%target))
 		return -6;
 
-	if(!isObject(%m2 = getMiniGameFromObject(%target)) || !%m2.isMM || %target.lives < 1 || %target.isGhost)
+	if(!isObject(%m2 = getMiniGameFromObject(%target)) || !%m2.isMM || (%target.lives < 1 && !%target.isGhost))
 		return -7;
 
 	return 1;
@@ -95,7 +97,7 @@ function GameConnection::MM_SetImpersonation(%this, %target, %unn)
 	%this.MMImpersonate = %target;
 	%this.MMUnnoticeable = %unn;
 
-	messageClient(%this, '', "\c4You are now impersonating\c3" SPC %target.getSimpleName() @ "\c4" @ (%unn ? "unnoticeably" : "") @ "!");
+	messageClient(%this, '', "\c4You are now impersonating\c3" SPC %target.getSimpleName() @ "\c4" @ (%unn ? " unnoticeably" : "") @ "!");
 }
 
 function serverCmdImp(%this, %v0, %v1, %v2, %v3, %v4)
@@ -105,6 +107,16 @@ function serverCmdImp(%this, %v0, %v1, %v2, %v3, %v4)
 
 	%v = trim(%v0 SPC %v1 SPC %v2 SPC %v3 SPC %v4);
 	%target = findClientByName(%v);
+
+	if(%v $= "")
+	{
+		%this.MMImpersonate = "";
+		%this.MMUnnoticeable = false;
+
+		messageClient(%this, '', $MM::ImpError[6]);
+
+		return;
+	}
 
 	if(!isObject(%target))
 	{
@@ -155,11 +167,11 @@ function serverCmdImpU(%this, %v0, %v1, %v2, %v3, %v4)
 
 function MM_ImpersonationCheck(%this, %target, %unn, %original)
 {
-	if(nameToID(%original.MMImpersonate) == nameToID(%target) && %unn)
-		return 2;
-
 	if(%original.MM_isMaf() == %target.MM_isMaf() || %target.isGhost || %target.lives < 1)
 		return 3;
+
+	if(nameToID(%original.MMImpersonate) == nameToID(%target) && %unn)
+		return 2;
 
 	return 0;
 }
@@ -200,6 +212,28 @@ package MM_Ventriloquist
 		if(%this.MMUnnoticeable)
 			%pre2 = "\c4[\c6UNNOTICEABLE\c4]" @ %pre2;
 
+		%mark = getSubStr(%msg, 0, 1);
+		if(%mark $= "^")
+		{
+			if(!$MM::VentGodfatherChat)
+			{
+				messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)");
+				
+				return 1;
+			}
+
+			%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
+
+			if(!%this.MMImpersonate.MM_canComm())
+			{
+				messageClient(%this, '', "\c5Your target cannot use Godfather Chat because they are not the Godfather!  (^ is Godfather chat.)");
+
+				return 1;
+			}
+
+			return %this.MMImpersonate.MM_GodfatherChat(%rMsg, %pre2);
+		}
+
 		%this.MMImpersonate.MM_Chat(%this.player, %type, %msg, (%this.MMUnnoticeable ? %this.MMImpersonate : ""), %pre2, MM_ImpersonationCheck, %this.MMUnnoticeable, %this);
 
 		return 1;
@@ -239,6 +273,28 @@ package MM_Ventriloquist
 		if(%this.MMUnnoticeable)
 			%pre2 = "\c4[\c6UNNOTICEABLE\c4]" @ %pre2;
 
+		%mark = getSubStr(%msg, 0, 1);
+		if(%mark $= "^")
+		{
+			if(!$MM::VentGodfatherChat)
+			{
+				messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)");
+				
+				return 1;
+			}
+
+			%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
+
+			if(!%this.MMImpersonate.MM_canComm())
+			{
+				messageClient(%this, '', "\c5Your target cannot use Godfather Chat because they are not the Godfather!  (^ is Godfather chat.)");
+
+				return 1;
+			}
+
+			return %this.MMImpersonate.MM_GodfatherChat(%rMsg, %pre2);
+		}
+
 		%this.MMImpersonate.MM_Chat(%this.player, %type, %msg, (%this.MMUnnoticeable ? %this.MMImpersonate : ""), %pre2, MM_ImpersonationCheck, %this.MMUnnoticeable, %this);
 
 		return 1;
@@ -250,6 +306,14 @@ package MM_Ventriloquist
 
 		%client.MMImpersonate = "";
 		%client.MMUnnoticeable = false;
+	}
+
+	function GameConnection::MM_canComm(%this)
+	{
+		if(%this.role.getCanImpersonate())
+			return 2;
+
+		return parent::MM_canComm(%this);
 	}
 };
 activatePackage(MM_Ventriloquist);

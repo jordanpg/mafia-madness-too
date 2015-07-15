@@ -25,11 +25,12 @@ if(!isObject(MMRole_TheLaw))
 	};
 }
 
-TAssaultRifleImage.projectile = gunProjectile;
+TAssaultRifleProjectile1.directDamage = 100;
+TAssaultRifleProjectile2.directDamage = 100;
 
 function MMRole_TheLaw::onAssign(%this, %mini, %client)
 {
 	parent::onAssign(%this, %mini, %client);
 
-	messageAll('', "<font:impact:36pt>\c3The Law\c0 has come");
+	schedule(100, 0, messageAll, '', "<font:impact:36pt>\c3The Law\c0 has come");
 }

@@ -26,12 +26,12 @@ if(!isObject(MMRole_Cop_Paranoid))
 
 if(!isObject(MMRole_Cop_Naive))
 {
-	new ScriptObject(MMRole_Cop_Naive)
+	new ScriptObject(MMRole_Cop_Naive : MMRole_Cop)
 	{
 		name = "Naive Cop";
 		corpseName = "credulous officer of the law";
 
-		letter = "P";
+		letter = "N";
 
 		colour = "<color:58C2FF>";
 		nameColour = "0.345 0.761 1";
@@ -44,7 +44,7 @@ if(!isObject(MMRole_Cop_Naive))
 
 if(!isObject(MMRole_Cop_Insane))
 {
-	new ScriptObject(MMRole_Cop_Insane)
+	new ScriptObject(MMRole_Cop_Insane : MMRole_Cop)
 	{
 		name = "Insane Cop";
 		corpseName = "schizophrenic officer of the law";

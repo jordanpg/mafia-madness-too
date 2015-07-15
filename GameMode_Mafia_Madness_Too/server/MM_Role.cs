@@ -25,7 +25,6 @@ function MMRole::getColour(%this, %forceNorm)
 
 function MMRole::getColor(%this, %forceNorm)
 {
-
 	return %this.getColour(%forceNorm);
 }
 

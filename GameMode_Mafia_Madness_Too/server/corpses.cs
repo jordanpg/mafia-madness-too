@@ -241,7 +241,7 @@ package MM_Corpses
 				%hObj.MM_Investigate(%cl);
 
 			case 4:
-				if(%cl.isGhost || %cl.lives < 1)
+				if(%cl.isGhost || %cl.lives < 1 && !%obj.isCorpse)
 					return parent::onTrigger(%this, %obj, %slot, %val);
 			
 				if(!isObject(%obj.heldCorpse))

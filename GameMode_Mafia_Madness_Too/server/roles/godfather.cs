@@ -33,7 +33,7 @@ if(!isObject(MMRole_Godfather))
 					"\c4E.G. if you type \"^abduct The Titanium tonight\" all the other mafia (and noone else!) will receive the message directly." NL
 					"\c4The other mafia can't respond, though, so try to use this to establish communications via secret signals.  Good luck!";
 
-		forceInvStatus = 0;
+		forceInvAlignment = 0;
 	};
 }
 
@@ -63,6 +63,25 @@ function MM_GodfatherCheck(%this, %target)
 	return 1;
 }
 
+function GameConnection::MM_GodfatherChat(%this, %msg, %pre2)
+{
+	if(!(%c = %this.MM_canComm()))
+	{
+		if(%c == 2)
+			return 1;
+
+		messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)");
+		
+		return 1;
+	}
+
+	%pre2 = %pre2 @ "\c7[\c6Godfather\c7]";
+
+	%this.MM_Chat(%this.player, -1, %msg, "", %pre2, MM_GodfatherCheck);
+
+	return 1;
+}
+
 package MM_Godfather
 {
 	function MMRole::onChat(%role, %mini, %this, %msg, %type)
@@ -73,15 +92,12 @@ package MM_Godfather
 		if(%mark !$= "^")
 			return %r;
 
-		if(!%this.MM_canComm() || %type < 1)
+		if(%type < 1)
 			return 1;
 
 		%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
-		%pre2 = "\c7[\c6Godfather\c7]";
 
-		%this.MM_Chat(%this.player, -1, %rMsg, "", %pre2, MM_GodfatherCheck);
-
-		return 1;
+		return %this.MM_GodfatherChat(%rMsg);
 	}
 };
 activatePackage(MM_Godfather);

@@ -8,6 +8,7 @@ exec("./abductor.cs");
 exec("./cop.cs");
 exec("./cop_variants.cs");
 exec("./crazy.cs");
+exec("./devil.cs");
 exec("./fingerprintExpert.cs");
 exec("./godfather.cs");
 exec("./miller.cs");

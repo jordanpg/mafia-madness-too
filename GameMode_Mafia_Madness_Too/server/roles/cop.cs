@@ -41,7 +41,9 @@ if(!isObject(MMRole_Cop))
 		alignment = 0;
 
 		helpText = 	"\c4You are also the <color:1122CC>Cop\c4!  Type /inv [name] to find out whether someone is inno or mafia!" NL
-					"\c4If there's a P in the roles list however, there's a chance you might be <color:CC4444>Paranoid.\c4  But surely you aren't, right?" NL
+					"\c4If there's a P in the roles list however, there's a chance you might be <color:CC4444>Paranoid\c4." NL
+					"\c4You may also be <color:58C2FF>Naive \c4if you see an N, or <color:FF40FF>Insane\c4 if there\'s an IC." NL
+					"\c4But surely you aren't, right?" NL
 					"\c2...Right?";
 
 		forceInvResult = -1;
@@ -54,13 +56,13 @@ function MM_getInvResult(%cop, %target)
 	if($MM::InvStatus[%cop.role.forceInvResult] !$= "")
 		return %cop.role.forceInvResult;
 
-	if($MM::InvStatus[%target.role.forceInvStatus] !$= "")
-		return %target.role.forceInvStatus;
+	if(!isObject(%target.role))
+		return 0;
 
-	if(%target.MM_isMaf())
-		return 1;
+	if($MM::InvStatus[%target.role.forceInvAlignment] !$= "")
+		return %target.role.forceInvAlignment;
 
-	return 0;
+	return %target.role.getAlignment();
 }
 
 function GameConnection::MM_canInvestigate(%this, %target)

@@ -35,7 +35,7 @@ function MinigameSO::MM_Init(%this)
 	%this.allInv = false;
 	%this.allFingerprint = false;
 
-	%this.gameMode = 0;
+	%this.gameMode = $MM::DefaultGameMode;
 
 	%this.isMM = true;
 
@@ -92,8 +92,10 @@ function MinigameSO::MM_GetGameMode(%this)
 	else
 		%mode = %this.gameMode;
 
+	echo(%mode);
+
 	if(%mode $= "" || !MM_isValidGameMode(%mode))
-		return $MM::GameMode[0];
+		return $MM::GameMode[$MM::DefaultGameMode];
 
 	return %mode;
 }
@@ -253,6 +255,8 @@ function MinigameSO::MM_InitRound(%this)
 	}
 
 	%mode = %this.MM_GetGameMode();
+
+	echo(%mode);
 
 	MMDebug("MM_InitRound" SPC %this SPC %mode, %this);
 
@@ -480,8 +484,18 @@ function MinigameSO::MM_Res(%this, %cl, %tCl)
 		else
 			%cl.createPlayer(%cl.getControlObject().getTransform());
 
+		if(isObject(%cl.player))
+		{
+			%cl.player.setShapeNameDistance(13.5);
+			%cl.MM_GiveEquipment();
+		}
+
 		if(isObject(%cl.role))
+		{
 			%cl.role.onSpawn(%this, %cl);
+			%cl.MM_UpdateUI();
+			%cl.MM_DisplayStartText();
+		}
 	}
 }
 
@@ -763,7 +777,32 @@ package MM_Core
 
 	function GameConnection::applyBodyParts(%this)
 	{
-		if(!isObject(%mini = getMiniGameFromObject(%this)) || %this.isGhost || %this.lives < 1)
+		if(!isObject(%mini = getMiniGameFromObject(%this)) || !$DefaultMinigame.running)
+			return parent::applyBodyParts(%this);
+
+		%p = %this.player;
+
+		if(isObject(%p))
+		{
+			if(%p.getName() $= "botCorpse")
+			{
+				%this.applyMMSilhouette();
+				%p.setNodeColor("ALL", "1 0 0 1");
+
+				return;
+			}
+			else if(%p.doombot)
+			{
+				%p.unHideNode("ALL");
+				%p.setNodeColor("ALL", "0 0 0 1");
+				%p.setFaceName("smiley");
+				%p.setDecalName("AAA-None");
+
+				return;
+			}
+		}
+
+		if(%this.isGhost || %this.lives < 1)
 			return parent::applyBodyParts(%this);
 
 		if(%mini.running && !%mini.isDay)
@@ -774,31 +813,38 @@ package MM_Core
 
 	function GameConnection::applyBodyColors(%this)
 	{
-		if(!isObject(%mini = getMiniGameFromObject(%this)) || %this.isGhost || %this.lives < 1)
+		if(!isObject(%mini = getMiniGameFromObject(%this)) || !$DefaultMinigame.running)
+			return parent::applyBodyColors(%this);
+
+		%p = %this.player;
+
+		if(isObject(%p))
+		{
+			if(%p.getName() $= "botCorpse")
+			{
+				%this.applyMMSilhouette();
+				%p.setNodeColor("ALL", "1 0 0 1");
+
+				return;
+			}
+			else if(%p.doombot)
+			{
+				%p.unHideNode("ALL");
+				%p.setNodeColor("ALL", "0 0 0 1");
+				%p.setFaceName("smiley");
+				%p.setDecalName("AAA-None");
+
+				return;
+			}
+		}
+
+		if(%this.isGhost || %this.lives < 1)
 			return parent::applyBodyColors(%this);
 
 		if(%mini.running && !%mini.isDay)
 			%this.applyMMSilhouette();
 		else
 			parent::applyBodyColors(%this);
-
-		%p = %this.player;
-
-		if(!isObject(%p))
-			return;
-
-		if(%p.getName() $= "botCorpse")
-		{
-			%this.applyMMSilhouette();
-			%p.setNodeColor("ALL", "1 0 0 1");
-		}
-		else if(%p.doombot)
-		{
-			%p.unHideNode("ALL");
-			%p.setNodeColor("ALL", "0 0 0 1");
-			%p.setFaceName("smiley");
-			%p.setDecalName("AAA-None");
-		}
 	}
 
 	function GameConnection::onDeath(%this, %srcObj, %srcClient, %damageType, %loc)
@@ -911,17 +957,12 @@ package MM_Core
 		return parent::serverCmdSit(%this);
 	}
 
-	function Armor::damage(%db, %this, %obj, %pos, %amt, %type)
-	{
-		parent::damage(%db, %this, %obj, %pos, %amt, %type);
-	}
-
 	function Player::damage(%this, %obj, %pos, %amt, %type)
 	{
 		%db = %this.getDatablock();
 		%techAmt = %this.isCrouched() ? %amt * 2.1 : %amt;
 
-		if(%this.getName() $= "botCorpse") return;
+		if(%this.getName() $= "botCorpse" && !isObject(%this.getControllingClient())) return;
 
 		if(!isObject(%cl = %this.client))
 			return parent::damage(%this, %obj, %pos, %amt, %type);
@@ -935,7 +976,7 @@ package MM_Core
 		if(!$DefaultMinigame.running || !%mini.isMM)
 			return parent::damage(%this, %obj, %pos, %amt, %type);
 
-		if(%this.dying || %this.isGhost || %this.client.lives < 1)
+		if(%this.dying || %this.isGhost || %this.client.lives < 1 || (%this.isCorpse && isObject(%this.getControllingClient())))
 			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(%type $= $DamageType::Impact || %type $= $DamageType::Fall || %type $= $DamageType::Direct || %type $= $DamageType::Suicide || %type $= $DamageType::CombatKnife)

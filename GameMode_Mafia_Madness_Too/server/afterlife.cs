@@ -189,7 +189,7 @@ package MM_AfterLife
 
 			if(%this.showMessage)
 			{
-				%this.centerPrint("<color:604060>You are now spectating.  Wait until the next round to respawn.", 3);
+				%this.centerPrint("<color:604060>You are now spectating.  Wait until the next round to respawn.<br>\c3Use the light key to spectate.", 3);
 				%this.showMessage = false;
 			}
 
@@ -216,7 +216,7 @@ package MM_AfterLife
 
 			if(%this.showMessage)
 			{
-				%this.centerPrint("<color:604060>You are now in the afterlife.  Wait until the next round to respawn.", 3);
+				%this.centerPrint("<color:604060>You are now in the afterlife.  Wait until the next round to respawn.<br>\c3Use the light key to spectate.", 3);
 				%this.showMessage = false;
 			}
 
@@ -391,12 +391,16 @@ package MM_AfterLife
 		parent::serverCmdLight(%this);
 	}
 
-	function Armor::damage(%db, %this, %obj, %pos, %amt, %type)
+	function Player::damage(%this, %obj, %pos, %amt, %type)
 	{
 		if(!isObject(%mini = getMiniGameFromObject(%this)) || !$DefaultMinigame.running)
-			return parent::damage(%db, %this, %obj, %pos, %amt, %type);
+			return parent::damage(%this, %obj, %pos, %amt, %type);
 
-		if(%this.isGhost || (isObject(%this.client) && %this.client.lives < 1))
+		%techAmt = %this.isCrouched() ? %amt * 2.1 : %amt;
+
+		%cl = %this.client;
+
+		if(%this.isGhost || (isObject(%cl) && %cl.lives < 1 && !%this.isCorpse))
 		{
 			%pos = %this.getPosition();
 
@@ -405,9 +409,17 @@ package MM_AfterLife
 
 			if(!%mini.MM_GetInArena(%pos) || !%mini.MM_GetInArena(%obj.getPosition()))
 				return;
+
+			if(%this.getDamageLevel() + %techAmt >= %this.getDatablock().maxDamage)
+			{
+				%this.delete();
+				%cl.spawnPlayer();
+
+				return;
+			}
 		}
 
-		parent::damage(%db, %this, %obj, %pos, %amt, %type);
+		parent::damage(%this, %obj, %pos, %amt, %type);
 	}
 };
 activatePackage(MM_AfterLife);

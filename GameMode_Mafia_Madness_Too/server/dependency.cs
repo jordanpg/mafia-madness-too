@@ -121,6 +121,9 @@ function bracketsHatesTGE(%data) //i super-hate that this is necessary but we ne
 	if(!isObject(%data))
 		return -1;
 		
+	if(isObject(%data.normalVersion))
+		return %data;
+
 	if(isObject(%data.slowVersion))
 		return %data.slowVersion;
 	else 
