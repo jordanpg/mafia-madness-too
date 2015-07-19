@@ -102,6 +102,12 @@ package MM_Abductor
 		if(!isObject(%aObj) || %aObj.getClassName() !$= "Player" || !isObject(%cl = %aObj.getControllingClient()))
 			return;
 
+		if(isObject(%aObj.client) && %aObj.client.MM_isMaf())
+		{
+			messageClient(%client, '', "\c3" SPC %aObj.client.getSimpleName() SPC "\c4is a fellow mafia! You can't abduct them!");
+			return;
+		}
+
 		%aObj.gagged = true;
 		%aObj.schedule($MM::AbductionDelay, MM_Abduct, %mini, %obj);
 

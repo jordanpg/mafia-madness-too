@@ -182,12 +182,12 @@ package MM_Chat
 		if(%msg $= "")
 			return;
 
-		if(isObject(%this.player) && %this.lives > 0)
+		if(isObject(%this.player) && !%this.player.isGhost)
 		{
 			if(%this.player.gagged)
 				return;
 
-			if(%this.player.getName() $= "botCorpse" || %this.player.dying)
+			if(%this.player.isCorpse || %this.player.dying)
 				return serverCmdTeamMessageSent(%this, %msg);
 
 			%mark = getSubStr(%msg, 0, 1);
@@ -232,7 +232,7 @@ package MM_Chat
 		if(%msg $= "")
 			return;
 
-		if(isObject(%this.player) && %this.lives > 0)
+		if(isObject(%this.player) && !%this.player.isGhost)
 		{
 			%mark = getSubStr(%msg, 0, 1);
 			%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);

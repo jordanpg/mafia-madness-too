@@ -22,6 +22,13 @@ function MM_clearCorpses()
 		botCorpse.delete();
 }
 
+function MM_clearForceRoles()
+{
+	%ct = ClientGroup.getCount();
+	for(%i = 0; %i < %ct; %i++)
+		ClientGroup.getObject(%i).forceRole = "";
+}
+
 function MinigameSO::MM_Init(%this)
 {
 	if(isObject(MMRoles))
@@ -143,11 +150,11 @@ function GameConnection::MM_SetRole(%this, %role) //just a nice lil shortcut
 
 function MinigameSO::MM_ResetVals(%this)
 {
-	%this.allAbduct = false;
-	%this.allComm = false;
-	%this.allImp = false;
-	%this.allInv = false;
-	%this.allFingerprint = false;
+	%this.allAbduct = false | $MM::AllAbduct;
+	%this.allComm = false | $MM::AllComm;
+	%this.allImp = false | $MM::AllImp;
+	%this.allInv = false | $MM::AllInv;
+	%this.allFingerprint = false | $MM::AllFingerprint;
 
 	%this.roles = "";
 
@@ -273,6 +280,12 @@ function MinigameSO::MM_InitRound(%this)
 		MMDebug("Gamemode" SPC %mode SPC "didn\'t build a proper roles list!", %this);
 		return;
 	}
+
+	%this.allAbduct |= $MM::AllAbduct;
+	%this.allComm |= $MM::AllComm;
+	%this.allImp |= $MM::AllImp;
+	%this.allInv |= $MM::AllInv;
+	%this.allFingerprint |= $MM::AllFingerprint;
 
 	%this.MM_AssignRoles();
 
@@ -453,7 +466,10 @@ function MinigameSO::MM_onNight(%this)
 
 function MinigameSO::MM_onTimeTransition(%this)
 {
-	//TODO: put stuff like dead rising here
+	if(%this.day >= $MM::DeadRising && $MM::DeadRising > 0)
+		%this.MM_RaiseDead();
+	else if((%this.day + 1) == $MM::DeadRising && $MM::DeadRising > 0 && !%this.isDay)
+		messageAll('',"<color:CC2222>The dead rise at dawn...");
 }
 
 function MinigameSO::MM_Res(%this, %cl, %tCl)
@@ -515,6 +531,15 @@ function MinigameSO::MM_Rise(%this, %cl, %tCl)
 		%corpse.client = %cl;
 		%cl.setControlObject(%corpse);
 	}
+}
+
+function MinigameSO::MM_RaiseDead(%this)
+{
+	messageAll('',"<color:333333>The dead rise again...");
+	%this.MM_LogEvent("<color:333333>The dead rise again...");
+
+	for(%i = 0; %i < %this.numMembers; %i++)
+		%this.MM_Rise(%this.member[%i]);
 }
 
 function MinigameSO::MM_WinCheck(%this, %cl)
@@ -647,7 +672,7 @@ function GameConnection::MM_UpdateUI(%client)
 		return;
 	}
 
-	%client.bottomPrint("\c5You are:" SPC %client.role.getColour() @ %client.role.getDisplayName() SPC " " SPC "\c5ROLES\c6:" SPC %client.minigame.MM_getRolesList());
+	%client.bottomPrint("\c5You are:" SPC %client.role.getColour() @ %client.role.getDisplayName() SPC "<just:right>\c5ROLES\c6:" SPC %client.minigame.MM_getRolesList() @ " ");
 }
 
 function GameConnection::MM_DisplayMafiaList(%this)
@@ -682,8 +707,6 @@ function GameConnection::MM_DisplayStartText(%this)
 		messageClient(%this, '', "\c4You are the \c0Mafia\c4!  You must kill all the innocents.  Here is a full list of the members of the mafia: ");
 		messageClient(%this, '', "\c0--");
 
-		%this.MM_DisplayMafiaList();
-
 		messageClient(%this, '', "\c0--");
 		messageClient(%this, '', "\c4If all of the mafia die, you lose.  You can type \c3/mafList\c4 to see it again, and anyone not on this list is innocent.  Good luck!");
 	}
@@ -695,6 +718,9 @@ function GameConnection::MM_DisplayStartText(%this)
 	%this.schedule(1000, centerprint, "<font:impact:32pt><color:00FF00>Your role has been delivered.  Look at the chat for a description.", 9);
 	%this.schedule(1500, centerprint, "<font:impact:32pt><color:00FFFF>Your role has been delivered.  Look at the chat for a description.", 8.5);
 	%this.player.setWhiteOut(0.75);
+
+	if(%this.MM_isMaf())
+		%this.MM_DisplayMafiaList();
 }
 
 function GameConnection::MM_GiveEquipment(%this)
@@ -855,11 +881,13 @@ package MM_Core
 		if(!%mini.running || !%mini.isMM)
 			return parent::onDeath(%this, %srcObj, %srcClient, %damageType, %loc);
 
-		if(%this.isGhost || %this.lives < 1)
-		{
-			%this.schedule(3000, spawnPlayer);
-			return;
-		}
+		%p = %this.player;
+
+		// if(%p.isGhost)
+		// {
+		// 	%this.schedule(3000, spawnPlayer);
+		// 	return;
+		// }
 
 		MMDebug("Player death of" SPC %this.getPlayerName(), %this, %mini);
 		if(%srcClient == %this)
@@ -868,7 +896,10 @@ package MM_Core
 		{
 			%mini.MM_LogEvent(%srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1));
 
-			%this.bottomPrint("\c5You were killed by:" SPC (%srcClient.MM_isMaf() ? "\c0" : "\c2") @ %srcClient.getSimpleName());
+			%str = "\c5You were killed by:" SPC (%srcClient.MM_isMaf() ? "\c0" : "\c2") @ %srcClient.getSimpleName();
+
+			%this.bottomPrint(%str);
+			messageClient(%this, '', %str);
 		}
 		else
 			%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6fell to their death");
@@ -884,6 +915,9 @@ package MM_Core
 			%this.isGhost = 1;
 			%mini.MM_WinCheck(%this);
 		}
+
+		if(isObject(%this.role))
+			%this.role.onDeath(%mini, %this, %srcObj, %srcClient, %damageType, %loc);
 
 		MMDebug("Scheduling spawn", %this, %mini);
 		%this.schedule(3000, spawnPlayer);
@@ -986,7 +1020,8 @@ package MM_Core
 		%this.setDatablock(bracketsHatesTGE(%db));
 
 		%this.dying = true;
-		%this.schedule(1000, damage, %obj, %pos, %db.maxDamage, %type);
+		%this.startedDying = $Sim::Time;
+		%this.deathSched = %this.schedule(1000, damage, %obj, %pos, %db.maxDamage, %type);
 		%this.setDamageFlash(0.75);
 		%this.emote(PainMidImage);
 

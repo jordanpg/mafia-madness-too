@@ -144,9 +144,9 @@ function bracketsHatesTGE(%data) //i super-hate that this is necessary but we ne
 	}
 }
 
-function SimGroup::getRandomNamedBrick(%this, %nt)
+function i_Lerp(%y1, %y2, %mu)
 {
-	
+	return (%y1 * (1 - %mu) + %y2 * %mu);
 }
 
 function GameConnection::messageLines(%this, %str)

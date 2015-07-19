@@ -81,6 +81,16 @@ package MM_FingerprintExpert
 		%this.fingerprintCt = 0;
 	}
 
+	function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse)
+	{
+		parent::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %oldCorpse);
+
+		for(%i = 0; %i < %oldCorpse.fingerprintCt; %i++)
+			%this.fingerprints[%i] = %oldCorpse.fingerprints[%i];
+
+		%this.fingerprintCt = %oldCorpse.fingerprintCt;
+	}
+
 	function AIPlayer::MM_Investigate(%this, %client)
 	{
 		parent::MM_Investigate(%this, %client);

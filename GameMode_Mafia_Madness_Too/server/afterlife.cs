@@ -87,6 +87,22 @@ function MinigameSO::MM_GetInArena(%this, %point)
 	return -1;
 }
 
+function Camera::setSpecPlayer(%this, %cl, %specCl)
+{
+	if(!isObject(%pl = %specCl.player))
+		return;
+
+	%this.setMode("Corpse", %pl);
+	%cl.setControlObject(%this);
+
+	if(isObject(%pl.claimRole))
+		%str = "<just:left>\c5Claim:" SPC %pl.claimRole.getColour(1) @ %pl.claimRole.getRoleName();
+	else
+		%str = "<just:left>\c5Claim: \c6NONE";
+
+	%cl.bottomPrint("\c5Spectating:\c6" SPC %specCl.getSimpleName() @ "<just:right>\c5ROLES\c6:" SPC %cl.minigame.MM_getRolesList() @ " " NL %str);
+}
+
 function Camera::MM_activateSpectator(%obj, %cl, %backward)
 {
 	if(!isObject(%mini = getMiniGameFromObject(%cl)))
@@ -98,8 +114,7 @@ function Camera::MM_activateSpectator(%obj, %cl, %backward)
 
 		if(isObject(%pl = %mini.member[%cl.specIndex].player) && !%pl.isGhost)
 		{
-			%obj.setMode("Corpse", %pl);
-			%cl.setControlObject(%obj);
+			%obj.setSpecPlayer(%cl, %mini.member[%cl.specIndex]);
 
 			return;
 		}
@@ -119,9 +134,11 @@ function Camera::MM_activateSpectator(%obj, %cl, %backward)
 
 				if(isObject(%pl = %cl2.player) && !%pl.isGhost)
 				{
-					%obj.setMode("Corpse", %pl);
-					%cl.setControlObject(%obj);
+					// %obj.setMode("Corpse", %pl);
+					// %cl.setControlObject(%obj);
 					%cl.specIndex = %i;
+
+					%obj.setSpecPlayer(%cl, %mini.member[%cl.specIndex]);
 
 					return;
 				}
@@ -142,9 +159,10 @@ function Camera::MM_activateSpectator(%obj, %cl, %backward)
 
 				if(isObject(%pl = %cl2.player) && !%pl.isGhost)
 				{
-					%obj.setMode("Corpse", %pl);
-					%cl.setControlObject(%obj);
+					// %obj.setMode("Corpse", %pl);
+					// %cl.setControlObject(%obj);
 					%cl.specIndex = %i;
+					%obj.setSpecPlayer(%cl, %mini.member[%cl.specIndex]);
 
 					return;
 				}
@@ -155,6 +173,7 @@ function Camera::MM_activateSpectator(%obj, %cl, %backward)
 	{
 		%obj.setMode("Observer");
 		%cl.setControlObject(%obj);
+		bottomPrint(%cl, "");
 	}
 }
 
@@ -382,6 +401,8 @@ package MM_AfterLife
 			{
 				%this.setControlObject(%p);
 
+				bottomPrint(%this, "");
+
 				return;
 			}
 
@@ -413,7 +434,7 @@ package MM_AfterLife
 			if(%this.getDamageLevel() + %techAmt >= %this.getDatablock().maxDamage)
 			{
 				%this.delete();
-				%cl.spawnPlayer();
+				%cl.schedule(1, spawnPlayer);
 
 				return;
 			}

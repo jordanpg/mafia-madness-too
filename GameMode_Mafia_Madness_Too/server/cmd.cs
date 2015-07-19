@@ -493,6 +493,7 @@ function serverCmdClaim(%this, %claim)
 
 	%this.MMClaimTimeout = $Sim::Time;
 	%this.player.setShapeNameColor(%role.getNameColour());
+	%this.player.claimRole = %role;
 }
 
 //uuuuuuuuuuuuuuuuuuuuuu this old thing jeeeesus christ maybe consider reworking this somehow

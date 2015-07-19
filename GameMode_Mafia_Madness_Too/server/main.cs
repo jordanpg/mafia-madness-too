@@ -1,11 +1,12 @@
 exec("./dependency.cs");
 
-exec("./guns/MMgun.cs");
-exec("./guns/Silent Combat Knife.cs");
-exec("./guns/Snubnose.cs");
-exec("./guns/Magnum Research.cs");
-exec("./guns/Colt Python.cs");
-exec("./guns/Tanaka Works.cs");
+exec("./data/MMgun.cs");
+exec("./data/Silent Combat Knife.cs");
+exec("./data/Snubnose.cs");
+exec("./data/Magnum Research.cs");
+exec("./data/Colt Python.cs");
+exec("./data/Tanaka Works.cs");
+exec("./data/misc.cs");
 
 exec("./bricks.cs");
 

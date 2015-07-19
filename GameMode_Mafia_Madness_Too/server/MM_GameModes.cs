@@ -322,7 +322,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 	// %roles = "A V G C M F O P I";
 
 	%mafRoles = "A V G C D LAW";
-	%innoRoles = "F O P N IC L";
+	%innoRoles = "F O P N IC L BB";
 
 	///////////////////////////////
 	/////ROLE ASSIGNMENT LOGIC/////
@@ -344,7 +344,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 
 		if(%cops > 1)
 		{
-			%goofCops = "P P N N IC";
+			%goofCops = "P P N N IC BB";
 			%goofCt = %cops - 1;
 
 			for(%i = 0; %i < %goofCt; %i++)
@@ -390,14 +390,17 @@ function MM_InitModeMafiaMadnessToo(%this)
 	///////////////////////////////
 	///////////////////////////////
 
-	for(%i = 0; %i < 6; %i++)
+
+	%ct = getWordCount(%mafRoles);
+	for(%i = 0; %i < %ct; %i++)
 		%mafCts = %mafCts SPC (%ct[getWord(%mafRoles, %i)] | 0);
 	%mafCts = trim(%mafCts);
 
 	MMDebug("   +Maf Roles:" SPC %mafRoles);
 	MMDebug("   +Maf Count:" SPC %mafCts);
 
-	for(%i = 0; %i < 6; %i++)
+	%ct = getWordCount(%innoRoles);
+	for(%i = 0; %i < %ct; %i++)
 		%innoCts = %innoCts SPC (%ct[getWord(%innoRoles, %i)] | 0);
 	%innoCts = trim(%innoCts);
 

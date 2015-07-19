@@ -94,8 +94,11 @@ function GameConnection::MM_canInvestigate(%this, %target)
 	if(nameToID(%this) == nameToID(%target))
 		return -7;
 
-	if(%target.isGhost || !isObject(%target.role) || %target.lives < 1)
+	if(!isObject(%target.role))
 		return -8;
+
+	// if(%target.isGhost || !isObject(%target.role) || %target.lives < 1)
+	// 	return -8;
 
 	return 1;
 }

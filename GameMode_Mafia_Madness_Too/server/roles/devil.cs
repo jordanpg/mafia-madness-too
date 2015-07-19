@@ -65,10 +65,37 @@ package MM_Devil
 	{
 		%r = parent::MM_canInvestigate(%this, %target);
 
-		if(nameToID(%this.role) == nameToID(MMRole_Devil))
+		if(nameToID(%this.role) == nameToID(MMRole_Devil) || (%this.MM_isMaf() && %mini.allInv))
 		{
 			if(%target.MM_isMaf())
 				return -10;
+
+			if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)
+				return 0;
+
+			if(%mini.isDay)
+				return -1;
+
+			if(!isObject(%this.role))
+				return -2;
+
+			if(!%this.role.getCanInvestigate() && !%mini.allInv)
+				return -4;
+
+			if(%this.investigated[%mini.day])
+				return -5;
+
+			if(%this.isGhost || %this.lives < 1)
+				return -6;
+
+			if(!isObject(%target))
+				return -9;
+
+			if(nameToID(%this) == nameToID(%target))
+				return -7;
+
+			if(!isObject(%target.role))
+				return -8;
 
 			return 1;
 		}

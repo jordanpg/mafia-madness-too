@@ -145,3 +145,8 @@ function MMRole::onTeamChat(%this, %mini, %client, %msg, %type)
 
 	return 0;
 }
+
+function MMRole::onDeath(%this, %mini, %client, %srcObj, %srcClient, %damageType, %loc)
+{
+	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received death event for" SPC %client.getSimpleName() SPC "(" @ %client SPC %srcObj SPC %srcClient SPC %damageType SPC %loc @ ")", %this, %mini, %client);
+}
