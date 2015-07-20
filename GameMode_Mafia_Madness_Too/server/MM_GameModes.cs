@@ -12,8 +12,10 @@ $MM::GameModes = 5;
 
 $MM::DefaultGameMode = 4;
 
-$MM::BringTheLaw = false;
+$MM::BringTheLaw = true;
 $MM::LawChance = 0.1;
+$MM::HonkHonkCt = 1;
+$MM::HonkHonkRate = 0.5;
 
 function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCts, %innoCts, %mafFill, %innoFill)
 {
@@ -322,7 +324,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 	// %roles = "A V G C M F O P I";
 
 	%mafRoles = "A V G C D LAW";
-	%innoRoles = "F O P N IC L BB";
+	%innoRoles = "F O P N IC L BB CLOWN";
 
 	///////////////////////////////
 	/////ROLE ASSIGNMENT LOGIC/////
@@ -382,6 +384,10 @@ function MM_InitModeMafiaMadnessToo(%this)
 		%ctLAW = 1;
 		%ctC = 0;
 	}
+
+	if($MM::HonkHonkCt > 0)
+		for(%i = 0; %i < $MM::HonkHonkCt; %i++)
+			%ctCLOWN += (getRandom() < $MM::HonkHonkRate);
 
 	%millers = mFloor(%members / 10);
 	%ctL = getRandom(%millers);

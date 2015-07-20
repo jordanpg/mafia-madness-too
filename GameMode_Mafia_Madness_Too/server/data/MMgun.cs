@@ -9,12 +9,6 @@ $MMGunName[1] = "Tanaka Works";
 $MMGunName[2] = "Snubnose";
 $MMGunName[3] = "Magnum Research BFR";
 
-datablock ShapeBaseImageData(BlankImage)
-{
-	shapeFile = "base/data/shapes/empty.dts";
-	mountPoint = 2;
-};
-
 datablock ItemData(MMGunItem)
 {
 	category = "Weapon";  // Mission editor category

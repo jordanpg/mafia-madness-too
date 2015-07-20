@@ -6,6 +6,8 @@ $MM::LoadedCore = true;
 
 $MM::DediRoundDelay = 30000;
 
+$MM::DeadRising = 4;
+
 package disableToolCmds { function serverCmdDuplicator() { } function serverCmdFillcan() { } function serverCmdUsePrintGun() { } };
 
 function MM_isValidGameMode(%modeName)
@@ -217,9 +219,13 @@ function MinigameSO::MM_AssignRoles(%this)
 		{
 			if(%this.MM_SetRole(%client, %client.forceRole))
 			{
+				%rl = %client.forceRole;
+				if(!isObject(%rl))
+					%rl = $MM::RoleKey[%client.forceRole];
+
 				MMDebug("Init client" SPC %client SPC "with role" SPC %role);
 
-				%client.lives = 1;
+				%client.lives = 1 + %rl.additionalLives;
 				%client.isGhost = false;
 
 				%this.forcedARole = true;
@@ -240,7 +246,11 @@ function MinigameSO::MM_AssignRoles(%this)
 
 		MMDebug("Init client" SPC %client SPC "with role" SPC %role);
 
-		%client.lives = 1;
+		%rl = %role;
+		if(!isObject(%rl))
+			%rl = $MM::RoleKey[%rl];
+
+		%client.lives = 1 + %rl.additionalLives;
 		%client.isGhost = false;
 	}
 }
@@ -490,7 +500,7 @@ function MinigameSO::MM_Res(%this, %cl, %tCl)
 		}
 
 		%cl.isGhost = false;
-		%cl.lives = 1;
+		%cl.lives = 1 + %cl.role.additionalLives;
 
 		if(isObject(%corpse))
 		{
@@ -542,19 +552,62 @@ function MinigameSO::MM_RaiseDead(%this)
 		%this.MM_Rise(%this.member[%i]);
 }
 
-function MinigameSO::MM_WinCheck(%this, %cl)
+function MinigameSO::MM_WinCheck(%this, %killed, %killer)
 {
 	if(%this.resolved)
 		return;
 
-	MMDebug("Checking for wins...", %this, %cl);
+	MMDebug("Checking for wins...", %this, %killed, %killer);
 
 	for(%i = 0; %i < %this.numMembers; %i++)
 	{
 		%cl = %this.member[%i];
 
+		if(isObject(%cl.role))
+		{
+			MMDebug("Calling special win check for" SPC %cl.role.getRoleName());
+			%r = %cl.role.SpecialWinCheck(%this, %cl, %killed, %killer);
+
+			switch(%r)
+			{
+				case 1: %foundInno = true;
+				case 2: %foundMaf = true;
+				case 3: continue;
+				case 4: return;
+			}
+		}
+	}
+
+	for(%i = 0; %i < %this.numMembers; %i++)
+	{
+		%cl = %this.member[%i];
+
+		if(%cl.role.getAlignment() < 0 || %cl.role.getAlignment() > 1)
+			continue;
+
 		if(%cl.lives > 0 && !%cl.player.dying)
 		{
+			// if(isObject(%cl.role))
+			// {
+			// 	%r = %cl.role.SpecialWinCheck(%this, %cl, %killed, %killer);
+
+			// 	switch(%r)
+			// 	{
+			// 		case 1:
+			// 			%foundInno = true;
+			// 			if(%foundMaf)
+			// 				break;
+			// 		case 2:
+			// 			%foundMaf = true;
+			// 			if(%foundInno)
+			// 				break;
+			// 		case 3:
+			// 			continue;
+			// 		case 4:
+			// 			return;
+			// 	}
+			// }
+
 			if(%cl.MM_isMaf())
 			{
 				%foundMaf = true;
@@ -573,7 +626,7 @@ function MinigameSO::MM_WinCheck(%this, %cl)
 	if(!%foundMaf && %foundInno)
 	{
 		talk("The last Mafia is dead!  The Innocents have won.");
-		MMDebug("Inno win", %this, %cl);
+		MMDebug("Inno win", %this, %killed, %killer);
 
 		%this.resolved = 1;
 		%this.schedule(3000, MM_Stop);
@@ -581,7 +634,7 @@ function MinigameSO::MM_WinCheck(%this, %cl)
 	else if(%foundMaf && !%foundInno)
 	{
 		talk("The last Innocent is dead!  The Mafia have won.");
-		MMDebug("Maf win", %this, %cl);
+		MMDebug("Maf win", %this, %killed, %killer);
 
 		%this.resolved = 1;
 		%this.schedule(3000, MM_Stop);
@@ -589,7 +642,7 @@ function MinigameSO::MM_WinCheck(%this, %cl)
 	else if(!%foundMaf && !%foundInno)
 	{
 		talk("Everyone is dead.  The game has ended in a draw.");
-		MMDebug("Tie", %this, %cl);
+		MMDebug("Tie", %this, %killed, %killer);
 
 		%this.resolved = 1;
 		%this.schedule(3000, MM_Stop);
@@ -727,11 +780,22 @@ function GameConnection::MM_GiveEquipment(%this)
 {
 	if(!isObject(%this.player))
 		return;
-	
-	%this.player.MM_AddGun(%this.gun);
 
 	if(!isObject(%this.role))
-		return;
+		return;	
+
+	if(!isObject(%this.role.gun) && %this.role.gun != -1)
+		%this.player.MM_AddGun(%this.gun);
+	else if(%this.role.gun != -1)
+	{
+		%this.player.tool[0] = %this.role.gun;
+		messageClient(%this, 'MsgItemPickup', '', 0, %this.role.gun);
+	}
+	else
+	{
+		%this.player.tool[0] = 0;
+		messageClient(%this, 'MsgItemPickup', '', 0, 0);
+	}
 
 	%ct = %this.player.getDatablock().maxTools - 1;
 
@@ -826,6 +890,14 @@ package MM_Core
 
 				return;
 			}
+
+			if(isObject(%this.role))
+			{
+				%r = %this.role.applyOutfit(%mini, %this, %mini.isDay);
+
+				if(%r)
+					return;
+			}
 		}
 
 		if(%this.isGhost || %this.lives < 1)
@@ -862,6 +934,14 @@ package MM_Core
 
 				return;
 			}
+
+			if(isObject(%this.role))
+			{
+				%r = %this.role.applyOutfit(%mini, %this, %mini.isDay);
+
+				if(%r)
+					return;
+			}
 		}
 
 		if(%this.isGhost || %this.lives < 1)
@@ -894,7 +974,12 @@ package MM_Core
 			%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6committed suicide");
 		else if(isObject(%srcClient))
 		{
-			%mini.MM_LogEvent(%srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1));
+			if(isObject(%srcClient.player))
+				%d = " \c6from" SPC mFloatLength(VectorDist(%p.getHackPosition(), %srcClient.player.getHackPosition()) / 2, 1) SPC "studs away";
+			else
+				%d = "";
+
+			%mini.MM_LogEvent(%srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1) @ %d);
 
 			%str = "\c5You were killed by:" SPC (%srcClient.MM_isMaf() ? "\c0" : "\c2") @ %srcClient.getSimpleName();
 
@@ -909,15 +994,15 @@ package MM_Core
 		if(%this.player.getName() !$= "botCorpse")
 			%this.lives--;
 
+		if(isObject(%this.role))
+			%this.role.onDeath(%mini, %this, %srcObj, %srcClient, %damageType, %loc);
+
 		if(%this.lives < 1)
 		{
 			MMDebug("Checking win status", %this, %mini);
 			%this.isGhost = 1;
-			%mini.MM_WinCheck(%this);
+			%mini.MM_WinCheck(%this, %srcClient);
 		}
-
-		if(isObject(%this.role))
-			%this.role.onDeath(%mini, %this, %srcObj, %srcClient, %damageType, %loc);
 
 		MMDebug("Scheduling spawn", %this, %mini);
 		%this.schedule(3000, spawnPlayer);
@@ -941,15 +1026,21 @@ package MM_Core
 
 	function Armor::onTrigger(%this, %obj, %slot, %val)
 	{
-		parent::onTrigger(%this, %obj, %slot, %val);
+		// parent::onTrigger(%this, %obj, %slot, %val);
 
 		// MMDebug(%slot SPC %val);
 
-		if(!isObject(%cl = %obj.getControllingClient()) || !isObject(%mini = getMiniGameFromObject(%cl)) || !$DefaultMinigame.running)
-			return;
+		// echo("HHH");
 
-		if(isObject(%cl.role) && isObject(%cl.player) && %cl.player == %cl.getControlObject() && !%cl.player.isGhost)
+		if(!isObject(%cl = %obj.getControllingClient()) || !isObject(%mini = getMiniGameFromObject(%cl)) || !$DefaultMinigame.running)
+			return parent::onTrigger(%this, %obj, %slot, %val);
+
+		// echo("BBB");
+
+		if(isObject(%cl.role) && isObject(%cl.player) && !%cl.player.isGhost)
 			%cl.role.onTrigger(%mini, %cl, %obj, %slot, %val);
+
+		parent::onTrigger(%this, %obj, %slot, %val);
 	}
 
 	function serverCmdDropTool(%this, %slot)

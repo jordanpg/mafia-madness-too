@@ -22,6 +22,14 @@ if(!$MMRulesPrefsLoaded) {
 	$MMRulesPrefsLoaded = 1;
 }
 
+function serverCmdMMDay(%this)
+{
+	if(!$DefaultMinigame.running)
+		return;
+
+	messageClient(%this, '', "\c6It is the \c4" @ $DefaultMinigame.day @ getDaySuffix($DefaultMinigame.day) SPC ($DefaultMinigame.isDay ? "\c6day." : "\c6night."));
+}
+
 function serverCmdMafList(%this)
 {
 	if(!%this.MM_isMaf())

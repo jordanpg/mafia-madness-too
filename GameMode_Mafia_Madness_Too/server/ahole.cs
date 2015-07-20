@@ -78,6 +78,9 @@ function aholeShout(%client) {
 			if(($MMLastShout+1200000) > getRealTime()) {
 				return;
 			}
+
+			getMinigameFromObject(%client).MM_LogEvent(%client.MM_getName(1) SPC "\c6activated their Thu'um");
+
 			$MMLastShout = getRealTime();
 			%len = 30;
 			%rad = 10;

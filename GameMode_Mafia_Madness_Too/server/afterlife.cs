@@ -226,6 +226,7 @@ package MM_AfterLife
 			{
 				%this.player.setShapeNameDistance(13.5);
 				%this.player.tool[0] = 0;
+				messageClient(%this, 'MsgItemPickup', '', 0, 0);
 				%this.player.weaponcount--;
 				%this.player.isGhost = true;
 			}

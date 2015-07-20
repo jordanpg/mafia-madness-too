@@ -11,7 +11,7 @@ $MM::BubbleFadeInTime = 100;
 $MM::BubbleFadeOutTime = 500;
 $MM::BubbleSteps = 100;
 $MM::BubbleLifeTime = 3100;
-$MM::BubbleShooterRad = 6;
+$MM::BubbleShooterRad = 4;
 
 if(!isObject(MMRole_BubbleBuddy))
 {
@@ -133,6 +133,8 @@ function StaticShape::fadeOut(%this, %col, %start, %time, %steps, %del, %prog)
 
 function Player::MM_ActivateBubble(%this)
 {
+	// talk(bub);
+
 	if(!isObject(%cl = %this.getControllingClient()))
 		return false;
 
@@ -242,6 +244,8 @@ package MM_BubbleBuddy
 
 		%db = %this.getDatablock();
 
+		// talk(%this.startedDying);
+
 		if(!isObject(%cl = %this.getControllingClient()))
 			return parent::damage(%this, %obj, %pos, %amt, %type);
 
@@ -271,6 +275,7 @@ package MM_BubbleBuddy
 			{
 				%dist = VectorDist(%spl.getHackPosition(), %pos);
 
+				// talk(%dist);
 				if(%dist < $MM::BubbleShooterRad)
 					return parent::damage(%this, %obj, %pos, %amt, %type);
 			}

@@ -150,3 +150,17 @@ function MMRole::onDeath(%this, %mini, %client, %srcObj, %srcClient, %damageType
 {
 	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received death event for" SPC %client.getSimpleName() SPC "(" @ %client SPC %srcObj SPC %srcClient SPC %damageType SPC %loc @ ")", %this, %mini, %client);
 }
+
+function MMRole::SpecialWinCheck(%this, %mini, %client, %killed, %killer)
+{
+	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received win check for" SPC %client.getSimpleName() SPC "(" @ %client SPC %killed SPC %killer @ ")", %this, %mini, %client);
+
+	return 0;
+}
+
+function MMRole::applyOutfit(%this, %mini, %client, %day)
+{
+	MMDebug("Role" SPC %this.name SPC "(" @ %this @ ")" SPC "received outfit event for" SPC %client.getSimpleName() SPC "(" @ %client SPC %day @ ")", %this, %mini, %client);
+
+	return false;
+}

@@ -310,7 +310,7 @@ package MM_Ventriloquist
 
 	function GameConnection::MM_canComm(%this)
 	{
-		if(%this.role.getCanImpersonate())
+		if(%this.role.getCanImpersonate() && isObject(%this.MMImpersonate))
 			return 2;
 
 		return parent::MM_canComm(%this);

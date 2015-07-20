@@ -75,6 +75,9 @@ function GameConnection::MM_GodfatherChat(%this, %msg, %pre2)
 		return 1;
 	}
 
+	if(%c == 2)
+		return 1;
+
 	%pre2 = %pre2 @ "\c7[\c6Godfather\c7]";
 
 	%this.MM_Chat(%this.player, -1, %msg, "", %pre2, MM_GodfatherCheck);
