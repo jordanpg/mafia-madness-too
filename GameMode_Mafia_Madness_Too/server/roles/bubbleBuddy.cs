@@ -11,7 +11,7 @@ $MM::BubbleFadeInTime = 100;
 $MM::BubbleFadeOutTime = 500;
 $MM::BubbleSteps = 100;
 $MM::BubbleLifeTime = 3100;
-$MM::BubbleShooterRad = 4;
+$MM::BubbleShooterRad = 2;
 
 if(!isObject(MMRole_BubbleBuddy))
 {
@@ -43,6 +43,12 @@ if(!isObject(MMRole_BubbleBuddy))
 					"\c4This ability can only activate once per game, however, so make sure you don't squander it!" NL
 					"\c3Note that abductions and knives can get around this ability, and it can activate for mafia as well!" NL
 					"<font:impact:32pt>\c2This is an experimental role! Report any problems, and be aware that things are subject to change.";
+
+		description = 	"\c4When the <color:FF80DD>Bubble Buddy\c4 or someone else nearby is shot, they will create a bubble for protection!" NL
+						"\c4The bubble is best used to protect important people like the cop or fingerprint expert." NL
+						"\c4This ability can only activate once per game, however, so make sure you don't squander it!" NL
+						"\c3Note that abductions and knives can get around this ability, and it can activate for mafia as well!" NL
+						"<font:impact:32pt>\c2This is an experimental role! Report any problems, and be aware that things are subject to change.";
 	};
 }
 

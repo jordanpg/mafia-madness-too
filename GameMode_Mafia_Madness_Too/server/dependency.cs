@@ -140,6 +140,9 @@ function bracketsHatesTGE(%data) //i super-hate that this is necessary but we ne
 		//take THAT, TGE!!!1
 		%data.slowVersion = %data.getName() @ "SlowReload";
 		updateClientDatablocks();
+
+		echo("Made Slow Version for" SPC %data.getName());
+
 		return %data.slowVersion;
 	}
 }
@@ -155,5 +158,18 @@ function GameConnection::messageLines(%this, %str)
 	{
 		%str = nextToken(%str, "line", "\n");
 		messageClient(%this, '', %line);
+	}
+}
+
+function GameConnection::clearInventory(%this)
+{
+	if(!isObject(%p = %this.player))
+		return;
+
+	%db = %p.getDatablock();
+	for(%i = 0; %i < %db.maxTools; %i++)
+	{
+		%this.tool[%i] = 0;
+		messageClient(%this, 'MsgItemPickup', '', %i, 0);
 	}
 }

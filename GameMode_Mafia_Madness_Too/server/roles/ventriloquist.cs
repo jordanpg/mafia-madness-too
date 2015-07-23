@@ -43,6 +43,13 @@ if(!isObject(MMRole_Ventriloquist))
 					"\c4Type \"/imp\" followed by nothing to go back to your own voice." NL
 					"\c4The Ventriloquist is important for the maf, but has a more stealthy role compared to other maf.  Good luck!" NL
 					"\c4NOTE: typing \"/impu\" instead will result in the target not hearing your impersonation, making your impersonation unnoticable.";
+
+		description = 	"\c4The \c7Ventriloquist\c4 has the power to impersonate another's voice!" NL
+						"\c4Type \"/imp\" (short for Impersonate) followed by the name of the person you want to impersonate." NL
+						"\c4Any messages thereafter will appear to be from that person, but they will still come from your location!" NL
+						"\c4Type \"/imp\" followed by nothing to go back to your own voice." NL
+						"\c4The Ventriloquist is important for the maf, but has a more stealthy role compared to other maf.  Good luck!" NL
+						"\c4NOTE: typing \"/impu\" instead will result in the target not hearing your impersonation, making your impersonation unnoticable.";
 	};
 }
 
@@ -310,7 +317,7 @@ package MM_Ventriloquist
 
 	function GameConnection::MM_canComm(%this)
 	{
-		if(%this.role.getCanImpersonate() && isObject(%this.MMImpersonate))
+		if(%this.role.getCanImpersonate() && isObject(%this.MMImpersonate) && $MM::VentGodfatherChat)
 			return 2;
 
 		return parent::MM_canComm(%this);

@@ -123,6 +123,7 @@ function MinigameSO::MM_SetRole(%this, %client, %role)
 		{
 			%client.role = "";
 			%this.role[%client] = "";
+			%client.knowsFullRole = false;
 			return true;
 		}
 
@@ -136,6 +137,8 @@ function MinigameSO::MM_SetRole(%this, %client, %role)
 	%this.memberCacheName[%this.memberCacheLen | 0] = %client.getPlayerName();
 	%this.memberCacheRole[%this.memberCacheLen | 0] = %role;
 	%this.memberCacheLen++; 
+
+	%client.knowsFullRole = false;
 
 	%role.onAssign(%this, %client);
 
@@ -582,6 +585,9 @@ function MinigameSO::MM_WinCheck(%this, %killed, %killer)
 	{
 		%cl = %this.member[%i];
 
+		if(!isObject(%cl.role))
+			continue;
+
 		if(%cl.role.getAlignment() < 0 || %cl.role.getAlignment() > 1)
 			continue;
 
@@ -725,7 +731,9 @@ function GameConnection::MM_UpdateUI(%client)
 		return;
 	}
 
-	%client.bottomPrint("\c5You are:" SPC %client.role.getColour() @ %client.role.getDisplayName() SPC "<just:right>\c5ROLES\c6:" SPC %client.minigame.MM_getRolesList() @ " ");
+	%role = %client.role.getColour(%client.knowsFullRole) @ (%client.knowsFullRole ? %client.role.getRoleName() : %client.role.getDisplayName());
+
+	%client.bottomPrint("\c5You are:" SPC %role SPC "<just:right>\c5ROLES\c6:" SPC %client.minigame.MM_getRolesList() @ " ");
 }
 
 function GameConnection::MM_DisplayMafiaList(%this)
@@ -747,22 +755,43 @@ function GameConnection::MM_DisplayMafiaList(%this)
 	}
 }
 
+function GameConnection::MM_DisplayAlignmentDetails(%this, %alignment)
+{
+	if(%alignment == 0)
+	{
+		messageClient(%this, '', "\c4You are \c2Innocent\c4!  You don't know who the mafia are, but you must find out and kill them!");
+
+		return 0;
+	}
+	else if(%alignment == 1)
+	{
+		messageClient(%this, '', "\c4You are the \c0Mafia\c4!  You must kill all the innocents.  Here is a full list of the members of the mafia: ");
+		messageClient(%this, '', "\c4If all of the mafia die, you lose.  You can type \c3/mafList\c4 to see it again, and anyone not on this list is innocent.  Good luck!");
+
+		return 1;
+	}
+
+	return -1;
+}
+
 function GameConnection::MM_DisplayStartText(%this)
 {
 	%mini = getMiniGameFromObject(%this);
 	if(!isObject(%mini) || !%mini.running || !isObject(%this.role))
 		return;
 
-	if(!%this.MM_isMaf())
-		messageClient(%this, '', "\c4You are \c2Innocent\c4!  You don't know who the mafia are, but you must find out and kill them!");
-	else
-	{
-		messageClient(%this, '', "\c4You are the \c0Mafia\c4!  You must kill all the innocents.  Here is a full list of the members of the mafia: ");
-		messageClient(%this, '', "\c0--");
+	// if(!%this.MM_isMaf())
+	// 	messageClient(%this, '', "\c4You are \c2Innocent\c4!  You don't know who the mafia are, but you must find out and kill them!");
+	// else
+	// {
+	// 	messageClient(%this, '', "\c4You are the \c0Mafia\c4!  You must kill all the innocents.  Here is a full list of the members of the mafia: ");
+	// 	messageClient(%this, '', "\c0--");
 
-		messageClient(%this, '', "\c0--");
-		messageClient(%this, '', "\c4If all of the mafia die, you lose.  You can type \c3/mafList\c4 to see it again, and anyone not on this list is innocent.  Good luck!");
-	}
+	// 	messageClient(%this, '', "\c0--");
+	// 	messageClient(%this, '', "\c4If all of the mafia die, you lose.  You can type \c3/mafList\c4 to see it again, and anyone not on this list is innocent.  Good luck!");
+	// }
+
+	%this.MM_DisplayAlignmentDetails(%this.role.getAlignment());
 
 	%this.messageLines(%this.role.getHelpText());
 
@@ -773,7 +802,11 @@ function GameConnection::MM_DisplayStartText(%this)
 	%this.player.setWhiteOut(0.75);
 
 	if(%this.MM_isMaf())
+	{
+		messageClient(%this, '', "\c0--");
 		%this.MM_DisplayMafiaList();
+		messageClient(%this, '', "\c0--");
+	}
 }
 
 function GameConnection::MM_GiveEquipment(%this)
@@ -981,7 +1014,7 @@ package MM_Core
 
 			%mini.MM_LogEvent(%srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1) @ %d);
 
-			%str = "\c5You were killed by:" SPC (%srcClient.MM_isMaf() ? "\c0" : "\c2") @ %srcClient.getSimpleName();
+			%str = "\c5You were killed by:" SPC $MM::AlignmentColour[%srcClient.role.getAlignment()] @ %srcClient.getSimpleName();
 
 			%this.bottomPrint(%str);
 			messageClient(%this, '', %str);

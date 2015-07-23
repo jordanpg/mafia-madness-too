@@ -32,6 +32,11 @@ if(!isObject(MMRole_Abductor))
 					"\c4Your special ability is best used on Innocents with special powers, like the Cop or Fingerprint Expert." NL
 					"\c4The ability can only be used at close-range, and requires a lot of subtlety to use." NL
 					"\c4The bodies of people you kill in this way should go to somewhere in the basement of the pyramid.  Good luck!";
+
+		description = 	"\c4The <color:2d1a4a>Abductor\c4 can right click someone once per night to make them disappear... permanently." NL
+						"\c4Its special ability is best used on Innocents with special powers, like the Cop or Fingerprint Expert." NL
+						"\c4The ability can only be used at close-range, and requires a lot of subtlety to use." NL
+						"\c4The bodies of people it kills in this way should go to somewhere in the basement of the pyramid.  Good luck!";
 	};
 }
 

@@ -6,9 +6,11 @@ $MM::LoadedRole = true;
 
 $MM::Alignment[0] = "Innocent";
 $MM::Alignment[1] = "Mafia";
+$MM::Alignment[2] = "Unaligned";
 
 $MM::AlignmentColour[0] = "<color:00FF00>";
 $MM::AlignmentColour[1] = "<color:FF0040>";
+$MM::AlignmentColour[2] = "<color:808080>";
 
 function MMRole::getRoleName(%this)
 {

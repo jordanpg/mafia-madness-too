@@ -22,6 +22,14 @@ if(!$MMRulesPrefsLoaded) {
 	$MMRulesPrefsLoaded = 1;
 }
 
+function serverCmdRoles(%this)
+{
+	if(!(%mini = getMinigameFromObject(%this)).running)
+		return;
+
+	messageClient(%this, '', "\c5Roles\c6:" SPC %mini.MM_GetRolesList());
+}
+
 function serverCmdMMDay(%this)
 {
 	if(!$DefaultMinigame.running)
@@ -442,6 +450,11 @@ function serverCmdMMRoleList(%this)
 
 	if(isObject(%host = findClientByBL_ID(getNumKeyID())) && !(%host.lives > 0 && !%host.isGhost && !$MM::NotifyHostMidGame))
 		messageClient(%host, '', "\c3" @ %this.getPlayerName() SPC "\c5accessed the roles list!");
+}
+
+function serverCmdRoleList(%this)
+{
+	serverCmdMMRoleList(%this);
 }
 
 function serverCmdMMIgnoreMe(%this)

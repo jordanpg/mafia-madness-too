@@ -277,24 +277,27 @@ function MMSnubnoseImage::onReloaded(%this,%obj,%slot) {
 
 function MMSnubnoseImage::onReloadStart(%this,%obj,%slot) {
 	if(isObject(%obj) && isObject(%data = %obj.getDatablock())) {
-		if(isObject(%data.slowVersion)) {
-			%obj.setDatablock(%data.slowVersion);
-		}
-		else {
-			//so just declaring the datablock normally doesn't work... time to pley HARDBALL leoaleolaeole
-			// datablock PlayerData((%data.getName() @ "SlowReload") : (%data.getName())) {
-				// maxForwardSpeed = %data.maxForwardSpeed/4;
-				// maxSideSpeed = %data.maxSideSpeed/4;
-				// maxBackwardSpeed = %data.maxSideSpeed/4;
-				// normalVersion = %data;
-			// };
-			//i've always wanted to do this
-			eval("datablock PlayerData(" @ %data.getName() @ "SlowReload" @ ":" @ %data.getName() @ ") { maxForwardSpeed =" SPC %data.maxForwardSpeed/4 @ "; maxSideSpeed =" SPC %data.maxSideSpeed/4 @ "; maxBackwardSpeed =" SPC %data.maxBackwardSpeed/4 @ "; maxForwardCrouchSpeed =" SPC %data.maxForwardCrouchSpeed / 4 @ "; maxSideCrouchSpeed =" SPC %data.maxSideCrouchSpeed / 4 @ "; maxBackwardGrouchSpeed =" SPC %data.maxBackwardCrouchSpeed / 4 @ "; normalVersion =" SPC %data @ "; uiName = \"\";jumpForce = 0; airControl = 0;};");
-			//take THAT, TGE!!!1
-			%data.slowVersion = %data.getName() @ "SlowReload";
-			updateClientDatablocks();
-			%obj.setDatablock(%data.slowVersion);
-		}
+		// if(isObject(%data.slowVersion)) {
+		// 	%obj.setDatablock(%data.slowVersion);
+		// }
+		// else {
+		// 	//so just declaring the datablock normally doesn't work... time to pley HARDBALL leoaleolaeole
+		// 	// datablock PlayerData((%data.getName() @ "SlowReload") : (%data.getName())) {
+		// 		// maxForwardSpeed = %data.maxForwardSpeed/4;
+		// 		// maxSideSpeed = %data.maxSideSpeed/4;
+		// 		// maxBackwardSpeed = %data.maxSideSpeed/4;
+		// 		// normalVersion = %data;
+		// 	// };
+		// 	//i've always wanted to do this
+		// 	eval("datablock PlayerData(" @ %data.getName() @ "SlowReload" @ ":" @ %data.getName() @ ") { maxForwardSpeed =" SPC %data.maxForwardSpeed/4 @ "; maxSideSpeed =" SPC %data.maxSideSpeed/4 @ "; maxBackwardSpeed =" SPC %data.maxBackwardSpeed/4 @ "; maxForwardCrouchSpeed =" SPC %data.maxForwardCrouchSpeed / 4 @ "; maxSideCrouchSpeed =" SPC %data.maxSideCrouchSpeed / 4 @ "; maxBackwardCrouchSpeed =" SPC %data.maxBackwardCrouchSpeed / 4 @ "; normalVersion =" SPC %data @ "; uiName = \"\";jumpForce = 0; airControl = 0;};");
+		// 	//take THAT, TGE!!!1
+		// 	%data.slowVersion = %data.getName() @ "SlowReload";
+		// 	updateClientDatablocks();
+		// 	%obj.setDatablock(%data.slowVersion);
+		// }
+
+		%obj.setDatablock(bracketsHatesTGE(%data));
+
 		%obj.reloading = 1;
 	}
 }

@@ -32,7 +32,12 @@ if(!isObject(MMRole_Crazy))
 		helpText = 	"\c4You are also the \c0Crazy\c4!  That means you get an extra weapon - a knife!" NL
 					"\c4Your knife is not very useful compared to a gun, but by hitting a corpse with it, you can make a corpse unrecognizable." NL
 					"\c4Anyone who inspects the corpse will not know their name or their role.  You can also charge up the knife to do it silently." NL
-					"\c4Noone but you has the knife, though, so be careful who you show it to!  Good luck!";
+					"\c4No one but you has the knife, though, so be careful who you show it to!  Good luck!";
+
+		description = 	"\c4The \c0Crazy\c4 gets an extra weapon - a knife!" NL
+						"\c4The knife is not very useful compared to a gun, but by hitting a corpse with it, you can make a corpse unrecognizable." NL
+						"\c4Anyone who inspects the corpse will not know their name or their role.  You can also charge up the knife to do it silently." NL
+						"\c4No one but the crazy has the knife, though, so be careful who you show it to!";
 
 		equipment[0] = nameToID(SilentCombatKnifeItem);
 	};

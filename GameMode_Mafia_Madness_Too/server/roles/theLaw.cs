@@ -21,6 +21,8 @@ if(!isObject(MMRole_TheLaw))
 
 		helpText = MMRole_Crazy.helpText NL "<font:impact:28pt>\c3The Law \c5is in your hands.";
 
+		description = "<color:400040>The Law \c4is a rarely occurring upgraded <color:FF00FF>Crazy\c4 who also has an \c3assault rifle!";
+
 		equipment[1] = nameToID(TAssaultRifleItem);
 	};
 }

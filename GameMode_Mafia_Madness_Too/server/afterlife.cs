@@ -173,7 +173,7 @@ function Camera::MM_activateSpectator(%obj, %cl, %backward)
 	{
 		%obj.setMode("Observer");
 		%cl.setControlObject(%obj);
-		bottomPrint(%cl, "");
+		bottomPrint(%cl, "<just:center>\c5Press the space bar to enter observer mode.");
 	}
 }
 
@@ -225,8 +225,7 @@ package MM_AfterLife
 			if(isObject(%this.player))
 			{
 				%this.player.setShapeNameDistance(13.5);
-				%this.player.tool[0] = 0;
-				messageClient(%this, 'MsgItemPickup', '', 0, 0);
+				%this.clearInventory();
 				%this.player.weaponcount--;
 				%this.player.isGhost = true;
 			}
@@ -434,7 +433,7 @@ package MM_AfterLife
 
 			if(%this.getDamageLevel() + %techAmt >= %this.getDatablock().maxDamage)
 			{
-				%this.delete();
+				%this.schedule(0, delete);
 				%cl.schedule(1, spawnPlayer);
 
 				return;

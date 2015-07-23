@@ -33,6 +33,13 @@ if(!isObject(MMRole_Godfather))
 					"\c4E.G. if you type \"^abduct The Titanium tonight\" all the other mafia (and noone else!) will receive the message directly." NL
 					"\c4The other mafia can't respond, though, so try to use this to establish communications via secret signals.  Good luck!";
 
+		description = 	"\c4As the leader of the mafia, the \c6Godfather\c4's hands are clean in all affairs!" NL
+						"\c4If the <color:1122CC>Cop\c4 investigates you, he won't be able to find anything on you - you will appear \c2\Innocent\c4!" NL
+						"<font:impact:32pt>\c4You are still a member of the \c0Mafia\c4 though, so don't forget it!" NL
+						"\c4You can also talk to other Mafia by starting a chat message with ^" NL
+						"\c4E.G. if you type \"^abduct The Titanium tonight\" all the other mafia (and noone else!) will receive the message directly." NL
+						"\c4The other mafia can't respond, though, so try to use this to establish communications via secret signals.";
+
 		forceInvAlignment = 0;
 	};
 }
@@ -67,9 +74,6 @@ function GameConnection::MM_GodfatherChat(%this, %msg, %pre2)
 {
 	if(!(%c = %this.MM_canComm()))
 	{
-		if(%c == 2)
-			return 1;
-
 		messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)");
 		
 		return 1;

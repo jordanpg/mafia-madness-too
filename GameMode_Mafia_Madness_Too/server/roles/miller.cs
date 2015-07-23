@@ -21,6 +21,8 @@ if(!isObject(MMRole_Miller))
 
 		displayColour = "<color:00FF00>";
 
+		description = "\c4The <color:667C00>Miller \c4is a role that believes they are \c2Innocent\c4, but appears to be \c0suspicious \c4when investigated.";
+
 		forceInvAlignment = 1;
 	};
 }

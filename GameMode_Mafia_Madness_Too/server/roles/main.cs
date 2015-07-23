@@ -5,6 +5,7 @@ exec("./innocent.cs");
 exec("./mafia.cs");
 
 exec("./abductor.cs");
+exec("./amnesiac.cs");
 exec("./bubbleBuddy.cs");
 exec("./clown.cs");
 exec("./cop.cs");
@@ -14,5 +15,6 @@ exec("./devil.cs");
 exec("./fingerprintExpert.cs");
 exec("./godfather.cs");
 exec("./miller.cs");
+exec("./spy.cs");
 exec("./theLaw.cs");
 exec("./ventriloquist.cs");

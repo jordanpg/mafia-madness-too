@@ -15,7 +15,10 @@ $MM::DefaultGameMode = 4;
 $MM::BringTheLaw = true;
 $MM::LawChance = 0.1;
 $MM::HonkHonkCt = 1;
-$MM::HonkHonkRate = 0.5;
+$MM::HonkHonkRate = 0.2;
+$MM::MafRatio = 1 / 3.5;
+$MM::CopRatio = 1 / 5;
+$MM::MiscRatio = 1 / 7;
 
 function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCts, %innoCts, %mafFill, %innoFill)
 {
@@ -315,7 +318,8 @@ function MM_InitModeMafiaMadnessToo(%this)
 
 	MMDebug("   +Members:" SPC %members);
 
-	%mafs = mFloor(%members / 3.5);
+	// %mafs = mFloor(%members / 3.5);
+	%mafs = %members * $MM::MafRatio;
 	if(%mafs < 1)
 		%mafs = 1;
 
@@ -324,7 +328,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 	// %roles = "A V G C M F O P I";
 
 	%mafRoles = "A V G C D LAW";
-	%innoRoles = "F O P N IC L BB CLOWN";
+	%innoRoles = "F O P N IC L BB CLOWN AM S";
 
 	///////////////////////////////
 	/////ROLE ASSIGNMENT LOGIC/////
@@ -337,7 +341,8 @@ function MM_InitModeMafiaMadnessToo(%this)
 
 	if(%mafs > 1)
 	{
-		%cops = mFloor(%members / 5);
+		// %cops = mFloor(%members / 5);
+		%cops = %members * $MM::CopRatio;
 		if(%cops >= 4) //max we want is one of each cop type
 			%cops = 4;
 
@@ -389,8 +394,21 @@ function MM_InitModeMafiaMadnessToo(%this)
 		for(%i = 0; %i < $MM::HonkHonkCt; %i++)
 			%ctCLOWN += (getRandom() < $MM::HonkHonkRate);
 
-	%millers = mFloor(%members / 10);
-	%ctL = getRandom(%millers);
+	%oddballs = mFloor(%members * $MM::MiscRatio + getRandom());
+	%oddCt = getRandom(%oddballs);
+	%odds = "L AM";
+	if(%ctG > 0)
+		%odds = %odds SPC "S";
+
+	for(%i = 0; %i < %oddCt; %i++)
+	{
+		%rand = getRandom(getWordCount(%odds) - 1);
+		%r = getWord(%odds, %rand);
+
+		%odds = removeWord(%odds, %rand);
+
+		%ct[%r] = 1;
+	}
 
 	///////////////////////////////
 	///////////////////////////////
