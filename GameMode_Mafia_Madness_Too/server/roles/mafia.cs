@@ -27,6 +27,8 @@ if(!isObject(MMRole_Mafia))
 		alignment = 1;
 
 		helpText = "";
+
+		description = "\c4The \c0Mafia \c4is basic role whose goal is to eliminate the \c2Innocents\c4.";
 	};
 }
 

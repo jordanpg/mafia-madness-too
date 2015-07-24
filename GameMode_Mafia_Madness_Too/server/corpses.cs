@@ -39,7 +39,7 @@ function AIPlayer::MM_getRoleName(%this)
 	return %r.getCorpseName();
 }
 
-function AIPlayer::MM_onCorpseSpawn(%this, %mini, %client, %killerClient)
+function AIPlayer::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %damageType)
 {
 	//mostly here for other modules and whatnot to hook in
 }
@@ -54,7 +54,7 @@ function AIPlayer::MM_onCorpseThrow(%this, %obj)
 	
 }
 
-function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse)
+function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse, %damageType)
 {
 
 }
@@ -74,7 +74,7 @@ function Player::MM_PickUpCorpse(%this, %obj)
 	if(!%obj.isCorpse)
 		return false;
 
-	if(!isObject(%this) || !isObject(%cl = %this.getControllingClient()) || %this != %cl.player || %cl.isGhost || %cl.lives < 1)
+	if(!isObject(%this) || !isObject(%cl = %this.getControllingClient()) || %this != %cl.player || %this.isGhost)
 		return false;
 
 	if(isObject(%this.heldCorpse))
@@ -97,7 +97,10 @@ function Player::MM_ThrowCorpse(%this)
 
 	%this.mountObject(%obj, 8);
 	%obj.dismount();
-	%obj.addVelocity(VectorScale(%this.getEyeVector(), $MM::CorpseThrowSpeed));
+
+	%vel = VectorAdd(%this.getVelocity(), VectorScale(%this.getEyeVector(), $MM::CorpseThrowSpeed));
+	// echo(%vel);
+	%obj.schedule(1, setVelocity, %vel);
 	%obj.holder = "";
 
 	%this.heldCorpse = 0;
@@ -150,7 +153,7 @@ package MM_Corpses
 							isCorpse = true;
 						};
 
-			%corpse.MM_onCorpseReSpawn(%mini, %this, %srcClient, %this.player);
+			%corpse.MM_onCorpseReSpawn(%mini, %this, %srcClient, %this.player, %damageType);
 
 			%notARealDeath = true;
 		}
@@ -171,7 +174,7 @@ package MM_Corpses
 							isCorpse = true;
 						};
 
-			%corpse.MM_onCorpseSpawn(%mini, %this, %srcClient);
+			%corpse.MM_onCorpseSpawn(%mini, %this, %srcClient, %damageType);
 		}
 
 		if(%this.player.doombot)
@@ -246,7 +249,7 @@ package MM_Corpses
 		switch(%slot)
 		{
 			case 4:
-				if(%cl.isGhost || %cl.lives < 1 && !%obj.isCorpse)
+				if(%obj.isGhost)
 					return parent::onTrigger(%this, %obj, %slot, %val);
 			
 				if(!isObject(%obj.heldCorpse))

@@ -136,6 +136,7 @@ function MinigameSO::MM_SetRole(%this, %client, %role)
 	%this.memberCache[%this.memberCacheLen | 0] = %client;
 	%this.memberCacheName[%this.memberCacheLen | 0] = %client.getPlayerName();
 	%this.memberCacheRole[%this.memberCacheLen | 0] = %role;
+	%this.memberCacheKey[%client] = %this.memberCacheLen | 0;
 	%this.memberCacheLen++; 
 
 	%client.knowsFullRole = false;
@@ -333,6 +334,8 @@ function MinigameSO::MM_ClearRoles(%this)
 
 	for(%i = 0; %i < %this.memberCacheLen; %i++)
 	{
+		%c = %this.memberCache[%i];
+		%this.memberCacheKey[%c] = "";
 		%this.memberCache[%i] = "";
 		%this.memberCacheName[%i] = "";
 		%this.memberCacheRole[%i] = "";
@@ -658,11 +661,15 @@ function MinigameSO::MM_WinCheck(%this, %killed, %killer)
 function MinigameSO::MM_GetMafList(%this)
 {
 	%list = "";
-	for(%i = 0; %i < %this.numMembers; %i++)
+	for(%i = 0; %i < %this.memberCacheLen; %i++)
 	{
-		%mem = nameToID(%this.member[%i]);
+		%mem = %this.memberCache[%i];
 
-		if(%mem.MM_isMaf())
+		%r = %this.memberCacheRole[%i];
+
+		if(!isObject(%mem) && %r.getAlignment() == 1)
+			%list = %list SPC %mem;
+		else if(%mem.MM_isMaf())
 			%list = %list SPC %mem;
 	}
 
@@ -742,17 +749,21 @@ function GameConnection::MM_DisplayMafiaList(%this)
 	if(!isObject(%mini) || !%mini.running)
 		return;
 
+	messageClient(%this, '', "\c0--");
+
 	%list = %mini.MM_GetMafList();
 	%ct = getWordCount(%list);
 	for(%i = 0; %i < %ct; %i++)
 	{
 		%cl = getWord(%list, %i);
 
-		if(!isObject(%r = %cl.role))
+		if(!isObject(%r = %mini.role[%cl]))
 			continue;
 
-		messageClient(%this, '', %cl.MM_GetName() SPC "(" @ %r.getRoleName() @ ")");
+		messageClient(%this, '', (isObject(%cl) ? %cl.MM_GetName() : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")");
 	}
+
+	messageClient(%this, '', "\c0--");
 }
 
 function GameConnection::MM_DisplayAlignmentDetails(%this, %alignment)
@@ -765,8 +776,10 @@ function GameConnection::MM_DisplayAlignmentDetails(%this, %alignment)
 	}
 	else if(%alignment == 1)
 	{
-		messageClient(%this, '', "\c4You are the \c0Mafia\c4!  You must kill all the innocents.  Here is a full list of the members of the mafia: ");
-		messageClient(%this, '', "\c4If all of the mafia die, you lose.  You can type \c3/mafList\c4 to see it again, and anyone not on this list is innocent.  Good luck!");
+		messageClient(%this, '', "\c4You are the \c0Mafia\c4!  You must kill all the innocents.");
+		messageClient(%this, '', "\c4If all of the mafia die, you lose.  You can type \c3/mafList\c4 to see the mafia again, and anyone not on the list is innocent.  Good luck!");
+
+		%this.schedule(0, MM_DisplayMafiaList);
 
 		return 1;
 	}
@@ -801,12 +814,8 @@ function GameConnection::MM_DisplayStartText(%this)
 	%this.schedule(1500, centerprint, "<font:impact:32pt><color:00FFFF>Your role has been delivered.  Look at the chat for a description.", 8.5);
 	%this.player.setWhiteOut(0.75);
 
-	if(%this.MM_isMaf())
-	{
-		messageClient(%this, '', "\c0--");
-		%this.MM_DisplayMafiaList();
-		messageClient(%this, '', "\c0--");
-	}
+	// if(%this.MM_isMaf())
+	// 	%this.MM_DisplayMafiaList();
 }
 
 function GameConnection::MM_GiveEquipment(%this)
@@ -1160,7 +1169,12 @@ package MM_Core
 		%r = parent::spawnPlayer(%this);
 
 		if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !$DefaultMinigame.running)
+		{
+			if(isObject(%this.player))
+				%this.player.MM_AddGun(%this.gun | 0);
+
 			return %r;
+		}
 
 		if(%this.lives < 1 || %this.isGhost || %this.MMIgnore)
 			return %r;

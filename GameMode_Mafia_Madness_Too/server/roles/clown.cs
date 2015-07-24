@@ -1,10 +1,10 @@
 //clown.cs
 //Code for the unaligned Clown joke role.
 
-$MM::InvStatus[2] = '\c3%1 \c4is quite a <color:00ED3B>strange individual\c4.';
+$MM::InvStatus[2] = '\c3%1 \c4is quite a <color:808080>strange individual\c4.';
 
 $MM::ClownHornTimeout = 0.3;
-$MM::ClownForceCostume = false;
+$MM::ClownForceCostume = true;
 $MM::ClownPush = true;
 $MM::ClownPushRange = 2;
 $MM::ClownPushForce = 5;
@@ -37,12 +37,12 @@ if(!isObject(MMRole_Clown))
 		helpText = 	"\c4You are <color:80FF80>The Clown\c4! You aren't part of the mafia or innocent." NL
 					"\c4If you get killed by any other player, you will win the round." NL
 					"\c4But you don't have a gun! Instead, you have a horn! Click to use it." NL
-					"\c4Suicide and falling won't count, though! The only death that counts is a kill.";
+					"\c4Suicide and falling won't count, though! The only death that counts is a kill, and you have two lives.";
 
-		description = 	"\c4The <color:80FF80>The Clown\c4 isnt't part of the mafia or the innocents." NL
+		description = 	"\c4<color:80FF80>The Clown\c4 isn't part of the mafia or the innocents." NL
 						"\c4If they get killed by any other player, they will win the round." NL
 						"\c4But they don't have a gun! Instead, they have a horn! Click to use it." NL
-						"\c4Suicide and falling won't count, though! The only death that counts is a kill.";
+						"\c4Suicide and falling won't count, though! The only death that counts is a kill, and they have two lives.";
 
 		gun = -1;
 		additionalLives = 1;

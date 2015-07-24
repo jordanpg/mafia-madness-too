@@ -20,6 +20,8 @@ if(!isObject(MMRole_Cop_Paranoid))
 
 		displayColour = "<color:1122CC>";
 
+		description = "\c4The <color:CC4444>Paranoid Cop \c4is a cop that always gets \c0suspicious \c4as a result for investigations.";
+
 		forceInvResult = 1;
 	};
 }
@@ -38,6 +40,8 @@ if(!isObject(MMRole_Cop_Naive))
 
 		displayColour = "<color:1122CC>";
 
+		description = "\c4The <color:58C2FF>Naive Cop \c4is a cop that always gets \c2upstanding \c4as a result for investigations.";
+
 		forceInvResult = 0;
 	};
 }
@@ -55,6 +59,8 @@ if(!isObject(MMRole_Cop_Insane))
 		nameColour = "1 0.376 1";
 
 		displayColour = "<color:1122CC>";
+
+		description = "\c4The <color:FF40FF>Insane Cop \c4is a cop that always gets \c3random results \c4for investigations.";
 
 		insane = true;
 	};

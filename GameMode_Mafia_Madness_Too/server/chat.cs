@@ -21,6 +21,7 @@ function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, 
 
 	%pre = "\c7";
 	%rad = -1;
+	%detectWalls = false;
 
 	switch(%type)
 	{
@@ -43,10 +44,12 @@ function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, 
 		case 3: //Low
 			%pre = "\c7[\c4Low\c7]";
 			%rad = 8;
+			%detectWalls = true;
 
 		case 4: //Whisper
 			%pre = "\c4[\c6Whisper\c4]\c7";
 			%rad = 2;
+			%detectWalls = true;
 
 		case -1: //Global
 			%rad = -2;
@@ -159,6 +162,14 @@ function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, 
 
 			if(VectorDist(%pos2, %pos) > %rad && %cr != 3)
 				continue;
+
+			if(%detectWalls)
+			{
+				%ray = containerRayCast(%pos2, %pos, $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType);
+
+				if(isObject(firstWord(%ray)))
+					continue;
+			}
 
 			commandToClient(%cl, 'chatMessage', %this, '', '', %format, (%ap ? %pre_2 : %pre), %this.getSimpleName(), %this.clanSuffix, %msg);
 		}

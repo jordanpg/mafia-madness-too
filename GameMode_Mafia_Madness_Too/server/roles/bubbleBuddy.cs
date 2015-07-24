@@ -275,11 +275,14 @@ package MM_BubbleBuddy
 		if(isObject(%scl.player))
 			%spl = %scl.player;
 
+		if(isObject(%spl))
+			%spos = %spl.getHackPosition();
+
 		if(%cl.MM_canBubble())
 		{
 			if(isObject(%spl))
 			{
-				%dist = VectorDist(%spl.getHackPosition(), %pos);
+				%dist = VectorDist(%spos, %pos);
 
 				// talk(%dist);
 				if(%dist < $MM::BubbleShooterRad)
@@ -298,9 +301,6 @@ package MM_BubbleBuddy
 			if(%this.MM_ActivateBubble())
 				return;
 		}
-
-		if(isObject(%spl))
-			%spos = %spl.getHackPosition();
 
 		for(%i = 0; %i < %mini.numMembers; %i++)
 		{

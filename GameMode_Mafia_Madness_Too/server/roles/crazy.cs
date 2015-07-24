@@ -6,6 +6,8 @@ $MM::LoadedRole_Crazy = true;
 $MM::CrazyReplaceName = "disfigured corpse";
 $MM::CrazyReplaceRole = "permanently retired";
 
+$MM::DisfigureDecapitates = true;
+
 if(!isObject(MMRole_Crazy))
 {
 	new ScriptObject(MMRole_Crazy)
@@ -39,12 +41,12 @@ if(!isObject(MMRole_Crazy))
 						"\c4Anyone who inspects the corpse will not know their name or their role.  You can also charge up the knife to do it silently." NL
 						"\c4No one but the crazy has the knife, though, so be careful who you show it to!";
 
-		equipment[0] = nameToID(SilentCombatKnifeItem);
+		equipment[0] = nameToID(TrenchKnifeItem);
 	};
 }
 
 //SUPPORT
-function AIPlayer::MM_DisfigureCorpse(%this, %obj)
+function AIPlayer::MM_DisfigureCorpse(%this, %obj, %ech)
 {
 	if(!%this.isCorpse)
 		return;
@@ -54,16 +56,50 @@ function AIPlayer::MM_DisfigureCorpse(%this, %obj)
 
 	if(%this.disfigured)
 	{
-		messageClient(%cl, '', "\c4That corpse is already unrecognizable!");
+		if(!%ech)
+			messageClient(%cl, '', "\c4That corpse is already unrecognizable!");
 		return;
 	}
 
 	%this.disfigured = true;
 	%this.disfiguringClient = %cl;
+
+	if($MM::DisfigureDecapitates)
+		%this.hideNode("headSkin");
 }
 
 package MM_Crazy
 {
+	function AIPlayer::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %damageType)
+	{
+		parent::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %damageType);
+
+		// if(%damageType == $DamageType::CombatKnife && !%this.disfigured)
+		// {
+		// 	if(isObject(%killerClient.player))
+		// 		%this.MM_DisfigureCorpse(%killerClient.player, 1);
+		// 	else
+		// 	{
+		// 		%this.disfigured = true;
+		// 		%this.disfiguringClient = %killerClient;
+		// 	}
+		// }
+	}
+
+	function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse, %damageType)
+	{
+		parent::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse, %damageType);
+
+		if(%oldCorpse.disfigured)
+		{
+			%this.disfigured = true;
+			%this.disfiguringClient = %oldCorpse.disfiguringClient;
+
+			if($MM::DisfigureDecapitates)
+				%this.hideNode("headSkin");
+		}
+	}
+
 	function AIPlayer::MM_getCorpseName(%this)
 	{
 		if(%this.disfigured)
@@ -91,7 +127,7 @@ package MM_Crazy
 		parent::MM_InvestigateFingerprints(%this, %client);
 	}
 
-	function SilentCombatKnifeImage::onFire(%this, %obj, %slot)
+	function TrenchKnifeImage::onFire(%this, %obj, %slot)
 	{
 		parent::onFire(%this, %obj, %slot);
 
@@ -109,7 +145,7 @@ package MM_Crazy
 		%hObj.MM_DisfigureCorpse(%obj);
 	}
 
-	function SilentCombatKnifeImage::onStabFire(%this, %obj, %slot)
+	function TrenchKnifeImage::onStabFire(%this, %obj, %slot)
 	{
 		parent::onStabFire(%this, %obj, %slot);
 
@@ -125,6 +161,14 @@ package MM_Crazy
 			return;
 
 		%hObj.MM_DisfigureCorpse(%obj);
+	}
+
+	function GameConnection::applyMMSilhouette(%this)
+	{
+		parent::applyMMSilhouette(%this);
+
+		if(%this.player.isCorpse && %this.player.disfigured && $MM::DisfigureDecapitates)
+			%this.hideNode("headSkin");
 	}
 };
 activatePackage(MM_Crazy);

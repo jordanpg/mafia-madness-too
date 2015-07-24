@@ -14,11 +14,14 @@ $MM::DefaultGameMode = 4;
 
 $MM::BringTheLaw = true;
 $MM::LawChance = 0.1;
-$MM::HonkHonkCt = 1;
-$MM::HonkHonkRate = 0.2;
+$MM::HonkHonk = true;
+$MM::HonkHonkChance = 0.2;
+$MM::AddTraitor = false;
+
 $MM::MafRatio = 1 / 3.5;
 $MM::CopRatio = 1 / 5;
 $MM::MiscRatio = 1 / 7;
+$MM::TraitorRatio = 1 / 10;
 
 function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCts, %innoCts, %mafFill, %innoFill)
 {
@@ -319,7 +322,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 	MMDebug("   +Members:" SPC %members);
 
 	// %mafs = mFloor(%members / 3.5);
-	%mafs = %members * $MM::MafRatio;
+	%mafs = mFloor(%members * $MM::MafRatio);
 	if(%mafs < 1)
 		%mafs = 1;
 
@@ -328,7 +331,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 	// %roles = "A V G C M F O P I";
 
 	%mafRoles = "A V G C D LAW";
-	%innoRoles = "F O P N IC L BB CLOWN AM S";
+	%innoRoles = "F O P N IC L BB J CLOWN AM S T";
 
 	///////////////////////////////
 	/////ROLE ASSIGNMENT LOGIC/////
@@ -342,7 +345,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 	if(%mafs > 1)
 	{
 		// %cops = mFloor(%members / 5);
-		%cops = %members * $MM::CopRatio;
+		%cops = mFloor(%members * $MM::CopRatio);
 		if(%cops >= 4) //max we want is one of each cop type
 			%cops = 4;
 
@@ -386,13 +389,13 @@ function MM_InitModeMafiaMadnessToo(%this)
 
 	if(%ctC > 0 && $MM::BringTheLaw && getRandom() < $MM::LawChance) //I Am The Law
 	{
-		%ctLAW = 1;
-		%ctC = 0;
+		%ctC--;
+		%ctLAW++;
 	}
 
-	if($MM::HonkHonkCt > 0)
-		for(%i = 0; %i < $MM::HonkHonkCt; %i++)
-			%ctCLOWN += (getRandom() < $MM::HonkHonkRate);
+	// if($MM::HonkHonkCt > 0)
+	// 	for(%i = 0; %i < $MM::HonkHonkCt; %i++)
+	// 		%ctCLOWN += (getRandom() < $MM::HonkHonkRate);
 
 	%oddballs = mFloor(%members * $MM::MiscRatio + getRandom());
 	%oddCt = getRandom(%oddballs);
@@ -408,6 +411,29 @@ function MM_InitModeMafiaMadnessToo(%this)
 		%odds = removeWord(%odds, %rand);
 
 		%ct[%r] = 1;
+	}
+
+	%maxTraitors = mFloor(%members * $MM::TraitorRatio + getRandom());
+	%traitorCt = getRandom(%maxTraitors);
+	%traitors = "J";
+
+	if($MM::AddTraitor)
+		%traitors = %traitors SPC "T";
+
+	for(%i = 0; %i < %traitorCt; %i++)
+	{
+		%rand = getRandom(getWordCount(%traitors) - 1);
+		%r = getWord(%traitors, %rand);
+
+		%traitors = removeWord(%traitors, %rand);
+
+		%ct[%r] = 1;
+	}
+
+	if($MM::HonkHonk && %ctJ > 0 && getRandom() < $MM::HonkHonkChance)
+	{
+		%ctJ--;
+		%ctCLOWN++;
 	}
 
 	///////////////////////////////

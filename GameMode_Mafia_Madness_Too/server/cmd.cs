@@ -22,6 +22,53 @@ if(!$MMRulesPrefsLoaded) {
 	$MMRulesPrefsLoaded = 1;
 }
 
+function serverCmdFindOwner(%this, %initial)
+{
+	if(!%this.isAdmin && !%this.isSuperAdmin)
+		return;
+
+	if(!$DefaultMinigame.running)
+		return;
+
+	%role = $MM::RoleKey[%initial];
+
+	if(!isObject(%role))
+	{
+		messageClient(%this, '', "\c4Could not find role \c3" @ %initial);
+		return;
+	}
+
+	%rn = %role.getColour(1) @ %role.getRoleName();
+
+	for(%i = 0; %i < $DefaultMinigame.memberCacheLen; %i++)
+	{
+		%r = $DefaultMinigame.memberCacheRole[%i];
+
+		if(%r == %role)
+		{
+			messageClient(%this, '', "\c3" @ $DefaultMinigame.memberCacheName[%i] SPC "\c4is the" SPC %rn);
+			echo(%this.getSimpleName() SPC "found the" SPC %role.getRoleName() SPC "(" @ $DefaultMinigame.memberCacheName[%i] @ ")");
+			%found = true;
+		}
+	}
+
+	if(!%found)
+	{
+		messageClient(%this, '', "\c4Could not find a" SPC %rn SPC "\c4in the current round.");
+		echo(%this.getSimpleName() SPC "attempted to find the" SPC %role.getRoleName());
+	}
+}
+
+function serverCmdFindRole(%this, %i)
+{
+	serverCmdFindOwner(%this, %i);
+}
+
+function serverCmdWhoIs(%this, %i)
+{
+	serverCmdFindOwner(%this, %i);
+}
+
 function serverCmdRoles(%this)
 {
 	if(!(%mini = getMinigameFromObject(%this)).running)
@@ -441,7 +488,7 @@ function serverCmdMMRoleList(%this)
 
 	for(%i = 0; %i < $DefaultMinigame.memberCacheLen; %i++)
 	{
-		%role = $DefaultMinigame.role[$DefaultMinigame.memberCache[%i]];
+		%role = $DefaultMinigame.memberCacheRole[%i];
 		%name = $DefaultMinigame.memberCacheName[%i];
 		%c = %role.getColour(1);
 
@@ -930,6 +977,7 @@ function serverCmdRules(%client,%cat,%subcat) {
 			messageClient(%client,'',"\c4-MMRules- \c36\c6. Customs");
 			messageClient(%client,'',"\c4-MMRules- \c37\c6. Changelog (Not necessarily required.)");
 			messageClient(%client,'',"\c4-MMRules- \c6Use \c3PGUp\c6 and \c3PGDown\c6 to scroll the rules up and down.");
+			messageClient(%client,'',"\c4-MMRules- \c6To access a category, type /rules [category name]");
 	}
 	export("$MMReadRules*", "config/server/mmrulesprefs.cs");
 }

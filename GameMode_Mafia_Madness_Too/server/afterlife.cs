@@ -209,6 +209,7 @@ package MM_AfterLife
 			if(%this.showMessage)
 			{
 				%this.centerPrint("<color:604060>You are now spectating.  Wait until the next round to respawn.<br>\c3Use the light key to spectate.", 3);
+				%this.bottomPrint("\c5Use the light key to spectate.");
 				%this.showMessage = false;
 			}
 
@@ -236,6 +237,7 @@ package MM_AfterLife
 			if(%this.showMessage)
 			{
 				%this.centerPrint("<color:604060>You are now in the afterlife.  Wait until the next round to respawn.<br>\c3Use the light key to spectate.", 3);
+				%this.bottomPrint("\c5Use the light key to spectate.");
 				%this.showMessage = false;
 			}
 

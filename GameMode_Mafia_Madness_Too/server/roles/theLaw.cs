@@ -23,7 +23,7 @@ if(!isObject(MMRole_TheLaw))
 
 		description = "<color:400040>The Law \c4is a rarely occurring upgraded <color:FF00FF>Crazy\c4 who also has an \c3assault rifle!";
 
-		equipment[1] = nameToID(TAssaultRifleItem);
+		equipment[1] = nameToID(TommyGunItem);
 	};
 }
 

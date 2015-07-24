@@ -78,16 +78,16 @@ function AIPlayer::MM_InvestigateFingerprints(%this, %client)
 //HOOKS
 package MM_FingerprintExpert
 {
-	function AIPlayer::MM_onCorpseSpawn(%this, %mini, %client, %killerClient)
+	function AIPlayer::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %damageType)
 	{
-		parent::MM_onCorpseSpawn(%this, %mini, %client, %killerClient);
+		parent::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %damageType);
 
 		%this.fingerprintCt = 0;
 	}
 
-	function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse)
+	function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse, %damageType)
 	{
-		parent::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %oldCorpse);
+		parent::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse, %damageType);
 
 		for(%i = 0; %i < %oldCorpse.fingerprintCt; %i++)
 			%this.fingerprints[%i] = %oldCorpse.fingerprints[%i];

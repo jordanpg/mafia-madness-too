@@ -71,7 +71,7 @@ $MiniGame::EnablePainting 0
 
 $MiniGame::PlayerDataBlockName No-Jet Player
 
-$MiniGame::StartEquipName0 MMGun
+$MiniGame::StartEquipName0 0
 $MiniGame::StartEquipName1 0 
 $MiniGame::StartEquipName2 0
 $MiniGame::StartEquipName3 0
