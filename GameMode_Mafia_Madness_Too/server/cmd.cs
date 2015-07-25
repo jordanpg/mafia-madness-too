@@ -22,6 +22,67 @@ if(!$MMRulesPrefsLoaded) {
 	$MMRulesPrefsLoaded = 1;
 }
 
+function serverCmdChat(%this, %target)
+{
+	if(!%this.isSuperAdmin)
+		return;
+
+	%name = %this.getPlayerName();
+
+	if(%target $= "")
+	{
+		if($MM::IsolateChat)
+		{
+			$MM::IsolateChat = false;
+
+			for(%i = 0; %i < $MM::IsolateChatMems; %i++)
+			{
+				%obj = $MM::IsolateChatMem[%i];
+
+				if(isObject(%obj))
+					%obj.isolated = "";
+
+				$MM::IsolateChatMem[%i] = "";
+			}
+
+			$MM::IsolateChatMems = "";
+			messageAll('', "<font:impact:24>\c3" @ %name SPC "\c0disabled isolated chat.");
+
+			echo(%name SPC "disabled isolated chat.");
+			deactivatePackage(MM_IsolatedChat);
+		}
+
+		return;
+	}
+
+	%obj = findClientByName(%target);
+
+	if(!isObject(%obj))
+	{
+		messageClient(%this, '', "\c4Could not find client \c3'" @ %target @ "'");
+		return;
+	}
+
+	if(!$MM::IsolateChat)
+	{
+		messageAll('', "<font:impact:24>\c3" @ %name SPC "\c0enabled isolated chat.");
+		echo(%name SPC "enabled isolated chat.");
+		activatePackage(MM_IsolatedChat);
+	}
+
+	$MM::IsolateChat = true;
+
+	%obj.isolated = true;
+
+	$MM::IsolateChatMem[$MM::IsolateChatMems | 0] = %obj;
+	$MM::IsolateChatMems++;
+
+	%oName = %obj.getPlayerName();
+	messageAll('', "<font:impact:24>\c3" @ %name SPC "\c0added \c3" @ %oName SPC "\c0to isolated chat.");
+	echo(%name SPC "added " @ %oName SPC "to isolated chat.");
+
+}
+
 function serverCmdFindOwner(%this, %initial)
 {
 	if(!%this.isAdmin && !%this.isSuperAdmin)
@@ -531,9 +592,9 @@ function serverCmdGetNickname(%this, %v0, %v1, %v2, %v3, %v4)
 	%cl = findClientByBL_ID(%blid);
 
 	if(isObject(%cl))
-		messageClient(%client,'',"\c3The nickname of\c6" SPC %v SPC "\c3belongs to\c6" SPC %cl.getPlayerName() SPC "\c3.");
+		messageClient(%this,'',"\c3The nickname of\c6" SPC %v SPC "\c3belongs to\c6" SPC %cl.getPlayerName() SPC "\c3.");
 	else
-		messageClient(%client,'',"\c3The nickname of\c6" SPC %v SPC "\c3belongs to BLID\c6" SPC %blid SPC "\c3.");
+		messageClient(%this,'',"\c3The nickname of\c6" SPC %v SPC "\c3belongs to BLID\c6" SPC %blid SPC "\c3.");
 }
 
 function serverCmdClaim(%this, %claim)
@@ -981,3 +1042,34 @@ function serverCmdRules(%client,%cat,%subcat) {
 	}
 	export("$MMReadRules*", "config/server/mmrulesprefs.cs");
 }
+
+package MM_IsolatedChat
+{
+	function serverCmdMessageSent(%this, %msg)
+	{
+		if(!$MM::IsolateChat)
+			return parent::serverCmdMessageSent(%this, %msg);
+
+		if(!%this.isolated && !%this.isAdmin && !%this.isSuperAdmin)
+		{
+			messageClient(%this, '', "Chat is currently isolated.");
+			return;
+		}
+
+		parent::serverCmdMessageSent(%this, %msg);
+	}
+
+	function serverCmdTeamMessageSent(%this, %msg)
+	{
+		if(!$MM::IsolateChat)
+			return parent::serverCmdTeamMessageSent(%this, %msg);
+
+		if(!%this.isolated && !%this.isAdmin && !%this.isSuperAdmin)
+		{
+			messageClient(%this, '', "Chat is currently isolated.");
+			return;
+		}
+
+		parent::serverCmdTeamMessageSent(%this, %msg);
+	}
+};

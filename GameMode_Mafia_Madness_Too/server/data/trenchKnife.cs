@@ -87,6 +87,7 @@ datablock ShapeBaseImageData(TrenchKnifeImage)
 	stateTimeoutValue[0]		= 0.5;
 	stateTransitionOnTimeout[0]	= "StabCooldown";
 	stateSequence[0]		= "Activate";
+	stateScript[0]                  = "onActivate";
 	//stateSound[0]					= weaponSwitchSound;
 
 	stateName[1]			= "Ready";
@@ -140,6 +141,11 @@ datablock ShapeBaseImageData(TrenchKnifeImage)
 	stateSequence[6]		= "Prime";
 	stateAllowImageChange[6]	= false;
 };
+
+function TrenchKnifeImage::onActivate(%this, %obj, %slot)
+{
+	%obj.playThread(2,plant);
+}
 
 function TrenchKnifeImage::onFire(%this, %obj, %slot)
 {

@@ -17,6 +17,8 @@ $MM::LawChance = 0.1;
 $MM::HonkHonk = true;
 $MM::HonkHonkChance = 0.2;
 $MM::AddTraitor = false;
+$MM::JohnCena = true;
+$MM::JohnCenaChance = 0.05;
 
 $MM::MafRatio = 1 / 3.5;
 $MM::CopRatio = 1 / 5;
@@ -330,7 +332,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 
 	// %roles = "A V G C M F O P I";
 
-	%mafRoles = "A V G C D LAW";
+	%mafRoles = "JOHNCENA A V G C D LAW";
 	%innoRoles = "F O P N IC L BB J CLOWN AM S T";
 
 	///////////////////////////////
@@ -392,6 +394,9 @@ function MM_InitModeMafiaMadnessToo(%this)
 		%ctC--;
 		%ctLAW++;
 	}
+
+	if($MM::JohnCena && getRandom() < $MM::JohnCenaChance)
+		%ctJOHNCENA++;
 
 	// if($MM::HonkHonkCt > 0)
 	// 	for(%i = 0; %i < $MM::HonkHonkCt; %i++)

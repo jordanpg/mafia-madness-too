@@ -89,7 +89,7 @@ datablock ShapeBaseImageData(MMResearchBFRImage)
    className = "WeaponImage";
 
    // Projectile && Ammo.
-   item = MMGunItem;
+   item = MMResearchBFRItem;
    ammo = " ";
    projectile = gunProjectile;
    projectileType = Projectile;
@@ -248,63 +248,22 @@ datablock ShapeBaseImageData(MMResearchBFRImage)
 
 function MMResearchBFRImage::onFire(%this,%obj,%slot)
 {
-	if(%obj.toolAmmo[%obj.currTool] > 0 || %this.item.MMmaxAmmo == 0) {
-		if(%obj.getDamagePercent() < 1.0)
-			%obj.playThread(2, shiftAway);
-		%obj.noChangeWep = 1;
-		if(%this.item.MMmaxAmmo > 0) {
-			%obj.toolAmmo[%obj.currTool]--;
-		}
-		// talk(%obj.toolAmmo[%slot] SPC %slot);
-		Parent::onFire(%this,%obj,%slot);
-	}
-	else {
-		serverPlay3D(block_MoveBrick_Sound,%obj.getPosition());
-		%obj.playThread(2,shiftRight);
-	}
+	MMGunImage::onFire(%this, %obj, %slot);
 }
 
 function MMResearchBFRImage::onReady(%this,%obj,%slot) {
-	%obj.noChangeWep = 0;
+	MMGunImage::onReady(%this, %obj, %slot);
 }
 
 function MMResearchBFRImage::onReloaded(%this,%obj,%slot) {
-	if(isObject(%obj) && isObject(%data = %obj.getDatablock()) && isObject(%data.normalVersion)) {
-		%obj.setDatablock(%data.normalVersion);
-	}
-	%obj.reloading = 0;
-	%obj.toolAmmo[%obj.currTool] = 6;
-	%obj.playthread(2,shiftDown);
+	MMGunImage::onReloaded(%this, %obj, %slot);
 }
 
 
 function MMResearchBFRImage::onReloadStart(%this,%obj,%slot) {
-	if(isObject(%obj) && isObject(%data = %obj.getDatablock())) {
-		// if(isObject(%data.slowVersion)) {
-		// 	%obj.setDatablock(%data.slowVersion);
-		// }
-		// else {
-		// 	//so just declaring the datablock normally doesn't work... time to pley HARDBALL leoaleolaeole
-		// 	// datablock PlayerData((%data.getName() @ "SlowReload") : (%data.getName())) {
-		// 		// maxForwardSpeed = %data.maxForwardSpeed/4;
-		// 		// maxSideSpeed = %data.maxSideSpeed/4;
-		// 		// maxBackwardSpeed = %data.maxSideSpeed/4;
-		// 		// normalVersion = %data;
-		// 	// };
-		// 	//i've always wanted to do this
-		// 	eval("datablock PlayerData(" @ %data.getName() @ "SlowReload" @ ":" @ %data.getName() @ ") { maxForwardSpeed =" SPC %data.maxForwardSpeed/4 @ "; maxSideSpeed =" SPC %data.maxSideSpeed/4 @ "; maxBackwardSpeed =" SPC %data.maxBackwardSpeed/4 @ "; maxForwardCrouchSpeed =" SPC %data.maxForwardCrouchSpeed / 4 @ "; maxSideCrouchSpeed =" SPC %data.maxSideCrouchSpeed / 4 @ "; maxBackwardCrouchSpeed =" SPC %data.maxBackwardCrouchSpeed / 4 @ "; normalVersion =" SPC %data @ "; uiName = \"\";jumpForce = 0; airControl = 0;};");
-		// 	//take THAT, TGE!!!1
-		// 	%data.slowVersion = %data.getName() @ "SlowReload";
-		// 	updateClientDatablocks();
-		// 	%obj.setDatablock(%data.slowVersion);
-		// }
-
-		%obj.setDatablock(bracketsHatesTGE(%data));
-
-		%obj.reloading = 1;
-	}
+	MMGunImage::onReloadStart(%this, %obj, %slot);
 }
 
 function MMResearchBFRImage::onReloadMid(%this,%obj,%slot) {
-	%obj.playthread(2,shiftLeft);
+	MMGunImage::onReloadMid(%this, %obj, %slot);
 }

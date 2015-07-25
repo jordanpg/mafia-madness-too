@@ -23,7 +23,7 @@ datablock ItemData(PeaceMakerItem)
 	emap = true;
 
 	//gui stuff
-	uiName = "Peace Maker";
+	uiName = "Peacemaker";
 	iconName = "Add-Ons/Weapon_Gun/icon_gun";
 	doColorShift = true;
 	colorShiftColor = "0.75 0.75 0.75 1";
@@ -105,7 +105,7 @@ datablock ShapeBaseImageData(PeaceMakerImage)
 
 	stateName[2]                    = "Fire";
 	stateTransitionOnTimeout[2]     = "Smoke";
-	stateTimeoutValue[2]            = 0.14;
+	stateTimeoutValue[2]            = 0.5;
 	stateFire[2]                    = true;
 	stateAllowImageChange[2]        = false;
 	stateSequence[2]                = "Fire";
@@ -114,7 +114,7 @@ datablock ShapeBaseImageData(PeaceMakerImage)
 	stateEmitter[2]					= gunFlashEmitter;
 	stateEmitterTime[2]				= 0.05;
 	stateEmitterNode[2]				= "muzzleNode";
-	stateSound[2]					= gunShot1Sound;
+	stateSound[2]					= gunShot2Sound;
 	// stateEjectShell[2]       = true;
 
 	stateName[3] = "Smoke";
@@ -122,7 +122,7 @@ datablock ShapeBaseImageData(PeaceMakerImage)
 	stateEmitter[3]					= gunSmokeEmitter;
 	stateEmitterTime[3]				= 1;
 	stateEmitterNode[3]				= "muzzleNode";
-	stateTimeoutValue[3]            = 1;
+	stateTimeoutValue[3]            = 0.5;
 	stateAllowImageChange[3]        = false;
 	stateTransitionOnTimeout[3]     = "LoadCheckA";
 
@@ -143,20 +143,21 @@ datablock ShapeBaseImageData(PeaceMakerImage)
 	stateTransitionOnNoAmmo[5]		= "ReadyNoAmmo";
 	
 	stateName[6]				= "ReloadWait";
-	stateTimeoutValue[6]			= 0.3;
+	stateTimeoutValue[6]			= 0.5;
 	stateScript[6]				= "onReloadStart";
 	stateTransitionOnTimeout[6]		= "EjectShell1";
 	stateWaitForTimeout[6]			= true;
+	stateSound[6]			= Block_ChangeBrick_Sound;
 	
 	stateName[7]				= "ReloadMid";
 	stateSequence[7] = "Reload";
-	stateTimeoutValue[7]			= 2.0;
+	stateTimeoutValue[7]			= 1.6;
 	stateScript[7]				= "onReloadMid";
 	stateTransitionOnTimeout[7]		= "Reloaded";
 	stateWaitForTimeout[7]			= true;
 	
 	stateName[8]				= "Reloaded";
-	stateTimeoutValue[8]			= 0.3;
+	stateTimeoutValue[8]			= 0.5;
 	stateScript[8]				= "onReloaded";
 	stateTransitionOnTimeout[8]		= "LoadCheckA";
 	stateSequence[8]		= "Fire";

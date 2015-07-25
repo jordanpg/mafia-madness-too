@@ -15,6 +15,7 @@ exec("./devil.cs");
 exec("./fingerprintExpert.cs");
 exec("./godfather.cs");
 exec("./jester.cs");
+exec("./johnCena.cs");
 exec("./miller.cs");
 exec("./spy.cs");
 exec("./theLaw.cs");

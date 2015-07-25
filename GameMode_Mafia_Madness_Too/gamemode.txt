@@ -33,6 +33,7 @@ ADDON Script_TsuEval
 //MUSIC CaveStory_Oppression
 //MUSIC CaveStory_Running_Hell
 //MUSIC CaveStory_Last_Battle
+MUSIC JOHN_CENA
 
 //env settings
 $EnvGuiServer::SimpleMode 1

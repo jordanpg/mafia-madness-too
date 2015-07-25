@@ -8,6 +8,9 @@ $MM::DediRoundDelay = 30000;
 
 $MM::DeadRising = 4;
 
+$MM::DMEquipment[0] = nameToID(TrenchKnifeItem);
+// $MM::DMEquipment[1] = nameToID(TommyGunItem);
+
 package disableToolCmds { function serverCmdDuplicator() { } function serverCmdFillcan() { } function serverCmdUsePrintGun() { } };
 
 function MM_isValidGameMode(%modeName)
@@ -669,7 +672,7 @@ function MinigameSO::MM_GetMafList(%this)
 
 		if(!isObject(%mem) && %r.getAlignment() == 1)
 			%list = %list SPC %mem;
-		else if(%mem.MM_isMaf())
+		else if(isObject(%mem) && %mem.MM_isMaf())
 			%list = %list SPC %mem;
 	}
 
@@ -818,8 +821,33 @@ function GameConnection::MM_DisplayStartText(%this)
 	// 	%this.MM_DisplayMafiaList();
 }
 
+function GameConnection::MM_GiveDMEquipment(%this)
+{
+	if(!isObject(%this.player) || $DefaultMinigame.running)
+		return;
+
+	%this.player.MM_AddGun(%this.gun | 0);
+
+	%ct = %this.player.getDatablock().maxTools - 1;
+
+	for(%i = 0; %i < %ct; %i++)
+	{
+		if(!isObject($MM::DMEquipment[%i]))
+			continue;
+
+		%this.player.tool[%i + 1] = $MM::DMEquipment[%i];
+		messageClient(%this, 'MsgItemPickup', '', %i + 1, $MM::DMEquipment[%i]);
+	}
+}
+
 function GameConnection::MM_GiveEquipment(%this)
 {
+	if(!$DefaultMinigame.running)
+	{
+		%this.MM_GiveDMEquipment();
+		return;
+	}
+
 	if(!isObject(%this.player))
 		return;
 
@@ -1170,8 +1198,7 @@ package MM_Core
 
 		if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !$DefaultMinigame.running)
 		{
-			if(isObject(%this.player))
-				%this.player.MM_AddGun(%this.gun | 0);
+			%this.MM_GiveDMEquipment();
 
 			return %r;
 		}

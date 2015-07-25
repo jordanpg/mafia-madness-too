@@ -6,6 +6,20 @@ $MM::LoadedGun = true;
 
 $MM::GunItems = 0;
 
+datablock AudioProfile(gunShot2Sound)
+{
+   filename    = "./gunShot2.wav";
+   description = AudioClose3d;
+   preload = true;
+};
+
+datablock AudioProfile(gunShot4Sound)
+{
+   filename    = "./gunShot4.wav";
+   description = AudioClose3d;
+   preload = true;
+};
+
 datablock PlayerData(PlayerNoJetSlowReload : PlayerNoJet)
 {
 	//so i was thinkin "O MAN I CAN USE THE NEW SETMOVESPEED METHODS O MAN NO MORE OF THIS HACKY NONSENSE" but no cus then i can't modify jumpForce and airControl
@@ -31,7 +45,7 @@ function MMGunImage::onFire(%this, %obj, %slot)
 {
 	if(%obj.toolAmmo[%obj.currTool] > 0 || %this.item.MMmaxAmmo == 0) {
 		if(%obj.getDamagePercent() < 1.0)
-			%obj.playThread(2, shiftAway);
+		   %obj.playThread(2, "shiftAway");
 		%obj.noChangeWep = 1;
 		if(%this.item.MMmaxAmmo > 0) {
 			%obj.toolAmmo[%obj.currTool]--;
@@ -41,7 +55,7 @@ function MMGunImage::onFire(%this, %obj, %slot)
 	}
 	else {
 		serverPlay3D(block_MoveBrick_Sound,%obj.getPosition());
-		%obj.playThread(2,shiftRight);
+		%obj.playThread(2,plant);
 	}
 }
 
@@ -55,7 +69,8 @@ function MMGunImage::onReloaded(%this,%obj,%slot) {
 	}
 	%obj.reloading = 0;
 	%obj.toolAmmo[%obj.currTool] = 6;
-	%obj.playthread(2,shiftDown);
+	%obj.playthread(2,shiftRight);
+	%obj.schedule(200, "playThread", "2", "plant");
 }
 
 function MMGunImage::onReloadStart(%this,%obj,%slot) {
@@ -87,6 +102,7 @@ function MMGunImage::onReloadStart(%this,%obj,%slot) {
 
 function MMGunImage::onReloadMid(%this,%obj,%slot) {
 	%obj.playthread(2,shiftLeft);
+	%obj.schedule(200, "playThread", "2", "shiftTo");
 }
 
 function Player::MM_AddGun(%this, %gun)

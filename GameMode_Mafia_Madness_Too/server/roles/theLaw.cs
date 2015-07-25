@@ -6,6 +6,8 @@ if(!$MM::LoadedRole_Crazy)
 
 $MM::LoadedRole_TheLaw = true;
 
+$Pref::Server:TTAmmo = 2;
+
 if(!isObject(MMRole_TheLaw))
 {
 	new ScriptObject(MMRole_TheLaw : MMRole_Crazy)
