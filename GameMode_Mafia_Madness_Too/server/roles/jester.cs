@@ -26,15 +26,15 @@ if(!isObject(MMRole_Jester))
 
 		helpText = 	"\c4You are the <color:80FF80>Jester\c4! You aren't part of the mafia or innocent." NL
 					"\c4If you get killed by any other player, you will win the round." NL
-					"\c4But you don't have a gun! You must get players to kill you by bringing suspicion onto yourself." NL
+					"\c4But your gun is empty! You must get players to kill you by bringing suspicion onto yourself." NL
 					"\c4Suicide and falling won't count, though! The only death that counts is a kill.";
 
 		description = 	"\c4The <color:80FF80>Jester\c4 isnt't part of the mafia or the innocents." NL
 						"\c4If you get killed by any other player, you will win the round." NL
-						"\c4But you don't have a gun! You must get players to kill you by bringing suspicion onto yourself." NL
+						"\c4But your gun is empty! You must get players to kill you by bringing suspicion onto yourself." NL
 						"\c4Suicide and falling won't count, though! The only death that counts is a kill.";
 
-		gun = -1;
+		// gun = -1;
 	};
 }
 
@@ -46,7 +46,7 @@ function MMRole_Jester::SpecialWinCheck(%this, %mini, %client, %killed, %killer)
 	if(%killed == %killer || !isObject(%killer))
 		return %r;
 
-	if(%client == %killed && %client.lives < 1)
+	if(%client == %killed && %client.lives < 1 && !%killer.MM_isMaf())
 	{
 		// talk(%client.lives);
 		%mini.MM_LogEvent("<color:80FF80>HONK HONK");
@@ -60,4 +60,15 @@ function MMRole_Jester::SpecialWinCheck(%this, %mini, %client, %killed, %killer)
 	}
 
 	return %r;
+}
+
+function MMRole_Jester::onSpawn(%this, %mini, %client)
+{
+	parent::onSpawn(%this, %mini, %client);
+
+	if(isObject(%client.player))
+	{
+		%client.player.forceEmptyGun = true;
+		%client.player.toolAmmo[0] = 0; //shouldn't be necessary but i'll have the line here just in case
+	}
 }

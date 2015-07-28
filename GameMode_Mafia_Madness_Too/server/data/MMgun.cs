@@ -43,7 +43,8 @@ PlayerNoJet.slowVersion = PlayerNoJetSlowReload;
 
 function MMGunImage::onFire(%this, %obj, %slot)
 {
-	if(%obj.toolAmmo[%obj.currTool] > 0 || %this.item.MMmaxAmmo == 0) {
+	if((%obj.toolAmmo[%obj.currTool] > 0 || %this.item.MMmaxAmmo == 0)) //&& !%obj.forceEmptyGun) {
+	{
 		if(%obj.getDamagePercent() < 1.0)
 		   %obj.playThread(2, "shiftAway");
 		%obj.noChangeWep = 1;
@@ -93,6 +94,9 @@ function MMGunImage::onReloadStart(%this,%obj,%slot) {
 		// 	updateClientDatablocks();
 		// 	%obj.setDatablock(%data.slowVersion);
 		// }
+
+		if(isObject(%obj.heldCorpse))
+			%obj.MM_ThrowCorpse();
 
 		%obj.setDatablock(bracketsHatesTGE(%data));
 
@@ -214,7 +218,7 @@ package MM_Gun
 		{
 			// MMDebug("fk");
 
-			if(%im.item.MMmaxAmmo > 0 && %im.item.MMcanReload == 1 && %p.toolAmmo[%p.currTool] < %im.item.MMmaxAmmo)
+			if(%im.item.MMmaxAmmo > 0 && %im.item.MMcanReload == 1 && %p.toolAmmo[%p.currTool] < %im.item.MMmaxAmmo && !%p.forceEmptyGun)
 			{
 				// MMDebug("fek");
 				if(%p.getImageState(0) $= "Ready")
@@ -299,13 +303,16 @@ package MM_Gun
 	{	
 		Parent::onMount(%this,%obj,%slot);
 		
-		if(%this.item.MMmaxAmmo >= 0 && (%obj.currTool == -1 || %obj.toolAmmo[%obj.currTool] $= ""))
+		if(%this.item.MMmaxAmmo >= 0 && (%obj.currTool == -1 || %obj.toolAmmo[%obj.currTool] $= "") && !%obj.forceEmptyGun)
 			%obj.toolAmmo[%obj.currTool] = %this.item.MMmaxAmmo;
+			
+		if(%obj.forceEmptyGun)
+			%obj.toolAmmo[%obj.currTool] = 0;
 	}
 
 	function WeaponImage::onMMLoadCheck(%this,%obj,%slot)
 	{
-		if(%obj.toolAmmo[%obj.currTool] <= 0 && %this.item.MMmaxAmmo > 0 && %obj.getState() !$= "Dead")
+		if((%obj.toolAmmo[%obj.currTool] <= 0 && %this.item.MMmaxAmmo > 0 && %obj.getState() !$= "Dead") || %obj.forceEmptyGun)
 			%obj.setImageAmmo(%slot,0);
 		else
 			%obj.setImageAmmo(%slot,1);

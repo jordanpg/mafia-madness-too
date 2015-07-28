@@ -11,6 +11,8 @@ $MM::DeadRising = 4;
 $MM::DMEquipment[0] = nameToID(TrenchKnifeItem);
 // $MM::DMEquipment[1] = nameToID(TommyGunItem);
 
+$MM::MafListSetting = 1;
+
 package disableToolCmds { function serverCmdDuplicator() { } function serverCmdFillcan() { } function serverCmdUsePrintGun() { } };
 
 function MM_isValidGameMode(%modeName)
@@ -183,14 +185,17 @@ function MinigameSO::MM_ClearEventLog(%this)
 
 function MinigameSO::MM_LogEvent(%this, %str)
 {
-	%this.eventLog[%this.eventLogLen | 0] = %str;
+	%this.eventLog[%this.eventLogLen | 0] = (%this.isDay ? "\c6" : "\c7") @ "(" @ %this.MM_getTime() @ ")" SPC %str;
 	%this.eventLogLen++;
 }
 
-function MinigameSO::MM_ChatEventLog(%this, %cl)
+function MinigameSO::MM_ChatEventLog(%this, %cl, %search)
 {
 	for(%i = 0; %i < %this.eventLogLen; %i++)
 	{
+		if(%search !$= "" && striPos(%this.eventLog[%i], %search) == -1)
+			continue;
+
 		if(isObject(%cl))
 			messageClient(%cl, '', %this.eventLog[%i]);
 		else
@@ -264,6 +269,11 @@ function MinigameSO::MM_AssignRoles(%this)
 
 function MinigameSO::MM_InitRound(%this)
 {
+	cancel(%this.MMNextGame);
+
+	if(%this.running)
+		return;
+
 	if(!%this.isMM)
 		%this.MM_Init();
 
@@ -280,7 +290,7 @@ function MinigameSO::MM_InitRound(%this)
 
 	%mode = %this.MM_GetGameMode();
 
-	echo(%mode);
+	// echo(%mode);
 
 	MMDebug("MM_InitRound" SPC %this SPC %mode, %this);
 
@@ -297,6 +307,8 @@ function MinigameSO::MM_InitRound(%this)
 		MMDebug("Gamemode" SPC %mode SPC "didn\'t build a proper roles list!", %this);
 		return;
 	}
+
+	%this.roundStart = $Sim::Time;
 
 	%this.allAbduct |= $MM::AllAbduct;
 	%this.allComm |= $MM::AllComm;
@@ -326,8 +338,6 @@ function MinigameSO::MM_InitRound(%this)
 		messageAll('', "<color:FF0000><font:impact:32pt>All mafia can impersonate this round. That\'ll be fun.");
 	if(%this.allFingerprint)
 		messageAll('', "<color:00FF00><font:impact:32pt>All innocent can examine fingerprints this round. Hope you have gloves.");
-
-	%this.roundStart = $Sim::Time;
 }
 
 function MinigameSO::MM_ClearRoles(%this)
@@ -670,6 +680,11 @@ function MinigameSO::MM_GetMafList(%this)
 
 		%r = %this.memberCacheRole[%i];
 
+		if(%has[%mem])
+			continue;
+
+		%has[%mem] = true;
+
 		if(!isObject(%mem) && %r.getAlignment() == 1)
 			%list = %list SPC %mem;
 		else if(isObject(%mem) && %mem.MM_isMaf())
@@ -716,6 +731,19 @@ function MinigameSO::MM_getRolesList(%this)
 	return %this.forcedRoleStr;
 }
 
+function MinigameSO::MM_getTime(%this)
+{
+	if(!%this.running)
+		return -1;
+
+	return getTimeString(mFloatLength($Sim::Time - %this.roundStart, 0));
+}
+
+function MinigameSO::MM_getPeriodIndex(%this)
+{
+	return (%this.day - 1) * 2 + (!%this.isDay | 0);
+}
+
 function GameConnection::MM_GetName(%this, %forceNorm)
 {
 	%pre = "";
@@ -746,13 +774,18 @@ function GameConnection::MM_UpdateUI(%client)
 	%client.bottomPrint("\c5You are:" SPC %role SPC "<just:right>\c5ROLES\c6:" SPC %client.minigame.MM_getRolesList() @ " ");
 }
 
-function GameConnection::MM_DisplayMafiaList(%this)
+function GameConnection::MM_DisplayMafiaList(%this, %centrePrint)
 {
 	%mini = getMiniGameFromObject(%this);
 	if(!isObject(%mini) || !%mini.running)
 		return;
 
+	if(%centrePrint $= "")
+		%centrePrint = $MM::MafListSetting | 0;
+
 	messageClient(%this, '', "\c0--");
+
+	%cStr = "";
 
 	%list = %mini.MM_GetMafList();
 	%ct = getWordCount(%list);
@@ -763,10 +796,21 @@ function GameConnection::MM_DisplayMafiaList(%this)
 		if(!isObject(%r = %mini.role[%cl]))
 			continue;
 
-		messageClient(%this, '', (isObject(%cl) ? %cl.MM_GetName() : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")");
+		%str = (isObject(%cl) ? %cl.MM_GetName() : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
+
+		if(%centrePrint != 2)
+			messageClient(%this, '', %str);
+
+		if(%centrePrint)
+			%cStr = %cStr NL %str @ " ";
 	}
 
 	messageClient(%this, '', "\c0--");
+
+	if(%centrePrint)
+		%this.centerPrint("<just:right><font:verdana:18>\c0Mafia List\c6:\n<font:verdana:16>" @ trim(%cStr) @ " ");
+	else
+		%this.centerPrint("");
 }
 
 function GameConnection::MM_DisplayAlignmentDetails(%this, %alignment)
@@ -783,6 +827,9 @@ function GameConnection::MM_DisplayAlignmentDetails(%this, %alignment)
 		messageClient(%this, '', "\c4If all of the mafia die, you lose.  You can type \c3/mafList\c4 to see the mafia again, and anyone not on the list is innocent.  Good luck!");
 
 		%this.schedule(0, MM_DisplayMafiaList);
+
+		if($MM::MafListSetting > 0)
+			%this.schedule(10000, MM_DisplayMafiaList, 2);
 
 		return 1;
 	}
@@ -1075,7 +1122,7 @@ package MM_Core
 		}
 
 		MMDebug("Scheduling spawn", %this, %mini);
-		%this.schedule(3000, spawnPlayer);
+		%this.spawnSched = %this.schedule(3000, spawnPlayer);
 	}
 
 	function MinigameSO::addMember(%this, %client)
@@ -1196,9 +1243,12 @@ package MM_Core
 	{
 		%r = parent::spawnPlayer(%this);
 
+		cancel(%this.spawnSched);
+
 		if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !$DefaultMinigame.running)
 		{
 			%this.MM_GiveDMEquipment();
+			%this.centerPrint("");
 
 			return %r;
 		}

@@ -98,6 +98,20 @@ function GameConnection::MM_RememberRole(%this, %role)
 				messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c3has joined the mafia as the" SPC %roleStr @ "\c3!");
 		}
 	}
+
+	if(isFunction(GameConnection, MM_isCultist))
+	{
+		if(%this.MM_isCultist())
+		{
+			for(%i = 0; %i < %mini.numMembers; %i++)
+			{
+				%mem = %mini.member[%i];
+
+				if(%mem.MM_isCultist())
+					messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c3has joined the cult as the" SPC %roleStr @ "\c3!");
+			}
+		}
+	}
 }
 
 function serverCmdTakeRole(%this)

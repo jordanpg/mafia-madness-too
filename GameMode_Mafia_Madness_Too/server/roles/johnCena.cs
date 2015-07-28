@@ -10,8 +10,9 @@ $MM::JCArmDist = 8;
 $MM::JCPunchTimeout = 0.5;
 $MM::JCPunchDamage = 50;
 $MM::JCThrowTick = 500;
-$MM::JCScale = "1.25 1.25 1.25";
+$MM::JCScale = "1.125 1.125 1.125";
 $MM::JCPlayMusic = true;
+$MM::JCSpeedMod = 1.5;
 
 if(!isObject(MMRole_JohnCena))
 {
@@ -126,6 +127,9 @@ function MMRole_JohnCena::onSpawn(%this, %mini, %client)
 
 	if(isObject(MusicData_JOHN_CENA) && $MM::JCPlayMusic)
 		%client.player.playAudio(0, MusicData_JOHN_CENA);
+
+	if($MM::JCSpeedMod > 0)
+		%client.player.setSpeedMod($MM::JCSpeedMod);
 }
 
 package MM_JohnCena

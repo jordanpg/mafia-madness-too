@@ -218,6 +218,8 @@ package MM_AfterLife
 
 		if(%this.lives < 1 || %this.MMIgnore)
 		{
+			%this.centerPrint("");
+
 			if(isObject(%this.player))
 				%this.player.delete();
 

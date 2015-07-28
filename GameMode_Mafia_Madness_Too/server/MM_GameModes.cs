@@ -17,8 +17,9 @@ $MM::LawChance = 0.1;
 $MM::HonkHonk = true;
 $MM::HonkHonkChance = 0.2;
 $MM::AddTraitor = false;
-$MM::JohnCena = true;
-$MM::JohnCenaChance = 0.05;
+$MM::JohnCena = 1;
+$MM::JohnCenaChance = 0.07;
+$MM::CultistChance = 0.5;
 
 $MM::MafRatio = 1 / 3.5;
 $MM::CopRatio = 1 / 5;
@@ -333,7 +334,7 @@ function MM_InitModeMafiaMadnessToo(%this)
 	// %roles = "A V G C M F O P I";
 
 	%mafRoles = "JOHNCENA A V G C D LAW";
-	%innoRoles = "F O P N IC L BB J CLOWN AM S T";
+	%innoRoles = "F O P N IC L BB J CLOWN AM S T RC ZC";
 
 	///////////////////////////////
 	/////ROLE ASSIGNMENT LOGIC/////
@@ -395,8 +396,10 @@ function MM_InitModeMafiaMadnessToo(%this)
 		%ctLAW++;
 	}
 
-	if($MM::JohnCena && getRandom() < $MM::JohnCenaChance)
-		%ctJOHNCENA++;
+	if($MM::JohnCena > 0)
+		for(%i = 0; %i < $MM::JohnCena; %i++)
+			if(getRandom() < $MM::JohnCenaChance)
+				%ctJOHNCENA++;
 
 	// if($MM::HonkHonkCt > 0)
 	// 	for(%i = 0; %i < $MM::HonkHonkCt; %i++)
@@ -420,10 +423,18 @@ function MM_InitModeMafiaMadnessToo(%this)
 
 	%maxTraitors = mFloor(%members * $MM::TraitorRatio + getRandom());
 	%traitorCt = getRandom(%maxTraitors);
-	%traitors = "J";
+	%traitors = "";
+
+	if(getRandom() < $MM::CultistChance)
+		%traitors = %traitors SPC "RC";
+
+	if(%ctD > 0)
+		%traitors = %traitors SPC "J";
 
 	if($MM::AddTraitor)
 		%traitors = %traitors SPC "T";
+
+	%traitors = trim(%traitors);
 
 	for(%i = 0; %i < %traitorCt; %i++)
 	{

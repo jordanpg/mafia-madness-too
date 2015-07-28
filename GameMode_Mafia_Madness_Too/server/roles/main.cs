@@ -17,6 +17,7 @@ exec("./godfather.cs");
 exec("./jester.cs");
 exec("./johnCena.cs");
 exec("./miller.cs");
+exec("./reviverCultist.cs");
 exec("./spy.cs");
 exec("./theLaw.cs");
 // exec("./traitor.cs");

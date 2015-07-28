@@ -7,6 +7,8 @@ $MM::LoadedCmd = true;
 $MM::AdminToolsMidGame = true;
 $MM::NotifyHostMidGame = true;
 
+$MM::SpectatorMafList = true;
+
 // $MMGameModeName[0] = "Standard";
 // $MMGameModeName[1] = "Classic";
 // $MMGameModeName[2] = "I Hate You All";
@@ -143,15 +145,15 @@ function serverCmdMMDay(%this)
 	if(!$DefaultMinigame.running)
 		return;
 
-	messageClient(%this, '', "\c6It is the \c4" @ $DefaultMinigame.day @ getDaySuffix($DefaultMinigame.day) SPC ($DefaultMinigame.isDay ? "\c6day." : "\c6night."));
+	messageClient(%this, '', "\c6It is \c4" @ $DefaultMinigame.MM_getTime() @ "\c6 on the \c4" @ $DefaultMinigame.day @ getDaySuffix($DefaultMinigame.day) SPC ($DefaultMinigame.isDay ? "\c6day." : "\c6night."));
 }
 
-function serverCmdMafList(%this)
+function serverCmdMafList(%this, %cp)
 {
-	if(!%this.MM_isMaf())
+	if(!%this.MM_isMaf() && !(%this.lives < 1 && $MM::SpectatorMafList))
 		return;
 
-	%this.MM_DisplayMafiaList();
+	%this.MM_DisplayMafiaList(%cp);
 }
 
 function serverCmdPlaceAfterLife(%this, %mode, %p0, %p1, %p2, %p3, %p4, %p5)
@@ -497,7 +499,7 @@ function serverCmdDediMM(%this)
 	}
 }
 
-function serverCmdMMKillList(%this)
+function serverCmdMMKillList(%this, %s0, %s1, %s2, %s3, %s4)
 {
 	if(!%this.isAdmin)
 		return;
@@ -514,20 +516,23 @@ function serverCmdMMKillList(%this)
 		return;
 	}
 
-	$DefaultMinigame.MM_ChatEventLog(%this);
+	%search = trim(%s0 SPC %s1 SPC %s2 SPC %s3 SPC %s4);
+	// echo(%search);
+
+	$DefaultMinigame.MM_ChatEventLog(%this, %search);
 
 	if(isObject(%host = findClientByBL_ID(getNumKeyID())) && !(%host.lives > 0 && !%host.isGhost && !$MM::NotifyHostMidGame))
 		messageClient(%host, '', "\c3" @ %this.getPlayerName() SPC "\c5accessed the kills list!");
 }
 
-function serverCmdEventLog(%this)
+function serverCmdEventLog(%this, %s0, %s1, %s2, %s3, %s4)
 {
-	serverCmdMMKillList(%this);
+	serverCmdMMKillList(%this, %s0, %s1, %s2, %s3, %s4);
 }
 
-function serverCmdKillList(%this)
+function serverCmdKillList(%this, %s0, %s1, %s2, %s3, %s4)
 {
-	serverCmdMMKillList(%this);
+	serverCmdMMKillList(%this, %s0, %s1, %s2, %s3, %s4);
 }
 
 function serverCmdMMRoleList(%this)

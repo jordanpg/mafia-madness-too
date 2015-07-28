@@ -152,6 +152,18 @@ function i_Lerp(%y1, %y2, %mu)
 	return (%y1 * (1 - %mu) + %y2 * %mu);
 }
 
+function Player::setSpeedMod(%this, %mod)
+{
+	%db = %this.getDatablock();
+
+	%this.setMaxForwardSpeed(%db.maxForwardSpeed * %mod);
+	%this.setMaxBackwardSpeed(%db.maxBackwardSpeed * %mod);
+	%this.setMaxSideSpeed(%db.maxSideSpeed * %mod);
+	%this.setMaxCrouchForwardSpeed(%db.maxForwardCrouchSpeed * %mod);
+	%this.setMaxCrouchBackwardSpeed(%db.maxBackwardCrouchSpeed * %mod);
+	%this.setMaxCrouchSideSpeed(%db.maxSideCrouchSpeed * %mod);
+}
+
 function GameConnection::messageLines(%this, %str)
 {
 	while(%str !$= "")

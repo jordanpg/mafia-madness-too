@@ -7,7 +7,7 @@ $MM::BubbleColour = "1 0.5 0.867";
 $MM::BubbleOpacity = 0.5;
 $MM::BubbleSearchRad = 4;
 $MM::BubbleBaseSize = 2.5;
-$MM::BubbleFadeInTime = 100;
+$MM::BubbleFadeInTime = 50;
 $MM::BubbleFadeOutTime = 500;
 $MM::BubbleSteps = 100;
 $MM::BubbleLifeTime = 3100;
@@ -144,7 +144,7 @@ function Player::MM_ActivateBubble(%this)
 	if(!isObject(%cl = %this.getControllingClient()))
 		return false;
 
-	if(!isObject(%mini = getMiniGameFromObject(%cl)) || !$DefaultMinigame.running || !%mini.isMM)
+	if(!isObject(%mini = getMiniGameFromObject(%cl)) || !%mini.running || !%mini.isMM)
 		return false;
 
 	if(!%cl.MM_canBubble())
@@ -261,7 +261,7 @@ package MM_BubbleBuddy
 		if(!%mini.bubbleBuddy)
 			return parent::damage(%this, %obj, %pos, %amt, %type);
 
-		if((%this.dying && %this.startedDying != $Sim::Time) || %this.isGhost || %this.client.lives < 1 || (%this.isCorpse && isObject(%this.getControllingClient())))
+		if((%this.dying && %this.startedDying != $Sim::Time) || %this.isGhost || %this.client.lives < 1 || (%this.isCorpse && !isObject(%this.getControllingClient())))
 			return parent::damage(%this, %obj, %pos, %amt, %type);
 
 		if(%type $= $DamageType::Impact || %type $= $DamageType::Fall || %type $= $DamageType::Direct || %type $= $DamageType::Suicide || %type $= $DamageType::CombatKnife)
@@ -278,11 +278,19 @@ package MM_BubbleBuddy
 		if(isObject(%spl))
 			%spos = %spl.getHackPosition();
 
+		MMDebug("Attempting to activate bubble for" SPC %cl.getSimpleName());
+		if(isObject(%scl))
+			MMDebug("Source Client:" SPC %scl SPC %scl.getSimpleName());
+		if(isObject(%spl))
+			MMDebug("Pos:" SPC %spos);
+
 		if(%cl.MM_canBubble())
 		{
 			if(isObject(%spl))
 			{
 				%dist = VectorDist(%spos, %pos);
+
+				MMDebug("Dist:" SPC %dist);
 
 				// talk(%dist);
 				if(%dist < $MM::BubbleShooterRad)

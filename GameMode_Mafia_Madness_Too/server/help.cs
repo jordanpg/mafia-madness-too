@@ -39,6 +39,11 @@ function serverCmdDescribe(%this, %letter)
 	%this.messageLines(%role.description);
 }
 
+function serverCmdDes(%this, %letter)
+{
+	serverCmdDescribe(%this, %letter);
+}
+
 function serverCmdListRoles(%this)
 {
 	if(!isObject(MMRoles))

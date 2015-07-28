@@ -114,7 +114,7 @@ datablock ShapeBaseImageData(PolicePistolImage)
 	stateEmitter[2]					= gunFlashEmitter;
 	stateEmitterTime[2]				= 0.05;
 	stateEmitterNode[2]				= "muzzleNode";
-	stateSound[2]					= gunShot4Sound;
+	stateSound[2]					= gunShot1Sound; //gunShot4Sound;
 	// stateEjectShell[2]       = true;
 
 	stateName[3] = "Smoke";
