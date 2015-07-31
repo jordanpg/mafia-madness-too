@@ -181,6 +181,9 @@ function MinigameSO::MM_ClearEventLog(%this)
 		%this.eventLog[%i] = "";
 
 	%this.eventLogLen = 0;
+
+	for(%i = 0; %i < %this.numMembers; %i++)
+		%this.member[%i].MM_ClearGunLog();
 }
 
 function MinigameSO::MM_LogEvent(%this, %str)
@@ -783,7 +786,8 @@ function GameConnection::MM_DisplayMafiaList(%this, %centrePrint)
 	if(%centrePrint $= "")
 		%centrePrint = $MM::MafListSetting | 0;
 
-	messageClient(%this, '', "\c0--");
+	if(%centrePrint != 2)
+		messageClient(%this, '', "\c0--");
 
 	%cStr = "";
 
@@ -805,7 +809,8 @@ function GameConnection::MM_DisplayMafiaList(%this, %centrePrint)
 			%cStr = %cStr NL %str @ " ";
 	}
 
-	messageClient(%this, '', "\c0--");
+	if(%centrePrint != 2)
+		messageClient(%this, '', "\c0--");
 
 	if(%centrePrint)
 		%this.centerPrint("<just:right><font:verdana:18>\c0Mafia List\c6:\n<font:verdana:16>" @ trim(%cStr) @ " ");
@@ -1088,7 +1093,7 @@ package MM_Core
 
 		MMDebug("Player death of" SPC %this.getPlayerName(), %this, %mini);
 		if(%srcClient == %this)
-			%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6committed suicide");
+			%s = %this.MM_GetName(1) SPC "\c6committed suicide";
 		else if(isObject(%srcClient))
 		{
 			if(isObject(%srcClient.player))
@@ -1096,7 +1101,7 @@ package MM_Core
 			else
 				%d = "";
 
-			%mini.MM_LogEvent(%srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1) @ %d);
+			%s = %srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1) @ %d;
 
 			%str = "\c5You were killed by:" SPC $MM::AlignmentColour[%srcClient.role.getAlignment()] @ %srcClient.getSimpleName();
 
@@ -1104,11 +1109,17 @@ package MM_Core
 			messageClient(%this, '', %str);
 		}
 		else
-			%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6fell to their death");
+			%s = %this.MM_GetName(1) SPC "\c6fell to their death";
+
+		%mini.MM_LogEvent(%s);
+		if(isObject(%srcClient))
+			%srcClient.MM_GunLog(%s);
+		if(%this != %srcClient)
+			%this.MM_GunLog(%s);
 
 		%this.MMSpecMode = 0;
 
-		if(%this.player.getName() !$= "botCorpse")
+		if(!%this.player.isCorpse)
 			%this.lives--;
 
 		if(isObject(%this.role))

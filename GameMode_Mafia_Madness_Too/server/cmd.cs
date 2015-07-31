@@ -145,7 +145,7 @@ function serverCmdMMDay(%this)
 	if(!$DefaultMinigame.running)
 		return;
 
-	messageClient(%this, '', "\c6It is \c4" @ $DefaultMinigame.MM_getTime() @ "\c6 on the \c4" @ $DefaultMinigame.day @ getDaySuffix($DefaultMinigame.day) SPC ($DefaultMinigame.isDay ? "\c6day." : "\c6night."));
+	messageClient(%this, '', "\c6It is \c4" @ $DefaultMinigame.MM_getTime() @ "\c6 into the round on the \c4" @ $DefaultMinigame.day @ getDaySuffix($DefaultMinigame.day) SPC ($DefaultMinigame.isDay ? "\c6day." : "\c6night."));
 }
 
 function serverCmdMafList(%this, %cp)

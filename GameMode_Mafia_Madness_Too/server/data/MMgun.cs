@@ -72,6 +72,9 @@ function MMGunImage::onReloaded(%this,%obj,%slot) {
 	%obj.toolAmmo[%obj.currTool] = 6;
 	%obj.playthread(2,shiftRight);
 	%obj.schedule(200, "playThread", "2", "plant");
+
+	if(isObject(%obj.client))
+		%obj.client.MM_GunLog(%obj.client.MM_GetName(1) SPC "\c6reloaded");
 }
 
 function MMGunImage::onReloadStart(%this,%obj,%slot) {
@@ -101,12 +104,59 @@ function MMGunImage::onReloadStart(%this,%obj,%slot) {
 		%obj.setDatablock(bracketsHatesTGE(%data));
 
 		%obj.reloading = 1;
+
+		if(isObject(%obj.client))
+			%obj.client.MM_GunLog(%obj.client.MM_GetName(1) SPC "\c6began reloading");
 	}
 }
 
 function MMGunImage::onReloadMid(%this,%obj,%slot) {
 	%obj.playthread(2,shiftLeft);
 	%obj.schedule(200, "playThread", "2", "shiftTo");
+}
+
+function serverCmdGunLog(%this, %target)
+{
+	if(!%this.isAdmin)
+		return;
+
+	%cl = findClientByName(%target);
+
+	if(!isObject(%cl))
+	{
+		messageClient(%this, '', "\c4Could not find client by name of '\c3" @ %target @ "\c4'");
+		return;
+	}
+
+	if(%cl.gunLogLen <= 0)
+	{
+		messageClient(%this, '', "\c3" @ %cl.getSimpleName() SPC "\c4has an empty gun log!");
+		return;
+	}
+
+	for(%i = 0; %i < %cl.gunLogLen; %i++)
+		messageClient(%this, '', %cl.gunLog[%i]);
+
+	if(isObject(%host = findClientByBL_ID(getNumKeyID())) && !(%host.lives > 0 && !%host.isGhost && !$MM::NotifyHostMidGame))
+		messageClient(%host, '', "\c3" @ %this.getPlayerName() SPC "\c5accessed \c3" @ %cl.getPlayerName() @ "\c5's gun log!");
+}
+
+function GameConnection::MM_GunLog(%this, %msg)
+{
+	%mini = getMinigameFromObject(%this);
+	if(!isObject(%mini) || !%mini.isMM || !%mini.running)
+		return;
+
+	%this.gunLog[%this.gunLogLen | 0] = (%mini.isDay ? "\c6" : "\c7") @ "(" @ %mini.MM_getTime() @ ")" SPC %msg;
+	%this.gunLogLen++;
+}
+
+function GameConnection::MM_ClearGunLog(%this)
+{
+	for(%i = 0; %i < %this.gunLogLen; %i++)
+		%this.gunLog[%i] = "";
+
+	%this.gunLogLen = 0;
 }
 
 function Player::MM_AddGun(%this, %gun)
@@ -214,7 +264,7 @@ package MM_Gun
 	function serverCmdLight(%this)
 	{
 		// MMDebug(%this SPC %this.player SPC %this.player.getMountedImage(0));
-		if(isObject(%p = %this.player) && isObject(%im = %p.getMountedImage(0)) && %p.getName() !$= "botCorpse")
+		if(isObject(%p = %this.player) && isObject(%im = %p.getMountedImage(0)) && !%p.isCorpse)
 		{
 			// MMDebug("fk");
 
@@ -316,6 +366,14 @@ package MM_Gun
 			%obj.setImageAmmo(%slot,0);
 		else
 			%obj.setImageAmmo(%slot,1);
+	}
+
+	function WeaponImage::onFire(%this, %obj, %slot)
+	{
+		parent::onFire(%this, %obj, %slot);
+
+		if(isObject(%obj.client))
+			%obj.client.MM_GunLog(%obj.client.MM_GetName(1) SPC "\c6fired their\c3" SPC %this.item.uiname);
 	}
 };
 activatePackage(MM_Gun);

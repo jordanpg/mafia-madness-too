@@ -95,23 +95,35 @@ function GameConnection::MM_RememberRole(%this, %role)
 			%mem = %mini.member[%i];
 
 			if(%mem.MM_isMaf())
-				messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c3has joined the mafia as the" SPC %roleStr @ "\c3!");
-		}
-	}
-
-	if(isFunction(GameConnection, MM_isCultist))
-	{
-		if(%this.MM_isCultist())
-		{
-			for(%i = 0; %i < %mini.numMembers; %i++)
 			{
-				%mem = %mini.member[%i];
+				messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c4has joined the mafia as the" SPC %roleStr @ "\c4!");
+				%mem.MM_DisplayMafiaList(2);
+			}
 
-				if(%mem.MM_isCultist())
-					messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c3has joined the cult as the" SPC %roleStr @ "\c3!");
+			if(isFunction(GameConnection, MM_isCultist) && %mem.MM_isCultist())
+			{
+				messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c4has joined the cult as the" SPC %roleStr @ "\c4!");
+				%mem.MM_DisplayCultList(2);
 			}
 		}
 	}
+
+	// if(isFunction(GameConnection, MM_isCultist))
+	// {
+	// 	if(%this.MM_isCultist())
+	// 	{
+	// 		for(%i = 0; %i < %mini.numMembers; %i++)
+	// 		{
+	// 			%mem = %mini.member[%i];
+
+	// 			if(%mem.MM_isCultist())
+	// 			{
+	// 				messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c3has joined the cult as the" SPC %roleStr @ "\c3!");
+	// 				%mem.MM_DisplayCultList(2);
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 function serverCmdTakeRole(%this)

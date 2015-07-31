@@ -15,7 +15,7 @@ function MMDebug(%msg, %o0, %o1, %o2)
 	{
 		if(isObject(%o[%i]))
 		{
-			if(%o[%i].MMDebug < 0 || (%o[%i].class $= "MMRole" && !$MMDebugRoles))
+			if(%o[%i].MMDebug < 0 || ((%o[%i].class $= "MMRole" || %o[%i].superClass $= "MMRole") && !$MMDebugRoles))
 				return;
 
 			%debug |= %o[%i].MMDebug;

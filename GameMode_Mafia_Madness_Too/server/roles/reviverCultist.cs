@@ -134,7 +134,8 @@ function GameConnection::MM_DisplayCultList(%this, %centrePrint)
 	if(%centrePrint $= "")
 		%centrePrint = $MM::MafListSetting | 0;
 
-	messageClient(%this, '', "<color:400040>--");
+	if(%centrePrint != 2)
+		messageClient(%this, '', "<color:400040>--");
 
 	%cStr = "";
 
@@ -156,7 +157,8 @@ function GameConnection::MM_DisplayCultList(%this, %centrePrint)
 			%cStr = %cStr NL %str @ " ";
 	}
 
-	messageClient(%this, '', "<color:400040>--");
+	if(%centrePrint != 2)
+		messageClient(%this, '', "<color:400040>--");
 
 	if(%centrePrint)
 		%this.centerPrint("<just:right><font:verdana:18><color:400040>Cultists\c6:\n<font:verdana:16>" @ trim(%cStr) @ " ");
@@ -208,6 +210,7 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 	%this.isCorpse = false;
 	%this.playThread(3, "root");
 	%this.revive = "";
+	%this.isRisenCorpse = true;
 
 	%cl.MM_UpdateUI();
 	%cl.MM_DisplayStartText();
@@ -219,7 +222,10 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 		%mem = %mini.member[%i];
 
 		if(%mem.MM_isCultist())
-			messageClient(%mem, '', "<font:impact:24pt>\c3" @ %cl.getSimpleName() SPC "\c3has joined the cult as the" SPC %roleStr @ "\c3!");
+		{
+			messageClient(%mem, '', "<font:impact:24pt>\c3" @ %cl.getSimpleName() SPC "\c4has joined the cult as the" SPC %roleStr @ "\c4!");
+			%mem.MM_DisplayCultList(2);
+		}
 	}
 }
 
@@ -233,12 +239,16 @@ function serverCmdCultList(%this, %cp)
 
 function serverCmdReviveCorpse(%this)
 {
-	if(!isObject(%this.player))
+	if(!isObject(%this.player) || !isObject(%mini = getMiniGameFromObject(%this)))
 		return;
 
 	if(!%this.MM_canCultRevive())
 	{
-		messageClient(%this, '', "\c4You cannot revive right now!");
+		if(%this.revived[%mini.day])
+			messageClient(%this, '', "\c4You can only revive once per day!");
+		else
+			messageClient(%this, '', "\c4You cannot revive!");
+
 		return;
 	}
 
@@ -248,9 +258,15 @@ function serverCmdReviveCorpse(%this)
 		return;
 	}
 
-	if(!isObject(%this.player.heldCorpse.originalClient))
+	if(!isObject(%ccl = %this.player.heldCorpse.originalClient))
 	{
 		messageClient(%this, '', "\c4This player has left the game.");
+		return;
+	}
+
+	if(%ccl.lives > 0 || !%ccl.isGhost)
+	{
+		messageClient(%this, '', "\c4This player cannot currently be revived! Either they are still alive (multiple lives) or they aren't in this round.");
 		return;
 	}
 
@@ -261,7 +277,7 @@ function serverCmdReviveCorpse(%this)
 	}
 
 	%this.player.heldCorpse.revive = %this;
-	%this.revived[getMiniGameFromObject(%this).day] = true;
+	%this.revived[%mini.day] = true;
 
 	messageClient(%this, '', "\c4Reviving \c3" @ %this.player.heldCorpse.originalClient.getSimpleName() SPC "\c4as a" SPC MMRole_Cultist.getColour(1) @ MMRole_Cultist.getRoleName() @ "\c4. Drop the corpse and they will wake up in three seconds.");
 }

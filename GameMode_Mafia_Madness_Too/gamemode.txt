@@ -24,7 +24,7 @@ ADDON Gamemode_Mafia_Madness_Too
 ADDON Script_TsuEval
 
 //MUSIC LIIIIIST
-//MUSIC Gravity_Hurts
+MUSIC Gravity_Hurts
 //MUSIC Bastion_-_Pale_Watchers
 //MUSIC Mombasa_Streets
 //MUSIC Neon_Night

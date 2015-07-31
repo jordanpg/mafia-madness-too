@@ -14,7 +14,7 @@ $MM::CorpseInvestigationRange = 5;
 
 function AIPlayer::MM_getCorpseName(%this)
 {
-	if(!%this.isCorpse)
+	if(!%this.isCorpse && !%this.isRisenCorpse)
 		return "";
 
 	return %this.name;
@@ -22,7 +22,7 @@ function AIPlayer::MM_getCorpseName(%this)
 
 function AIPlayer::MM_getRole(%this)
 {
-	if(!%this.isCorpse)
+	if(!%this.isCorpse && !%this.isRisenCorpse)
 		return -1;
 
 	return %this.role;
@@ -30,7 +30,7 @@ function AIPlayer::MM_getRole(%this)
 
 function AIPlayer::MM_getRoleName(%this)
 {
-	if(!%this.isCorpse)
+	if(!%this.isCorpse && !%this.isRisenCorpse)
 		return -1;
 
 	if(!isObject(%r = %this.MM_getRole()))
@@ -61,7 +61,7 @@ function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %old
 
 function AIPlayer::MM_Investigate(%this, %client)
 {
-	if(!%this.isCorpse)
+	if(!%this.isCorpse && !%this.isRisenCorpse)
 		return false;
 
 	messageClient(%client, '', "\c2Name\c3:" SPC %this.MM_getCorpseName());
@@ -71,7 +71,7 @@ function AIPlayer::MM_Investigate(%this, %client)
 
 function Player::MM_PickUpCorpse(%this, %obj)
 {
-	if(!%obj.isCorpse)
+	if(!%obj.isCorpse && !%obj.isRisenCorpse)
 		return false;
 
 	if(!isObject(%this) || !isObject(%cl = %this.getControllingClient()) || %this != %cl.player || %this.isGhost)
@@ -136,26 +136,46 @@ package MM_Corpses
 		else if(!isObject(%srcClient))
 			%suicide = 2;
 
-		if(%this.player.isCorpse)
+		if(%this.player.getName() $= "botCorpse")
 		{
 			MMDebug("Creating new corpse", %this, %mini);
-			%corpse = new AIPlayer("botCorpse")
-						{
-							datablock = PlayerNoJet;
 
-							originalClient = %this.player.originalClient;
-							name = %this.player.name;
-							role = %this.player.role;
+			if(!%this.player.isRisenCorpse)
+			{
+				%corpse = new AIPlayer("botCorpse")
+							{
+								datablock = PlayerNoJet;
 
-							timeOfDeath = %this.player.timeOfDeath;
-							causeOfDeath = %this.player.causeOfDeath;
+								originalClient = %this.player.originalClient;
+								name = %this.player.name;
+								role = %this.player.role;
 
-							isCorpse = true;
-						};
+								timeOfDeath = %this.player.timeOfDeath;
+								causeOfDeath = %this.player.causeOfDeath;
+
+								isCorpse = true;
+							};
+
+				%notARealDeath = true;
+			}
+			else
+			{
+				%corpse = new AIPlayer("botCorpse")
+							{
+								datablock = PlayerNoJet;
+
+								originalClient = %this;
+								name = %this.getSimpleName();
+								role = %this.role;
+
+								timeOfDeath = %this.player.timeOfDeath;
+								causeOfDeath = %this.player.causeOfDeath;
+
+								isCorpse = true;
+							};	
+			}
 
 			%corpse.MM_onCorpseReSpawn(%mini, %this, %srcClient, %this.player, %damageType);
-
-			%notARealDeath = true;
 		}
 		else
 		{
@@ -165,7 +185,7 @@ package MM_Corpses
 							datablock = PlayerNoJet;
 
 							originalClient = %this;
-							name = %this.name;
+							name = %this.getSimpleName();
 							role = %this.role;
 
 							timeOfDeath = $Sim::Time;
@@ -260,7 +280,7 @@ package MM_Corpses
 
 					%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 					%hObj = firstWord(%ray);
-					if(!isObject(%hObj) || !%hObj.isCorpse || %hObj.getClassName() !$= "AIPlayer")
+					if(!isObject(%hObj) || (!%hObj.isCorpse && !%hObj.isRisenCorpse) || %hObj.getClassName() !$= "AIPlayer")
 						return parent::onTrigger(%this, %obj, %slot, %val);
 
 					%obj.MM_PickUpCorpse(%hObj);
@@ -289,7 +309,7 @@ package MM_Corpses
 
 		%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 		%hObj = firstWord(%ray);
-		if(!isObject(%hObj) || !%hObj.isCorpse || %hObj.getClassName() !$= "AIPlayer")
+		if(!isObject(%hObj) || (!%hObj.isCorpse && !%hObj.isRisenCorpse) || %hObj.getClassName() !$= "AIPlayer")
 			return %r;
 
 		%hObj.MM_Investigate(%cl);
