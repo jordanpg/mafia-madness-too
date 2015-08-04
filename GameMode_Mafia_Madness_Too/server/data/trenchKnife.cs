@@ -183,15 +183,15 @@ function TrenchKnifeImage::onStabFire(%this, %obj, %slot)
 	if(getRandom(0,1))
 	{
 		%this.raycastExplosionBrickSound = CombatKnifeHitSoundA;
-		%this.raycastExplosionPlayerSound = CombatKnifeHitSoundC;
+		%this.raycastExplosionPlayerSound = meleeSlashSound;
 		//serverPlay3D(meleeSlashSound,%obj.getPosition());
 		%this.raycastDirectDamage = 105;
 	}
 	else
 	{
 		%this.raycastExplosionBrickSound = CombatKnifeHitSoundB;
-		%this.raycastExplosionPlayerSound = CombatKnifeHitSoundC;
-        serverPlay3D(meleeSlashSound,%obj.getPosition());
+		%this.raycastExplosionPlayerSound = meleeSlashSound;
+        // serverPlay3D(meleeSlashSound,%obj.getPosition());
 		%this.raycastDirectDamage = 105;
 	}
 

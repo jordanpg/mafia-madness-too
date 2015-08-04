@@ -11,6 +11,7 @@ exec("./clown.cs");
 exec("./cop.cs");
 exec("./cop_variants.cs");
 exec("./crazy.cs");
+exec("./cultist.cs");
 exec("./devil.cs");
 exec("./fingerprintExpert.cs");
 exec("./godfather.cs");

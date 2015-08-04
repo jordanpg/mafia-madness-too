@@ -144,7 +144,7 @@ function serverCmdGunLog(%this, %target)
 function GameConnection::MM_GunLog(%this, %msg)
 {
 	%mini = getMinigameFromObject(%this);
-	if(!isObject(%mini) || !%mini.isMM || !%mini.running)
+	if(!isObject(%mini) || !%mini.isMM || !%mini.running || %this.isGhost || %this.lives < 1)
 		return;
 
 	%this.gunLog[%this.gunLogLen | 0] = (%mini.isDay ? "\c6" : "\c7") @ "(" @ %mini.MM_getTime() @ ")" SPC %msg;
@@ -291,6 +291,19 @@ package MM_Gun
 		if($DefaultMinigame.running)
 			%this.MM_UpdateUI();
 
+		if(isObject(%this.player))
+		{
+			%i = %this.player.tool[%this.player.currTool];
+			if(isObject(%i))
+				%n = "\c3" @ %i.uiName;
+			else
+				%n = "weapon";
+		}
+		else
+			%n = "weapon";
+
+		%this.MM_GunLog(%this.MM_GetName(1) SPC "\c6put away their" SPC %n);
+
 		if(!isObject(%this.player))
 			return parent::serverCmdUnUseTool(%this);
 
@@ -307,6 +320,39 @@ package MM_Gun
 		}
 
 		parent::serverCmdUnUseTool(%this);
+	}
+
+	function serverCmdUseTool(%this, %slot)
+	{
+		if(isObject(%this.player))
+		{
+			%i = %this.player.tool[%slot];
+			if(isObject(%i))
+				%n = "\c3" @ %i.uiName;
+			else
+				%n = "weapon";
+		}
+		else
+			%n = "weapon";
+
+		%this.MM_GunLog(%this.MM_GetName(1) SPC "\c6took out their" SPC %n);
+
+		if(!isObject(%this.player))
+			return parent::serverCmdUseTool(%this, %slot);
+
+		if(%this.player.noChangeWep)
+			return;
+
+		if(%this.player.reloading)
+		{
+			%db = %this.player.getDatablock();
+			if(isObject(%db.normalVersion))
+				%this.player.setDatablock(%db.normalVersion);
+
+			%this.player.reloading = false;
+		}
+
+		parent::serverCmdUseTool(%this, %slot);
 	}
 
 	function GameConnection::autoAdminCheck(%this)

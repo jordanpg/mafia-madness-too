@@ -181,7 +181,7 @@ function GameConnection::clearInventory(%this)
 	%db = %p.getDatablock();
 	for(%i = 0; %i < %db.maxTools; %i++)
 	{
-		%this.tool[%i] = 0;
+		%p.tool[%i] = 0;
 		messageClient(%this, 'MsgItemPickup', '', %i, 0);
 	}
 }

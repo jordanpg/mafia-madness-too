@@ -1,0 +1,45 @@
+MMGAMEMODE Original MM
+
+//Original Mafia Madness : Standard
+//By []----[]
+
+MafRatio 0.285714
+MinMaf 1
+
+//Force the game to always make an abductor appear.
+[SortGroup0_]
+RolePot A
+isMaf 1
+Ratio 1
+RatioVar mafs
+ForceMinMembers 1
+
+//Make a fingerprint expert appear if there aren't enough members to add any other roles.
+[SortGroup1_]
+Condition %members > 3, and %mafs <= 1
+RolePot F
+Ratio 1
+RatioVar members
+
+//Make special inno roles appear.
+[SortGroup2_]
+Condition %members > 3, and %mafs > 1
+RolePot F O P
+RoleCondition_F %members > 11
+RoleCondition_P %members > 9
+Ratio 1
+RatioVar members
+
+//Make special maf roles appear.
+[SortGroup3_]
+Condition %members > 3, and %mafs > 1
+isMaf 1
+RolePot V G C
+RoleCondition_V %mafs >= 3, or ? 0 1 == 1
+RoleCondition_C %mafs > 3
+Ratio 1
+RatioVar mafs
+RatioModCount -1
+
+[]
+SortGroupCt 4

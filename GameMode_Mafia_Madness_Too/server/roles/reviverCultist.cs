@@ -1,23 +1,22 @@
 //reviverCultist.cs
 //Code for the Reviver Cultist and Zombie Cultist roles.
 
+if(!$MM::LoadedRole_Cultist)
+	exec("./cultist.cs");
+
 $MM::LoadedRole_ReviverCultitst = true;
-
-$MM::Alignment[4] = "Cultist";
-$MM::AlignmentColour[4] = "<color:400040>";
-
-$MM::InvStatus[4] = '\c3%1 \c4has a bit of a <color:400040>strange disposition\c4.';
 
 $MM::CultReviveTime = 3000;
 
-if(!isObject(MMRole_Cultist))
+if(!isObject(MMRole_ZombieCultist))
 {
-	new ScriptObject(MMRole_Cultist)
+	new ScriptObject(MMRole_ZombieCultist)
 	{
-		class = "MMRole";
+		class = "MMRole_Cultist";
+		superClass = "MMRole";
 
 		name = "Zombie Cultist";
-		corpseName = "devout undead lunatic";
+		corpseName = "devout undead";
 		displayName = "Zombie Cultist";
 
 		letter = "ZC";
@@ -35,7 +34,8 @@ if(!isObject(MMRole_Cultist))
 
 		helpText = "";
 
-		description = "\c4The <color:400040>Zombie Cultist \c4is basic role whose goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4.";
+		description = 	"\c4The <color:400040>Zombie Cultist \c4is basic role whose goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4." NL
+						"\c4It is like the regular <color:400040>Cultist\c4, however it cannot recruit members at night.";
 	};
 }
 
@@ -94,80 +94,6 @@ function GameConnection::MM_canCultRevive(%this)
 	return true;
 }
 
-function GameConnection::MM_isCultist(%this)
-{
-	if(!isObject(%this.role))
-		return false;
-
-	return %this.role.getAlignment() == 4;
-}
-
-function MinigameSO::MM_GetCultList(%this)
-{
-	%list = "";
-	for(%i = 0; %i < %this.memberCacheLen; %i++)
-	{
-		%mem = %this.memberCache[%i];
-
-		%r = %this.memberCacheRole[%i];
-
-		if(%has[%mem])
-			continue;
-
-		%has[%mem] = true;
-
-		if(!isObject(%mem) && %r.getAlignment() == 4)
-			%list = %list SPC %mem;
-		else if(isObject(%mem) && %mem.MM_isCultist())
-			%list = %list SPC %mem;
-	}
-
-	return trim(%list);
-}
-
-function GameConnection::MM_DisplayCultList(%this, %centrePrint)
-{
-	%mini = getMiniGameFromObject(%this);
-	if(!isObject(%mini) || !%mini.running)
-		return;
-
-	if(%centrePrint $= "")
-		%centrePrint = $MM::MafListSetting | 0;
-
-	if(%centrePrint != 2)
-		messageClient(%this, '', "<color:400040>--");
-
-	%cStr = "";
-
-	%list = %mini.MM_GetCultList();
-	%ct = getWordCount(%list);
-	for(%i = 0; %i < %ct; %i++)
-	{
-		%cl = getWord(%list, %i);
-
-		if(!isObject(%r = %mini.role[%cl]))
-			continue;
-
-		%str = (isObject(%cl) ? %cl.MM_GetName() : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
-
-		if(%centrePrint != 2)
-			messageClient(%this, '', %str);
-
-		if(%centrePrint)
-			%cStr = %cStr NL %str @ " ";
-	}
-
-	if(%centrePrint != 2)
-		messageClient(%this, '', "<color:400040>--");
-
-	if(%centrePrint)
-		%this.centerPrint("<just:right><font:verdana:18><color:400040>Cultists\c6:\n<font:verdana:16>" @ trim(%cStr) @ " ");
-	else
-		%this.centerPrint("");
-}
-
-
-
 function AIPlayer::MM_CultRevive(%this, %reviver)
 {
 	cancel(%this.revSched);
@@ -188,16 +114,16 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 		return;
 	}
 
-	%roleStr = MMRole_Cultist.getColour(1) @ MMRole_Cultist.getRoleName();
+	%roleStr = MMRole_ZombieCultist.getColour(1) @ MMRole_ZombieCultist.getRoleName();
 
 	if(isObject(%reviver))
 		%mini.MM_LogEvent(%reviver.MM_getName(1) SPC "\c6revived" SPC %cl.MM_getName(1) SPC "\c6into the" SPC %roleStr);
 	else
 		%mini.MM_LogEvent(%cl.MM_getName(1) SPC "\c6revived into the" SPC %roleStr);
 
-	%cl.lives = 1 + MMRole_Cultist.additionalLives;
+	%cl.lives = 1 + MMRole_ZombieCultist.additionalLives;
 	%cl.isGhost = false;
-	%cl.MM_setRole(MMRole_Cultist);
+	%cl.MM_setRole(MMRole_ZombieCultist);
 
 	if(isObject(%cl.player) && %cl.player.isGhost)
 		%cl.player.delete();
@@ -227,14 +153,6 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 			%mem.MM_DisplayCultList(2);
 		}
 	}
-}
-
-function serverCmdCultList(%this, %cp)
-{
-	if(!%this.MM_isCultist() && !(%this.lives < 1 && $MM::SpectatorMafList))
-		return;
-
-	%this.MM_DisplayCultList(%cp);
 }
 
 function serverCmdReviveCorpse(%this)
@@ -279,48 +197,11 @@ function serverCmdReviveCorpse(%this)
 	%this.player.heldCorpse.revive = %this;
 	%this.revived[%mini.day] = true;
 
-	messageClient(%this, '', "\c4Reviving \c3" @ %this.player.heldCorpse.originalClient.getSimpleName() SPC "\c4as a" SPC MMRole_Cultist.getColour(1) @ MMRole_Cultist.getRoleName() @ "\c4. Drop the corpse and they will wake up in three seconds.");
+	messageClient(%this, '', "\c4Reviving \c3" @ %this.player.heldCorpse.originalClient.getSimpleName() SPC "\c4as a" SPC MMRole_ZombieCultist.getColour(1) @ MMRole_ZombieCultist.getRoleName() @ "\c4. Drop the corpse and they will wake up in three seconds.");
 }
 
 //HOOKS
-function MMRole_Cultist::SpecialWinCheck(%this, %mini, %client, %killed, %killer)
-{
-	%r = parent::SpecialWinCheck(%this, %mini, %client, %killed, %killer);
-
-	if(%client.lives < 1)
-		return 3;
-
-	%foundCultist = false;
-	%foundOther = false;
-	for(%i = 0; %i < %mini.numMembers; %i++)
-	{
-		%mem = %mini.member[%i];
-
-		if(%mem.lives > 0 && isObject(%mem.role))
-		{
-			if(%mem.MM_isCultist())
-				%foundCultist = true;
-			else if(%mem.role.getAlignment() == 0 || %mem.role.getAlignment() == 1)
-				%foundOther = true;
-
-			if(%foundCultist && %foundOther)
-				return 4; //disallow any win if both cultists and inno/maf are present
-		}
-	}
-
-	if(!%foundCultist && %foundOther)
-		return 3;
-
-	talk("All innocent and mafia are dead! The cultists win!");
-	MMDebug("Cultist win", %mini, %killed, %killer, %client);
-
-	%mini.resolved = 1;
-	%mini.schedule(3000, MM_Stop);
-
-	return 4;
-}
-
-package MM_Cultist
+package MM_ReviverCultist
 {
 	function AIPlayer::MM_onCorpsePickUp(%this, %obj)
 	{
@@ -337,26 +218,6 @@ package MM_Cultist
 			%this.revSched = %this.schedule($MM::CultReviveTime, MM_CultRevive, %this.revive);
 	}
 
-	function GameConnection::MM_DisplayAlignmentDetails(%this, %alignment)
-	{
-		%r = parent::MM_DisplayAlignmentDetails(%this, %alignment);
-
-		if(%r >= 0)
-			return %r;
-
-		if(%alignment == 4)
-		{
-			messageClient(%this, '', "\c4You are a <color:400040>Cultist\c4! Your goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4!");
-			messageClient(%this, '', "\c4Type \c3/cultList \c4to see the list of cult members again.");
-
-			%this.schedule(0, MM_DisplayCultList);
-
-			return 4;
-		}
-
-		return %r;
-	}
-
 	function MMRole::onCleanup(%this, %mini, %client)
 	{
 		parent::onCleanup(%this, %mini, %client);
@@ -365,4 +226,4 @@ package MM_Cultist
 			%client.revived[%i] = "";
 	}
 };
-activatePackage(MM_Cultist);
+activatePackage(MM_ReviverCultist);

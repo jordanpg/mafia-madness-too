@@ -23,7 +23,7 @@ datablock ItemData(PeaceMakerItem)
 	emap = true;
 
 	//gui stuff
-	uiName = "Peacemaker";
+	uiName = "Peace Maker";
 	iconName = "Add-Ons/Weapon_Gun/icon_gun";
 	doColorShift = true;
 	colorShiftColor = "0.75 0.75 0.75 1";

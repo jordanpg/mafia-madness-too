@@ -111,6 +111,12 @@ function MinigameSO::MM_GetGameMode(%this)
 	if(%mode $= "" || !MM_isValidGameMode(%mode))
 		return $MM::GameMode[$MM::DefaultGameMode];
 
+	if(isFunction(%r = "MM_ModeReady" @ %mode) && !call(%r, %this))
+	{
+		warn("MinigameSO::MM_GetGameMode : Mode" SPC %mode SPC "reports that it is not ready to run, using default gamemode.");
+		return $MM::GameMode[$MM::DefaultGameMode];
+	}
+
 	return %mode;
 }
 

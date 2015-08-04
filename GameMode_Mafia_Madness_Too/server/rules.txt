@@ -1,0 +1,171 @@
+helpv 0 MMRules
+
+CONTENT base
+	\c4Welcome to \c3Mafia Madness (too)\c4! This game is a bit complicated, so you should make sure to visit all the topics here!
+	\c4It's very important that you read everything, as each is required to play.
+	\c6====\c3CATEGORIES\c6====
+	\c6-\c31\c6. \c3Basics \c6: Explains the fundamentals of MM
+	\c6-\c32\c6. \c3Advanced \c6: Explains special mechanics of MM
+	\c6-\c33\c6. \c3Roles \c6: Explains special roles, use \c3/listRoles \c6for a list of all roles.
+	\c6-\c34\c6. \c3Offenses \c6: A list of some things that might get you banned
+	\c6-\c35\c6. \c3Terminology \c6: Some common terms and what they mean
+	\c6-\c36\c6. \c3Customs \c6: Common strategies and expectations.
+	\c4To access a topic, do \c3/rules \c7[TOPIC NUMBER OR NAME]
+END CONTENT
+
+CONTENT 1
+ALIAS basics
+	\c4========\c3GAME BASICS\c4========
+	\c3Mafia Madness \c6(which may be referred to as '\c3MM\c6' for short) is a gamemode based on the classic game of mafia.
+	\c6There are two basic teams (or more accurately, alignments) that seek to eliminate each other: the \c0Mafia \c6and the \c2Innocents\c6.
+	\c6The \c2Innocents \c6do not know who the \c0Mafia \c6are, but the \c0Mafia\c6 know each other and work together to eliminate everyone else.
+	\c6The \c2Innocents \c6work to eliminate all the \c0Mafia \c6through wit and observation.
+	\c4Remember: Mafia Madness is about the \c2process of elimination\c4, not the \c0elimination itself\c4! The point is to figure it out, not murder randomly.
+	\c6The game is divided into rounds, each round being independent, with an intermission DM period in between.
+	\c6At the beginning of the round, the list of roles is generated, and every player is given a random role from that list.
+	\c4When you receive your role, you will get an explanation in chat of how it works and how to use it! Pay attention!
+	\c4If you're a \c0Mafia, \c4you will also receive a list of all other \c0Mafia \c4in the game. You can access this list again with \c3/maflist\c4.
+	\c6If you're confused about a role, you can do \c3/describe \c7[ROLE INITIALS] \c6to get a description.
+	\c6After a round is over, there will be a deathmatch period for admins to sort out any problems. Be patient! Games will resume eventually.
+	\c4For more advanced game concepts, be sure to read the \c3Advanced \c4section!
+	\c4========\c3GAME BASICS\c4========
+END CONTENT
+
+CONTENT 2
+ALIAS advanced
+	\c4========\c3ADVANCED CONCEPTS\c4========
+	\c4====\c3Day/Night Cycle\c4====
+	\c6MM features a day/night cycle which governs certain game mechanics. Each round will start on the dawn of the first day.
+	\c6Eventually, it will become night. During the night, everyone's avatars are black silhouettes. You can still see their name if you're close enough, though!
+	\c6During the night, some special roles like the <color:1122CC>Cop \c6and the <color:2D1A4A>Abductor \c6can activate their abilities.
+	\c6See the \c3Roles \c6section for more information on special roles.
+	\c4====\c3Corpses and Dying\c4====
+	\c6When a player dies, they will leave behind a corpse which can be examined and moved by other players.
+	\c6You can pick up and throw corpses by right-clicking. Bring corpses you find to the gathering point as evidence!
+	\c6If you activate (click on) a corpse, you will normally be able to see who the player was, their role, and the cause of death (Murder, Suicide, or Falling).
+	\c6The role given on the corpse will be a name relating to the role's purpose and function. For instance, a normal innocent is "\c3upstanding citizen\c6."
+	\c4If you're ever confused by a role name on a corpse, you can do \c3/corpseName \c7[CORPSE NAME] \c4for more information.
+	\c6Dead players will go to the afterlife, where they can sit around, hit each other with swords, play pong, or spectate.
+	\c4To toggle spectator mode in the afterlife, press the light key.
+	\c4====\c3Local Chat\c4====
+	\c6During rounds, MM has local chat. This means that not everyone will be able to hear you speak. There are four different chat 'levels.'
+	\c6Normal chat will be in a medium range (about 64 studs in any direction). This level is common for players in any gathering place.
+	\c6Starting your message with a ! in normal chat, or speaking in all capital letters, will make you shout, which has twice as long a range (about 128 studs).
+	\c6Use shouting to talk to players away from the gathering spot or to make announcements. All shouted messages will be in all capital letters.
+	\c6Using team chat will make you use low chat, which has a much shorter range (about sixteen studs), and does not go through walls.
+	\c6Starting your message with a ! in low chat will make you whisper, which has a very short range and can normally only be heard by people directly next to you.
+	\c6Low chat and whisper are best used to secretly talk with other players nearby and develop strategies or exchange information.
+	\c4====\c3Miscellaneous\c4====
+	\c6During a round, you can use the \c3/claim \c7[ROLE INITIALS] \c6command to claim that you are a certain role. Your name colour will change to indicate your claim.
+	\c6Spectators can see what role you have claimed, and other players may question you about your claim.
+	\c4========\c3ADVANCED CONCEPTS\c4========
+END CONTENT
+
+CONTENT 3
+ALIAS roles
+	\c4========\c3SPECIAL ROLES\c4========
+	\c6Mafia Madness features many special roles which function slightly differently.
+	\c6Some have special abilities, and some are even on completely different teams (referred to as <color:808080>Unaligned \c6roles)!
+	\c6It's important that you know about the special roles, as they can drastically change the course of a round.
+	\c6Misunderstanding a role's function can cost you and your team the round, or get you killed!
+	\c6There are too many special roles to list here, so you can get a list of them by doing \c3/listRoles\c6.
+	\c4If, at any point, you need to know about a role, you can use \c3/describe \c7[ROLE INITIALS] \c4to get an explanation. (eg \c3/describe \c2I\c6)
+	\c4========\c3SPECIAL ROLES\c4========
+END CONTENT
+
+CONTENT 4
+ALIAS offenses
+	\c4========\c3OFFENSES\c4========
+	\c6Mafia Madness is a complex game, and it's important that everyone plays by the rules so everyone can have a good time.
+	\c6Knowing what not to do is \c3of utmost importance\c6! If you mess up, you may cost your team the game, and you may be banned from the server!
+	\c4These are things that are \c3against \c4the rules; note that administration is not necessarily limited to these rules:
+	\c41. =Inno= \c6DO NOT kill someone without even the slightest provocation or reason to believe they're mafia.
+	\c42. =Maf= \c6DO NOT kill any of your fellow Mafia members.
+	\c4   2a. =Maf= \c6EXCEPTION: Doing so can be part of a clever ploy to prove yourself innocent.
+	\c43. =All= \c6DO NOT make a deliberate attempt to cause your team to lose.
+	\c4   3a. \c6Suiciding in any form (direct suicide, jumping to your death, using cute commands or drawing suspicion to yourself to be shot) falls under this category.
+	\c44. =All= \c6DO NOT use any out-of-game method of communication to another player about a game in progress.
+	\c45. =All= \c6DO NOT connect to the server with the same exact name as another player on the server.
+	\c46. =Dead= \c6DO NOT deliberately attempt to mess up the Pong game in the Afterlife.
+	\c4Type \c3/rules offenses examples \c4for examples of breaking the rules, and reasons why.
+	\c4========\c3OFFENSES\c4========
+END CONTENT
+
+CONTENT 4.examples
+ALIAS offenses.examples
+	\c4========\c3OFFENSE EXAMPLES\c4========
+	\c6Here are some examples of breaking the rules (These aren't the only examples, though!)
+	\c41. =Inno= \c6Seeing someone on the roof and shooting them instantly
+	\c6   REASON: Just being on the roof alone is not a reason to believe someone is mafia!
+	\c42. =Maf= \c6Deciding to shoot everyone on the roof and shooting your fellow mafia members too.
+	\c6   REASON: Your fellow mafia members are essential! Shooting them does not help your team at all.
+	\c43. =All= \c6As mafia, killing yourself when you spawn, or telling the Innocents who the mafia are.
+	\c6   REASON: If you're mafia, you're mafia! Selling your team out or refusing to play is childish and ruins the game.
+	\c44. =All= \c6Using IRC to tell an alive player what happened either after or before you died.
+	\c6   REASON: IRC is not part of the game, and using it or another out-of-game communication like this will get you banned permanently!
+	\c45. =All= \c6Letting a friend use the same AUTH key as you and connect to the server.
+	\c6   REASON: Two people with the same name is incredibly confusing in-game, as names are the only reliable method of identification.
+	\c6   (extra: it'll also mess up commands that require player names)
+	\c46. =Dead= \c6Spam-clicking the red ramp that spawns a new pong.
+	\c6   REASON: It's a pain to reset the pong game once it's messed up, and spamming it may cause people lag. Also, it's very annoying.
+	\c4========\c3OFFENSE EXAMPLES\c4========
+END CONTENT
+
+CONTENT 5
+ALIAS terminology
+	\c4========\c3TERMINOLOGY\c4========
+	\c6Here is a list of some common terminology used in MM:
+	\c4Maf/Scum \c6: Short for a member of the Mafia.
+	\c4Inno/Upstanding \c6: Short for a member of the Innocents.
+	\c4FE \c6: Abbreviation of Fingerprint Expert. Use \c3/describe F \c6for more information.
+	\c4"ROOF" \c6: Means "GO TO THE ROOF."
+	\c4Basement \c6: The series of tunnels at the base of the pyramid.
+	\c4Dumpster \c6: A location where abducted corpses appear.
+	\c4Vent \c6: Refers to the Ventriloquist mafia role. Use \c3/describe V \c6for more information.
+	\c4Vented/Imp/Imped \c6: Refers to the Ventriloquist's impersonation ability. Use \c3/describe V \c6for more information.
+	\c4Inv \c6: Refers to the Cop's investigation ability. Use \c3/describe C \c6for more information.
+	\c4Para/Paranoid \c6: Refers to the Paranoid Cop role. Use \c3/describe P \c6for more information.
+	\c4Naive \c6: Refers to the Naive Cop role. Use \c3/describe N \c6for more information.
+	\c4Insane \c6: Refers to the Insane Cop role. Use \c3/describe IC \c6for more information.
+	\c4GF \c6: Refers to the Godfather role. Use \c3/describe G \c6for more information.
+	\c4Abd/Abducted \c6: Refers to the Abductor or its ability. Use \c3/describe A \c6for more information.
+	\c4Claim \c6: Either refers to the \c3/claim \c7[ROLE INITIALS] \c6command, or a request for someone to state their role.
+	\c4Gunvote \c6: The act of voting by pointing guns rather than using chat. This is done to avoid the ventriloquist tampering with voting.
+	\c6In addition, players will often refer to roles by their initials. You can use \c3/whatIs \c7[INITIALS] \c6to identify a role by its initials.
+	\c4========\c3TERMINOLOGY\c4========
+END CONTENT
+
+CONTENT 6
+ALIAS customs
+	\c4========\c3CUSTOMS\c4========
+	\c6Customs are not hard rules, but usually they're what people will expect you to do.
+	\c6Note that everything listed here is subject to extreme change as common strategies evolve.
+	\c6This is simply a run-down of the metagame as of the last update of these rules.
+	\c4====\c3Roof and Voting\c4====
+	\c6The first thing anyone does in a round is make their way to the roof as fast as possible.
+	\c6If you can't find your way to the roof, just look around until you find an upwards stairway, and never go down.
+	\c6Once everyone is on the Roof, the typical strategy to find the mafia is to vote on who to kill or investigate.
+	\c6A common voting strategy if the ventriloquist is present is to initiate a gun vote, where players vote by pointing guns.
+	\c6If you don't vote on who to kill, the Mafia and the Abductor will slowly eliminate you regardless.
+	\c6You should never, however, vote to kill the Cop, Paranoid Cop, or Fingerprint Expert.
+	\c6Typically, you should avoid killing someone directly until a majority vote (majority is commonly determined by live players on the roof) has been reached.
+	\c6Leaving the roof is a bad idea, as then people will suspect you of being mafia, and sometimes shoot you.
+	\c6Unexpectedly shooting someone is a good way to get yourself killed.  If you announce it first, you're more likely to survive.
+	\c6The Mafia should attempt to infiltrate the roof subtly, and manipulate the voting.
+	\c4====\c3Mafia Duties\c4====
+	\c6Each special member of the Mafia has their own duty to perform in the game.
+	\c6The Abductor's duty is to eliminate very dangerous roles like the Cop or Fingerprint Expert.
+	\c6The Ventriloquist's duty is to confuse the innocents about the Cop, manipulate the vote, and cause split-second kills.
+	\c6The Godfather's duty is to unite the mafia with a shared strategy.
+	\c6The Crazy's duty is to be a loose cannon, operating below-roof and silently disfiguring as many bodies as possible.
+	\c6The Crazy is also important for making sure that the Fingerprint Expert can't find out who the Abductor is.
+	\c4====\c3Dos and Don'ts\c4====
+	\c6While on the roof, there are some things that if you do them, you might be shot instantly without voting.
+	\c6Shooting someone without declaring it first or any votes having passed will obviously likely get you shot.
+	\c6Throwing bodies off the roof, or taking bodies from the pile and carrying them will also get you shot.
+	\c6When you find a body, you should report its' name and role, and bring it to the roof.
+	\c6At night, while the Abductor is alive, don't run too close to someone, or people might get suspicious.
+	\c6Pulling out a gun for no reason or shooting at something for no reason will most likely get you shot.
+	\c6Finally, disguising yourself as a body (avatar entirely red, default blocko) is very suspicious and might get you shot.
+	\c4========\c3CUSTOMS\c4========
+END CONTENT
