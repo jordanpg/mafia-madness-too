@@ -147,6 +147,27 @@ function bracketsHatesTGE(%data) //i super-hate that this is necessary but we ne
 	}
 }
 
+function stripToBasicString(%str)
+{
+	%table = "abcdefghijklmnopqrstuvwxyz0123456789_";
+
+	%i = 0;
+	while(%i < strLen(%str))
+	{
+		%c = getSubStr(%str, %i, 1);
+
+		if(striPos(%table, %c) != -1)
+		{
+			%i++;
+			continue;
+		}
+
+		%str = strReplace(%str, %c, "");
+	}
+
+	return %str;
+}
+
 function i_Lerp(%y1, %y2, %mu)
 {
 	return (%y1 * (1 - %mu) + %y2 * %mu);

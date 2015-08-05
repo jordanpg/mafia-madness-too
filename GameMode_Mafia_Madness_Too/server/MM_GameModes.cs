@@ -1,34 +1,114 @@
 //MM_GameModes.cs
-//Sorting functions for various gamemodes.
+//Gamemode system
 
 $MM::LoadedGameModes = true;
 
 $MM::GameMode[-1] = "Custom";
-$MM::GameMode[0] = "Original";
-$MM::GameMode[1] = "Classic";
-$MM::GameMode[2] = "Crazy";
-$MM::GameMode[3] = "StandardPlusLaw";
-$MM::GameMode[4] = "MafiaMadnessToo";
-$MM::GameModes = 5;
+$MM::GameModes = 0;
 
 $MM::DefaultGameMode = -1;
 
-$MM::BringTheLaw = true;
-$MM::LawChance = 0.1;
-$MM::HonkHonk = true;
-$MM::HonkHonkChance = 0.2;
-$MM::AddTraitor = false;
-$MM::JohnCena = 1;
-$MM::JohnCenaChance = 0.07;
-$MM::CultistChance = 0.5;
+$MM::GMDir = $MM::Server @ "gamemodes/";
+$MM::CustomModes = 0;
+$MM::CurrentMode = -1;
+$MM::CustomFile = "mmtoo.mmgm";
+$MM::GamePrefStore = "config/server/mmGPStore.cs";
+$MM::ModeSearchPattern = "Add-Ons/*.mmgm";
+$MM::AutoFindGameModes = true;
 
-$MM::MafRatio = 1 / 3.5;
-$MM::CopRatio = 1 / 5;
-$MM::MiscRatio = 1 / 7;
-$MM::TraitorRatio = 1 / 10;
+$MM::AdminOnlyGMList = false;
 
-$MM::GameModeDir = $MM::Server @ "gamemodes/";
-$MM::CustomFile = "mmtoo.txt";
+/////////////////////////////////////
+///////////CONTROL COMMAND///////////
+/////////////////////////////////////
+function serverCmdMMGameModes(%this)
+{
+	if(!%this.isAdmin && $MM::AdminOnlyGMList)
+	{
+		messageClient(%this, '', "\c4Only admins may access gamemodes.");
+		return;
+	}
+
+	%pattern = '\c3%1\c4. \c3%2';
+
+	messageClient(%this, '', "\c4====\c3Mafia Madness Gamemodes\c4====");
+
+	for(%i = 0; %i < $MM::GameModes; %i++)
+		messageClient(%this, '', %pattern, %i, $MM::GameMode[%i]);
+
+	messageClient(%this, '', "\c6Use \c3Page Up \c6and \c3Page Down \c6to scroll through the list. Use \c3/MMSetGameMode \c7[ID OR NAME] \c6to set the gamemode.");
+}
+
+function serverCmdMMSetGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
+{
+	if(!%this.isSuperAdmin)
+		return;
+
+	if(!isObject(%mini = getMinigameFromObject(%this)) || !%mini.isMM)
+		return;
+
+	%i = %a0;
+	if((%name = $MM::GameMode[%i]) $= "" && %i != -1)
+	{
+		%name = trim(%a0 SPC %a1 SPC %a2 SPC %a3 SPC %a4 SPC %a5);
+
+		if((%i = MM_FindGameModeByName(%name, true)) != -1)
+			%name = $MM::GameMode[%i];
+		else
+		{
+			messageClient(%this, '', "\c4Could not find gamemode '\c3" @ %name @ "\c4,' use \c3/MMGameModes \c4to get a list of gamemodes available.");
+			return;
+		}
+	}
+
+	echo(%this.getSimpleName() SPC "set the gamemode to" SPC %name);
+
+	%mini.MM_SetGameMode(%i);
+}
+
+function serverCmdDescribeGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
+{
+	if(!%this.isAdmin && $MM::AdminOnlyGMList)
+	{
+		messageClient(%this, '', "\c4Only admins may access gamemodes.");
+		return;
+	}
+
+	if(%a0 $= "")
+	{
+		if(!isObject(%mini = getMinigameFromObject(%this)) || !%mini.isMM)
+			return;
+
+		%a0 = %mini.gameMode;
+	}
+
+	%i = %a0;
+	if((%name = $MM::GameMode[%i]) $= "")
+	{
+		%name = trim(%a0 SPC %a1 SPC %a2 SPC %a3 SPC %a4 SPC %a5);
+
+		if((%i = MM_FindGameModeByName(%name, true)) != -1)
+			%name = $MM::GameMode[%i];
+		else
+		{
+			messageClient(%this, '', "\c4Could not find gamemode '\c3" @ %name @ "\c4,' use \c3/MMGameModes \c4to get a list of gamemodes available.");
+			return;
+		}
+	}
+
+	%this.messageLines($MM::GameModeDesc[%i]);
+}
+
+/////////////////////////////////////
+///////////GENERAL SUPPORT///////////
+/////////////////////////////////////
+function MM_isValidGameMode(%modeName)
+{
+	if(!isFunction("MM_InitMode" @ %modeName))
+		return false;
+
+	return true;
+}
 
 function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCts, %innoCts, %mafFill, %innoFill)
 {
@@ -115,382 +195,204 @@ function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCt
 	return trim(%str);
 }
 
-function MM_InitModeStandard(%this)
+function MM_RegisterGameMode(%name, %desc, %customID)
 {
-	MMDebug("MM_InitModeStandard" SPC %this);
+	if(!MM_isValidGameMode(%name) && %customID $= "")
+		return false;
 
-	%members = %this.MM_GetNumPlayers();
-
-	MMDebug("   +Members:" SPC %members);
-
-	%mafs = mFloor(%members / 3.5);
-	if(%mafs < 1)
-		%mafs = 1;
-
-	MMDebug("   +Mafias:" SPC %mafs);
-
-	// %roles = "A V G C M F O P I";
-
-	%mafRoles = "A V G C";
-	%innoRoles = "F O P L";
-
-	%ctA = 1;
-	%ctL = %this.numMillers;
-
-	if(%members > 3)
+	$MM::GameMode[$MM::GameModes] = %name;
+	$MM::GameModeDesc[$MM::GameModes] = %desc;
+	if(%customID !$= "")
 	{
-		if(%mafs > 1)
+		$MM::GameModeIsCustom[$MM::GameModes] = true;
+		$MM::GameModeCustomID[$MM::GameModes] = %customID;
+	}
+	else
+		$MM::GameModeIsCustom[$MM::GameModes] = false;
+
+	$MM::GameModes++;
+
+	return true;
+}
+
+function MM_FindGameModeByName(%name, %stripos)
+{
+	for(%i = 0; %i < $MM::GameModes; %i++)
+	{
+		if(!%stripos)
 		{
-			%ctO = 1;
-
-			if(%mafs < 3)
-				%ctV = getRandom(1);
-			else
-			{
-				%ctV = 1;
-
-				if(%mafs > 3)
-					%ctC = 1;
-			}
-
-			if(%members > 11)
-				%ctF = 1;
-
-			if(%members > 9)
-				%ctP = 1;
-
-			%ctG = 1;
+			if($MM::GameMode[%i] $= %name)
+				return %i;
 		}
-		else
-			%ctF = 1;
+		else if(striPos($MM::GameMode[%i], %name) != -1)
+			return %i;
 	}
 
-	for(%i = 0; %i < 4; %i++)
-		%mafCts = %mafCts SPC (%ct[getWord(%mafRoles, %i)] | 0);
-	%mafCts = trim(%mafCts);
-
-	MMDebug("   +Maf Roles:" SPC %mafRoles);
-	MMDebug("   +Maf Count:" SPC %mafCts);
-
-	for(%i = 0; %i < 4; %i++)
-		%innoCts = %innoCts SPC (%ct[getWord(%innoRoles, %i)] | 0);
-	%innoCts = trim(%innoCts);
-
-	MMDebug("   +Inno Roles:" SPC %innoRoles);
-	MMDebug("   +Inno Count:" SPC %innoCts);
-
-	%this.roles = MM_BuildRolesString(%mafs, %members, %mafRoles, %innoRoles, %mafCts, %innoCts);
-
-	MMDebug("   +Roles:" SPC %this.roles);
-
-	%this.allAbduct = false;
-	%this.allComm = false;
-	%this.allImp = false;
-	%this.allInv = false;
+	return -1;
 }
 
-function MM_InitModeClassic(%this)
+function MM_ClearGameModes()
 {
-	MMDebug("MM_InitModeClassic" SPC %this);
+	deleteVariables("$MM::GameMode*");
 
-	%members = %this.MM_GetNumPlayers();
+	$MM::GameMode[-1] = "Custom";
+	$MM::GameModes = 0;
 
-	MMDebug("   +Members:" SPC %members);
-
-	%mafs = mFloor(%members / 3.5);
-	if(%mafs < 1)
-		%mafs = 1;
-
-	MMDebug("   +Mafias:" SPC %mafs);
-
-	%this.roles = MM_BuildRolesString(%mafs, %members);
-
-	MMDebug("   +Roles:" SPC %this.roles);
-
-	%this.allAbduct = false;
-	%this.allComm = false;
-	%this.allImp = false;
-	%this.allInv = false;
+	MM_ClearCustomGameModes();
 }
 
-function MM_InitModeCrazy(%this)
+function MinigameSO::MM_SetGameMode(%this, %modeID)
 {
-	MMDebug("MM_InitModeCrazy" SPC %this);
+	if(!%this.isMM)
+		return false;
 
-	%members = %this.MM_GetNumPlayers();
+	if((%name = $MM::GameMode[%modeID]) $= "")
+		return false;
 
-	MMDebug("   +Members:" SPC %members);
+	if($MM::GameModeIsCustom[%modeID])
+	{
+		%this.gameMode = -1;
 
-	%mafs = mFloor(%members / 1.75);
-	if(%mafs < 1)
-		%mafs = 1;
+		$MM::CurrentMode = $MM::GameModeCustomID[%modeID];
+	}
+	else
+	{
+		%this.gameMode = %modeID;
 
-	MMDebug("   +Mafias:" SPC %mafs);
+		$MM::CurrentMode = -1;
+	}
 
-	%mafRoles = "C";
-	%mafCts = %mafs;
-
-	MMDebug("   +Maf Roles:" SPC %mafRoles);
-	MMDebug("   +Maf Count:" SPC %mafCts);
-
-	%this.roles = MM_BuildRolesString(%mafs, %members, %mafRoles, "", %mafCts, "");
-
-	MMDebug("   +Roles:" SPC %this.roles);
-
-	%this.allAbduct = false;
-	%this.allComm = false;
-	%this.allImp = false;
-	%this.allInv = false;
+	messageAll('', "\c4The gamemode has been set to\c3" SPC %name);
 }
 
-function MM_InitModeStandardPlusLaw(%this)
+/////////////////////////////////////
+///////CUSTOM GAMEMODE SUPPORT///////
+/////////////////////////////////////
+function MM_ExportGamePrefs(%out)
 {
-	MMDebug("MM_InitModeStandardPlusLaw" SPC %this);
-
-	%members = %this.MM_GetNumPlayers();
-
-	MMDebug("   +Members:" SPC %members);
-
-	%mafs = mFloor(%members / 3.5);
-	if(%mafs < 1)
-		%mafs = 1;
-
-	MMDebug("   +Mafias:" SPC %mafs);
-
-	%roles = "LAW A V G C M F O P I";
-
-	%mafRoles = "LAW A V G C";
-	%innoRoles = "F O P L";
-
-	%ctA = 1;
-	%ctL = %this.numMillers;
-
-	if(%members > 3)
-	{
-		if(%mafs > 1)
-		{
-			%ctO = 1;
-
-			if(%mafs < 3)
-				%ctV = getRandom(1);
-			else
-			{
-				%ctV = 1;
-
-				if(%mafs > 3)
-					%ctC = 1;
-			}
-
-			if(%members > 11)
-				%ctF = 1;
-
-			if(%members > 9)
-				%ctP = 1;
-
-			%ctG = 1;
-		}
-		else
-			%ctF = 1;
-	}
-
-	for(%i = 0; %i < $MM::LawCt; %i++)
-		%ctLAW += getRandom() < $MM::LawChance;
-
-	for(%i = 0; %i < 5; %i++)
-		%mafCts = %mafCts SPC (%ct[getWord(%mafRoles, %i)] | 0);
-	%mafCts = trim(%mafCts);
-
-	MMDebug("   +Maf Roles:" SPC %mafRoles);
-	MMDebug("   +Maf Count:" SPC %mafCts);
-
-	for(%i = 0; %i < 4; %i++)
-		%innoCts = %innoCts SPC (%ct[getWord(%innoRoles, %i)] | 0);
-	%innoCts = trim(%innoCts);
-
-	MMDebug("   +Inno Roles:" SPC %innoRoles);
-	MMDebug("   +Inno Count:" SPC %innoCts);
-
-	%this.roles = MM_BuildRolesString(%mafs, %members, %mafRoles, %innoRoles, %mafCts, %innoCts);
-
-	MMDebug("   +Roles:" SPC %this.roles);
-
-	%this.allAbduct = false;
-	%this.allComm = false;
-	%this.allImp = false;
-	%this.allInv = false;
+	export("$MM::GP*", %out);
 }
 
-function MM_InitModeMafiaMadnessToo(%this)
+function MM_RegisterCustomMode(%name, %file, %description)
 {
-	MMDebug("MM_InitModeMafiaMadnessToo" SPC %this);
+	if(!isFile(%file))
+		return -1;
 
-	%members = %this.MM_GetNumPlayers();
-	// %members = $debugVal;
+	if(!MM_RegisterGameMode(%name, %description, $MM::CustomModes))
+		return -1;
 
-	MMDebug("   +Members:" SPC %members);
+	$MM::CustomMode[%i = $MM::CustomModes] = %file;
+	$MM::CustomModeName[%i] = %name;
+	$MM::CustomModeDesc[%i] = %description;
+	$MM::CustomModes++;
 
-	// %mafs = mFloor(%members / 3.5);
-	%mafs = mFloor(%members * $MM::MafRatio);
-	if(%mafs < 1)
-		%mafs = 1;
+	warn("--+Registered MM custom mode" SPC %name SPC "from '" @ %file @ "' ...");
 
-	MMDebug("   +Mafias:" SPC %mafs);
-
-	// %roles = "A V G C M F O P I";
-
-	%mafRoles = "JOHNCENA A V G C D LAW";
-	%innoRoles = "F O P N IC L BB J CLOWN AM S T RC ZC";
-
-	///////////////////////////////
-	/////ROLE ASSIGNMENT LOGIC/////
-	///////////////////////////////
-
-	%ctA = 1; //always have at least one abductor.
-
-	if(%members > 3)
-		%ctF = 1;
-
-	if(%mafs > 1)
-	{
-		// %cops = mFloor(%members / 5);
-		%cops = mFloor(%members * $MM::CopRatio);
-		if(%cops >= 4) //max we want is one of each cop type
-			%cops = 4;
-
-		if(%cops > 0)
-			%ctO = 1;
-
-		if(%cops > 1)
-		{
-			%goofCops = "P P N N IC BB";
-			%goofCt = %cops - 1;
-
-			for(%i = 0; %i < %goofCt; %i++)
-			{
-				%rand = getRandom(getWordCount(%goofCops) - 1);
-				%r = getWord(%goofCops, %rand);
-				%goofCops = removeWord(%goofCops, %rand);
-
-				%ct[%r] = 1; //may not necessarily get as many cops as we said we would!
-			}
-		}
-
-		%ctG = getRandom(2) > 0;
-
-
-		%goofMafs = "V V V C C D";
-		%goofCt = %mafs - 1;
-
-		for(%i = 0; %i < %goofCt; %i++)
-		{
-			%rand = getRandom(getWordCount(%goofMafs) - 1);
-			%r = getWord(%goofMafs, %rand);
-
-			// echo(%goofMafs);
-			// echo(%r SPC %rand);
-
-			%goofMafs = removeWord(%goofMafs, %rand);
-
-			%ct[%r] = 1;
-		}
-	}
-
-	if(%ctC > 0 && $MM::BringTheLaw && getRandom() < $MM::LawChance) //I Am The Law
-	{
-		%ctC--;
-		%ctLAW++;
-	}
-
-	if($MM::JohnCena > 0)
-		for(%i = 0; %i < $MM::JohnCena; %i++)
-			if(getRandom() < $MM::JohnCenaChance)
-				%ctJOHNCENA++;
-
-	// if($MM::HonkHonkCt > 0)
-	// 	for(%i = 0; %i < $MM::HonkHonkCt; %i++)
-	// 		%ctCLOWN += (getRandom() < $MM::HonkHonkRate);
-
-	%oddballs = mFloor(%members * $MM::MiscRatio + getRandom());
-	%oddCt = getRandom(%oddballs);
-	%odds = "L AM";
-	if(%ctG > 0)
-		%odds = %odds SPC "S";
-
-	for(%i = 0; %i < %oddCt; %i++)
-	{
-		%rand = getRandom(getWordCount(%odds) - 1);
-		%r = getWord(%odds, %rand);
-
-		%odds = removeWord(%odds, %rand);
-
-		%ct[%r] = 1;
-	}
-
-	%maxTraitors = mFloor(%members * $MM::TraitorRatio + getRandom());
-	%traitorCt = getRandom(%maxTraitors);
-	%traitors = "";
-
-	if(getRandom() < $MM::CultistChance)
-		%traitors = %traitors SPC "RC";
-
-	if(%ctD > 0)
-		%traitors = %traitors SPC "J";
-
-	if($MM::AddTraitor)
-		%traitors = %traitors SPC "T";
-
-	%traitors = trim(%traitors);
-
-	for(%i = 0; %i < %traitorCt; %i++)
-	{
-		%rand = getRandom(getWordCount(%traitors) - 1);
-		%r = getWord(%traitors, %rand);
-
-		%traitors = removeWord(%traitors, %rand);
-
-		%ct[%r] = 1;
-	}
-
-	if($MM::HonkHonk && %ctJ > 0 && getRandom() < $MM::HonkHonkChance)
-	{
-		%ctJ--;
-		%ctCLOWN++;
-	}
-
-	///////////////////////////////
-	///////////////////////////////
-	///////////////////////////////
-
-
-	%ct = getWordCount(%mafRoles);
-	for(%i = 0; %i < %ct; %i++)
-		%mafCts = %mafCts SPC (%ct[getWord(%mafRoles, %i)] | 0);
-	%mafCts = trim(%mafCts);
-
-	MMDebug("   +Maf Roles:" SPC %mafRoles);
-	MMDebug("   +Maf Count:" SPC %mafCts);
-
-	%ct = getWordCount(%innoRoles);
-	for(%i = 0; %i < %ct; %i++)
-		%innoCts = %innoCts SPC (%ct[getWord(%innoRoles, %i)] | 0);
-	%innoCts = trim(%innoCts);
-
-	MMDebug("   +Inno Roles:" SPC %innoRoles);
-	MMDebug("   +Inno Count:" SPC %innoCts);
-
-	%this.roles = MM_BuildRolesString(%mafs, %members, %mafRoles, %innoRoles, %mafCts, %innoCts);
-
-	MMDebug("   +Roles:" SPC %this.roles);
-
-	%this.allAbduct = false;
-	%this.allComm = false;
-	%this.allImp = false;
-	%this.allInv = false;
+	return %i;
 }
 
-/////////////////////////////////////////
-//////CUSTOM GAMEMODE FUNCTIONALITY//////
-/////////////////////////////////////////
+function MM_ClearCustomGameModes()
+{
+	deleteVariables("$MM::CustomMode*");
+
+	$MM::CurrentMode = -1;
+	$MM::CustomModes = 0;
+}
+
+function MM_FindCustomModeByName(%name, %stripos)
+{
+	for(%i = 0; %i < $MM::CustomModes; %i++)
+	{
+		if(!%stripos)
+			if($MM::CustomModeName[%i] $= %name)
+				return %i;
+		else if(striPos($MM::CustomModeName[%i], %name) != -1)
+			return %i;
+	}
+
+	return -1;
+}
+
+function MM_GetCustomModeName(%index)
+{
+	if(%index < 0 || %index >= $MM::CustomModes)
+		return -1;
+
+	return $MM::CustomModeName[%index];
+}
+
+function MM_GetCustomModeDescription(%index)
+{
+	if(%index < 0 || %index >= $MM::CustomModes)
+		return -1;
+
+	return $MM::CustomModeDesc[%index];
+}
+
+function MM_GetCustomModeFile(%index)
+{
+	if(%index < 0 || %index >= $MM::CustomModes)
+		return -1;
+
+	return $MM::CustomMode[%index];
+}
+
+function MM_RegisterModeFile(%filen)
+{
+	if(!isFile(%filen))
+		return false;
+
+	%file = new FileObject();
+	%file.openForRead(%filen);
+
+	%line = %file.readLine();
+
+	if(firstWord(%line) !$= "MMGAMEMODE")
+	{
+		%file.close();
+		%file.delete();
+
+		return false;
+	}
+
+	%name = restWords(%line);
+
+	while(!%file.isEOF())
+	{
+		%line = %file.readLine();
+
+		if(getSubStr(%line, 0, 3) !$= "///")
+			continue;
+
+		%line = getSubStr(%line, 3, strLen(%line) - 3);
+
+		%desc = trim(%desc NL %line);
+	}
+	%file.close();
+	%file.delete();
+
+	return MM_RegisterCustomMode(%name, %filen, %desc);
+}
+
+function MM_RegisterAllModeFiles(%pattern)
+{
+	%start = $MM::CustomModes;
+
+	warn("Finding Mafia Madness gamemodes...");
+	MMDebug("--+Pattern:" SPC %pattern);
+	for(%i = findFirstFile(%pattern); isFile(%i); %i = findNextFile(%pattern))
+	{
+		MMDebug("--+Found file " SPC %i);
+		%r = MM_RegisterModeFile(%i);
+		MMDebug("--+Returned:" SPC %r);
+	}
+
+	%amt = $MM::CustomModes - %start;
+
+	warn("Added" SPC %amt SPC "custom modes.");
+
+	return %amt;
+}
 
 function MM_LoadGameMode(%filen)
 {
@@ -498,6 +400,11 @@ function MM_LoadGameMode(%filen)
 		return false;
 
 	deleteVariables("$MM::GM*");
+
+	if(isFile($MM::GamePrefStore) && $MM::StoredGamePrefs) //restore default vars
+		exec($MM::GamePrefStore);
+	else if(!$MM::StoredGamePrefs)
+		MM_ExportGamePrefs($MM::GamePrefStore);
 
 	%file = new FileObject();
 	%file.openForRead(%filen);
@@ -520,13 +427,14 @@ function MM_LoadGameMode(%filen)
 		if(getSubStr(%line, 0, 2) $= "//")
 			continue;
 
-		if(getSubStr(%line, 0, 1) $= "[")
+		%substr = getSubStr(%line, 0, 1);
+		if(%substr $= "[")
 		{
 			%preVar = getSubStr(%line, 1, strLen(%line) - 2);
 			continue;
 		}
 
-		if(getSubStr(%line, 0, 1) $= "<")
+		if(%substr $= "<")
 		{
 			%preVal = getSubStr(%line, 1, strLen(%line) - 2);
 			continue;
@@ -702,18 +610,32 @@ function MM_EvaluateCondition(%c)
 	return %status;
 }
 
+/////////////////////////////////////
+//////CUSTOM GAMEMODE FUNCTIONS//////
+/////////////////////////////////////
 function MM_ModeReadyCustom(%this)
 {
+	if(!$MM::StoredGamePrefs)
+		MM_ExportGamePrefs($MM::GamePrefStore);
+
 	if(!$MM::CustomManual)
 	{
+		if($MM::CurrentMode >= 0)
+		{
+			if(isFile(%f = MM_GetCustomModeFile($MM::CurrentMode)))
+				$MM::CustomFile = %f;
+			else if(isFile(%f = $MM::GMDir @ %f))
+				$MM::CustomFile = %f;
+		}
+
 		if(!isFile($MM::CustomFile))
 		{
-			if(isFile($MM::GameModeDir @ $MM::CustomFile))
-				$MM::CustomFile = $MM::GameModeDir @ $MM::CustomFile;
+			if(isFile(%f = $MM::GMDir @ $MM::CustomFile))
+				$MM::CustomFile = %f;
 			else if(isFile($Pref::Server::MMCustomFile))
 				$MM::CustomFile = $Pref::Server::MMCustomFile;
-			else if(isFile($MM::GameModeDir @ $Pref::Server::MMCustomFile))
-				$MM::CustomFile = $MM::GameModeDir @ $Pref::Server::MMCustomFile;
+			else if(isFile(%f = $MM::GMDir @ $Pref::Server::MMCustomFile))
+				$MM::CustomFile = %f;
 			else
 				return false;
 		}

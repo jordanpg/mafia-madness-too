@@ -1,0 +1,117 @@
+MMGAMEMODE Mafia Madness (too)
+
+//Description:
+///\c3Mafia Madness (too) \c4: Standard
+///\c4By \c3ottosparks
+///\c4Standard gamemode for Mafia Madness Too, includes most newly added roles and a more randomised sorting method.
+
+MafRatio 0.285714
+MinMaf 1
+
+//Temporary variables
+%copRatio 0.2
+%miscRatio 0.142857
+%traitorRatio 0.1
+
+%bringTheLaw 1
+%lawChance 0.1
+%honkHonk 1
+%honkHonkChance 0.2
+%johnCena 1
+%johnCenaChance 0.07
+%cultistChance 0.5
+
+//This is done so that:
+//a) Roles will always appear in a predictable order on the role list
+//b) Functionality will be mirrored from the original version of the gamemode
+//c) We can control the "priority" of certain roles over others if more are put into the pot than will be used
+ForceMafOrder JOHNCENA A V G C D LAW
+ForceInnoOrder F O P N IC L BB J CLOWN AM S T RC CL ZC
+
+//Force the game to always make an abductor appear.
+[SortGroup0_]
+RolePot A
+isMaf 1
+Ratio 1
+RatioVar mafs
+ForceMinMembers 1
+
+//Always make a fingerprint expert appear with more than three players.
+[SortGroup1_]
+Condition %members > 3
+RolePot F
+Ratio 1
+RatioVar members
+
+//Always make regular cop appear before any other cop variants
+[SortGroup2_]
+Condition %mafs > 1
+RolePot O
+Ratio %%copRatio
+RatioVar members
+
+//Cop variants and protective innos, only appear after normal cop has appeared once
+[SortGroup3_]
+Condition %ctO > 0
+RolePot P P N N IC BB
+Ratio %%copRatio
+RatioVar members
+RatioModCount -1
+ForceMaxMembers 3
+
+//Handle godfather separately
+[SortGroup4_]
+Condition %mafs > 1, and ? 0 2 > 0
+RolePot G
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+//Special maf roles
+[SortGroup5_]
+Condition %mafs > 1
+RolePot V V V C C D
+Ratio 1
+RatioVar mafs
+RatioModCount -1
+
+//Some neutral roles and weird innos
+[SortGroup6_]
+RolePot L AM S
+RoleCondition_S %ctG > 0
+Ratio %%miscRatio
+RatioVar members
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+RandomCount 1
+
+//"Traitors" group, consists of neutral evil roles.
+[SortGroup7_]
+RolePot J
+//RoleCondition_RC ? ~ < %cultistChance
+//RoleCondition_CL ? ~ < %cultistChance
+RoleCondition_J %ctD > 0
+Ratio %%traitorRatio
+RatioVar members
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+RandomCount 1
+
+//Cultists
+[SortGroup8_]
+Condition ? ~ < %cultistChance
+RolePot RC CL
+Ratio %%traitorRatio
+RatioVar members
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+RandomCount 1
+
+[]
+SortGroupCt 9
+
+//Call the joke role transformation function. This can be commented out to disable joke roles entirely.
+PostSortCall MMTTransformRoles

@@ -402,24 +402,24 @@ function serverCmdMMSetIgnore(%client, %player, %i)
 		messageAll('', "\c3" @ %n SPC "\c1is now being included in Mafia Madness games.");
 }
 
-function serverCmdMMSetGameMode(%client, %mode)
-{
-	if(!%client.isSuperAdmin)
-		return;
+// function serverCmdMMSetGameMode(%client, %mode)
+// {
+// 	if(!%client.isSuperAdmin)
+// 		return;
 
-	if(!isObject($DefaultMinigame))
-	{
-		messageClient(%client, '', "\c4No MM minigame found. Is the server running in the MM gamemode?");
-		return;
-	}
+// 	if(!isObject($DefaultMinigame))
+// 	{
+// 		messageClient(%client, '', "\c4No MM minigame found. Is the server running in the MM gamemode?");
+// 		return;
+// 	}
 
-	if(%mode >= $MM::GameModes)
-	{
-		messageClient(%client, '', "\c1OUT OF RANGE");
-		return;
-	}
-	messageAll('', "\c1Mafia Madness game mode set to \c3" @ $MM::GameMode[$DefaultMinigame.gameMode = %mode] @ "\c1.");
-}
+// 	if(%mode >= $MM::GameModes)
+// 	{
+// 		messageClient(%client, '', "\c1OUT OF RANGE");
+// 		return;
+// 	}
+// 	messageAll('', "\c1Mafia Madness game mode set to \c3" @ $MM::GameMode[$DefaultMinigame.gameMode = %mode] @ "\c1.");
+// }
 
 // function serverCmdMMManualGame(%client, %i)
 // {

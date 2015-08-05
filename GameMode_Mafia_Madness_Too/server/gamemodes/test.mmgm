@@ -1,0 +1,32 @@
+MMGAMEMODE Test Mode
+
+//making sure this works
+testVal0 505050
+testVal1 asd
+testVal2 the quick brown fox jumped over the lazy dog
+   //also wanna see if this breaks stuff
+%poopy sdsds
+
+//1 / 3.5
+MafRatio 0.285714
+MinMaf 1
+
+[SortGroup0_]
+RolePot A V G C
+isMaf 1
+AllowMultipleDraw 0
+KeepDrawnRoles 0
+Ratio 1
+RatioVar mafs
+ForceMinMembers 1
+
+[SortGroup1_]
+RolePot O F BB
+AllowMultipleDraw 0
+KeepDrawnRoles 0
+Ratio 0.2
+RatioVar members
+ForceMinMembers 0
+
+[]
+SortGroupCt 2

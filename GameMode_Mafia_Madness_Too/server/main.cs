@@ -18,7 +18,14 @@ exec("./MM_Core.cs");
 exec("./MM_Role.cs");
 exec($MM::Roles @ "main.cs");
 exec("./MM_GameModes.cs");
-exec($MM::GameModeDir @ "main.cs");
+if($MM::AutoFindGameModes && !$MM::FoundModes)
+{
+	MM_ClearGameModes();
+	MM_RegisterAllModeFiles($MM::ModeSearchPattern);
+	$MM::FoundModes = true;
+}
+
+exec($MM::GMDir @ "main.cs");
 
 exec("./afterlife.cs");
 exec("./ahole.cs");

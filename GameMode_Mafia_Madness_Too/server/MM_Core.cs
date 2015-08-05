@@ -15,14 +15,6 @@ $MM::MafListSetting = 1;
 
 package disableToolCmds { function serverCmdDuplicator() { } function serverCmdFillcan() { } function serverCmdUsePrintGun() { } };
 
-function MM_isValidGameMode(%modeName)
-{
-	if(!isFunction("MM_InitMode" @ %modeName))
-		return false;
-
-	return true;
-}
-
 function MM_clearCorpses()
 {
 	while(isObject(botCorpse))

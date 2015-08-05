@@ -1,3 +1,6 @@
+MM_RegisterModeFile("./mmtoo.mmgm");
+MM_RegisterModeFile("./mmtoo_att.mmgm");
+
 function MMGameMode_MMTTransformRoles(%this)
 {
 	if($MMGctC > 0 && $MMGbringTheLaw && getRandom() < $MMGlawChance)
