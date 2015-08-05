@@ -3,8 +3,8 @@
 
 $MM::LoadedRole_Abductor = true;
 
-$MM::AbductionRange = 8;
-$MM::AbductionDelay = 3000;
+$MM::GPAbductionRange = 8;
+$MM::GPAbductionDelay = 3000;
 
 if(!isObject(MMRole_Abductor))
 {
@@ -100,7 +100,7 @@ package MM_Abductor
 
 		%start = %obj.getEyePoint();
 		%vec = %obj.getEyeVector();
-		%end = VectorAdd(%start, VectorScale(%vec, $MM::AbductionRange));
+		%end = VectorAdd(%start, VectorScale(%vec, $MM::GPAbductionRange));
 
 		%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 		%aObj = firstWord(%ray);
@@ -114,7 +114,7 @@ package MM_Abductor
 		}
 
 		%aObj.gagged = true;
-		%aObj.schedule($MM::AbductionDelay, MM_Abduct, %mini, %obj);
+		%aObj.schedule($MM::GPAbductionDelay, MM_Abduct, %mini, %obj);
 
 		%client.abducted[%mini.day] = true;
 

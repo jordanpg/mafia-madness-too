@@ -11,7 +11,7 @@ $MM::GameMode[3] = "StandardPlusLaw";
 $MM::GameMode[4] = "MafiaMadnessToo";
 $MM::GameModes = 5;
 
-$MM::DefaultGameMode = 4;
+$MM::DefaultGameMode = -1;
 
 $MM::BringTheLaw = true;
 $MM::LawChance = 0.1;
@@ -28,6 +28,7 @@ $MM::MiscRatio = 1 / 7;
 $MM::TraitorRatio = 1 / 10;
 
 $MM::GameModeDir = $MM::Server @ "gamemodes/";
+$MM::CustomFile = "mmtoo.txt";
 
 function MM_BuildRolesString(%numMaf, %numPlayers, %mafRoles, %innoRoles, %mafCts, %innoCts, %mafFill, %innoFill)
 {
@@ -531,8 +532,27 @@ function MM_LoadGameMode(%filen)
 			continue;
 		}
 
+		%ct = getWordCount(%line);
+		for(%i = 0; %i < %ct; %i++)
+		{
+			%w = getWord(%line, %i);
+
+			if(getSubStr(%w, 0, 2) $= "%%")
+				%line = setWord(%line, %i, $MMG[getSubStr(%w, 2, strLen(%w) - 2)]);
+		}
+
 		%var = firstWord(%line);
 		%val = restWords(%line);
+
+		if(%var $= "PREF")
+		{
+			%var = firstWord(%val);
+			%val = restWords(%val);
+
+			%isPref = true;
+		}
+		else
+			%isPref = false;
 
 		if(getSubStr(%var, 0, 1) $= "%")
 		{
@@ -548,7 +568,9 @@ function MM_LoadGameMode(%filen)
 		if(%preVal !$= "")
 			%val = firstWord(%preVal) @ %val;
 
-		if(%tempVar)
+		if(%isPref)
+			$MM::GP[%var] = %val;
+		else if(%tempVar)
 			$MMG[%var] = %val;
 		else
 			$MM::GM[%var] = %val;
@@ -564,7 +586,7 @@ function MM_EvaluateCondition(%c)
 {
 	%status = false;
 	%str = %c;
-	// echo(%c);
+	echo(%c);
 
 	for(%i = 0; %str !$= ""; %i++)
 	{
@@ -572,8 +594,8 @@ function MM_EvaluateCondition(%c)
 
 		%cond = trim(%cond);
 
-		// echo(%i SPC %str);
-		// echo(%cond);
+		echo(%i SPC %str);
+		echo(%cond);
 
 		if(%i > 0)
 		{
@@ -644,7 +666,7 @@ function MM_EvaluateCondition(%c)
 		if(getSubStr(%c2, 0, 1) $= "%")
 			%c2 = $MMG[getSubStr(%c2, 1, strLen(%c2) - 1)];
 
-		// echo(%c1 SPC %op SPC %c2);
+		echo(%c1 SPC %op SPC %c2);
 
 		switch$(%op)
 		{
@@ -674,7 +696,7 @@ function MM_EvaluateCondition(%c)
 		else
 			%status = (%status || %r);
 
-		// echo(%r SPC %status);
+		echo(%r SPC %status);
 	}
 
 	return %status;
@@ -711,8 +733,8 @@ function MM_InitModeCustom(%this)
 	MMDebug("MM_InitModeCustom" SPC %this);
 	MMDebug("   +Gamemode Name:" SPC $MM::GMName);
 
-	// $MMGmembers = %this.MM_GetNumPlayers();
-	$MMGmembers = $debugVal;
+	$MMGmembers = %this.MM_GetNumPlayers();
+	// $MMGmembers = $debugVal;
 
 	MMDebug("   +Members:" SPC $MMGmembers);
 
@@ -732,6 +754,9 @@ function MM_InitModeCustom(%this)
 
 	$MMGmafRoles = "";
 	$MMGinnoRoles = "";
+
+	if(isFunction(%f = "MMGameMode_" @ $MM::GMPreSortCall))
+		call(%f, %this);
 
 	for(%i = 0; %i < $MM::GMSortGroupCt; %i++)
 	{
@@ -788,11 +813,27 @@ function MM_InitModeCustom(%this)
 
 		MMDebug("   --+Round:" SPC ($MM::GMSortGroup[%i, "RatioRound"] ? "true" : "false"));
 
-		%mod = $MM::GMSortGroup[%i, "RatioModCount"] | 0;
+		%mod = mFloor($MM::GMSortGroup[%i, "RatioModCount"]);
 
 		MMDebug("   --+Mod:" SPC %mod);
 
-		$MMGgroupMems = mFloor($MMGsrcNum * %ratio + $MMGratioRand + ($MM::GMSortGroup[%i, "RatioRound"] ? 0.5 : 0)) + %mod;
+		$MMGgroupMems = mFloor($MMGsrcNum * %ratio + $MMGratioRand + ($MM::GMSortGroup[%i, "RatioRound"] ? 0.5 : 0));
+
+		MMDebug("   --+Initial Mems:" SPC $MMGgroupMems);
+
+		$MMGgroupMems += %mod;
+
+		MMDebug("   --+Modded Mems:" SPC $MMGgroupMems);
+
+		if($MM::GMSortGroup[%i, "RandomCount"])
+		{
+			%min = $MM::GMSortGroup[%i, "RandomCountMin"] | 0;
+
+			MMDebug("   --+Random Count Min:" SPC %min);
+
+			if(%min < $MMGgroupMems)
+				$MMGgroupMems = getRandom(%min, $MMGgroupMems);
+		}
 
 		%e = $MM::GMSortGroup[%i, "ForceMinMembers"] | 0;
 		if(%e >= 0 && $MMGgroupMems < %e)
@@ -866,6 +907,65 @@ function MM_InitModeCustom(%this)
 		MMDebug("   --+Final Pot:" SPC $MMGrolePot);
 	}
 
+	if(isFunction(%f = "MMGameMode_" @ $MM::GMPostSortCall))
+		call(%f, %this);
+
+	if($MM::GMForceMafOrder !$= "")
+	{
+		%newOrder = "";
+
+		%ct = getWordCount($MM::GMForceMafOrder);
+		for(%i = 0; %i < %ct; %i++)
+		{
+			%r = getWord($MM::GMForceMafOrder, %i);
+
+			%newOrder = trim(%newOrder SPC %r);
+			%mhas[%r] = true;
+		}
+
+		%ct = getWordCount($MMGmafRoles);
+		for(%i = 0; %i < %ct; %i++)
+		{
+			%r = getWord($MMGmafRoles, %i);
+
+			if(!%mhas[%r])
+			{
+				%newOrder = trim(%newOrder SPC %r);
+				%mhas[%r] = true;
+			}
+		}
+
+		$MMGmafRoles = $MM::GMForceMafOrder;
+	}
+
+	if($MM::GMForceInnoOrder !$= "")
+	{
+		%newOrder = "";
+
+		%ct = getWordCount($MM::GMForceInnoOrder);
+		for(%i = 0; %i < %ct; %i++)
+		{
+			%r = getWord($MM::GMForceInnoOrder, %i);
+
+			%newOrder = trim(%newOrder SPC %r);
+			%ihas[%r] = true;
+		}
+
+		%ct = getWordCount($MMGinnoRoles);
+		for(%i = 0; %i < %ct; %i++)
+		{
+			%r = getWord($MMGinnoRoles, %i);
+
+			if(!%ihas[%r])
+			{
+				%newOrder = trim(%newOrder SPC %r);
+				%ihas[%r] = true;
+			}
+		}
+
+		$MMGinnoRoles = $MM::GMForceInnoOrder;
+	}
+
 	%ct = getWordCount($MMGmafRoles);
 	for(%i = 0; %i < %ct; %i++)
 		%mafCts = %mafCts SPC ($MMGct[getWord($MMGmafRoles, %i)] | 0);
@@ -893,6 +993,8 @@ function MM_InitModeCustom(%this)
 	%this.allBubble = $MM:GameModeAllBubble;
 	%this.allFingerprint = $MM::GMAllFingerprint;
 	%this.allRevive = $MM::GMAllRevive;
+
+	$MM::NoExtraLives = $MM::GMNoExtraLives;
 
 	deleteVariables("$MMG*");
 }

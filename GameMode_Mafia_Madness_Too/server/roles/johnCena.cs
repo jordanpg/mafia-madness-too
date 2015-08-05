@@ -3,16 +3,16 @@
 
 $MM::LoadedRole_JohnCena = true;
 
-$MM::JCThrowVel = 100;
-$MM::JCPunchVel = 40;
-$MM::JCPunchAirForce = 5;
-$MM::JCArmDist = 8;
-$MM::JCPunchTimeout = 0.5;
-$MM::JCPunchDamage = 50;
-$MM::JCThrowTick = 500;
-$MM::JCScale = "1.125 1.125 1.125";
-$MM::JCPlayMusic = true;
-$MM::JCSpeedMod = 1.5;
+$MM::GPJCThrowVel = 100;
+$MM::GPJCPunchVel = 40;
+$MM::GPJCPunchAirForce = 5;
+$MM::GPJCArmDist = 8;
+$MM::GPJCPunchTimeout = 0.5;
+$MM::GPJCPunchDamage = 50;
+$MM::GPJCThrowTick = 500;
+$MM::GPJCScale = "1.125 1.125 1.125";
+$MM::GPJCPlayMusic = true;
+$MM::GPJCSpeedMod = 1.5;
 
 if(!isObject(MMRole_JohnCena))
 {
@@ -56,12 +56,12 @@ function Player::MM_JCThrow(%obj)
 	if(!$DefaultMinigame.running)
 		return;
 
-	%obj.throwSched = %obj.schedule($MM::JCThrowTick, MM_JCThrow);
+	%obj.throwSched = %obj.schedule($MM::GPJCThrowTick, MM_JCThrow);
 
 	if(!isObject(%obj.heldCorpse))
 	{
 		%start = %obj.getEyePoint();
-		%add = VectorScale(%obj.getEyeVector(), $MM::JCArmDist);
+		%add = VectorScale(%obj.getEyeVector(), $MM::GPJCArmDist);
 		%ray = containerRayCast(%start, VectorAdd(%start, %add), $TypeMasks::PlayerObjectType | $TypeMasks::FxBrickObjectType, %obj);
 		// echo(%ray);
 		if(!isObject(%hObj = firstWord(%ray)) || %hObj.getClassName() !$= "Player")
@@ -86,7 +86,7 @@ function Player::MM_JCThrow(%obj)
 	else
 	{
 		%obj.heldCorpse.dismount();
-		%obj.heldCorpse.setVelocity(VectorScale(%obj.getEyeVector(), $MM::JCThrowVel));
+		%obj.heldCorpse.setVelocity(VectorScale(%obj.getEyeVector(), $MM::GPJCThrowVel));
 		%obj.heldCorpse.canDismount = true;
 		%obj.heldCorpse.holder = "";
 		%obj.heldCorpse = "";
@@ -122,14 +122,14 @@ function MMRole_JohnCena::onSpawn(%this, %mini, %client)
 {
 	parent::onSpawn(%this, %mini, %client);
 
-	%client.player.setScale($MM::JCScale);
+	%client.player.setScale($MM::GPJCScale);
 	%client.player.jc = true;
 
-	if(isObject(MusicData_JOHN_CENA) && $MM::JCPlayMusic)
+	if(isObject(MusicData_JOHN_CENA) && $MM::GPJCPlayMusic)
 		%client.player.playAudio(0, MusicData_JOHN_CENA);
 
-	if($MM::JCSpeedMod > 0)
-		%client.player.setSpeedMod($MM::JCSpeedMod);
+	if($MM::GPJCSpeedMod > 0)
+		%client.player.setSpeedMod($MM::GPJCSpeedMod);
 }
 
 package MM_JohnCena
@@ -147,12 +147,12 @@ package MM_JohnCena
 		if(!isObject(%cl.role) || nameToID(%cl.role) != nameToID(MMRole_JohnCena))
 			return %r;
 
-		if($Sim::Time - %this.lastPush < $MM::JCPunchTimeout)
+		if($Sim::Time - %this.lastPush < $MM::GPJCPunchTimeout)
 			return %r;
 
 		%start = %this.getEyePoint();
 		%eye = %this.getEyeVector();
-		%add = VectorScale(%eye, $MM::JCArmDist);
+		%add = VectorScale(%eye, $MM::GPJCArmDist);
 		%ray = containerRayCast(%start, VectorAdd(%start, %add), $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %this);
 		%obj = firstWord(%ray);
 
@@ -164,13 +164,13 @@ package MM_JohnCena
 		if(!isObject(%cl = %obj.getControllingClient()) || %cl.MM_isMaf())
 			return %r;
 
-		%vel = VectorAdd(VectorScale(getWords(%eye, 0, 1), $MM::JCPunchVel), "0 0" SPC $MM::JCPunchAirForce);
+		%vel = VectorAdd(VectorScale(getWords(%eye, 0, 1), $MM::GPJCPunchVel), "0 0" SPC $MM::GPJCPunchAirForce);
 
 		%obj.addVelocity(%vel);
 
 		%this.lastPush = $Sim::Time;
 
-		%obj.damage(%this, %this.getPosition(), $MM::JCPunchDamage, $DamageType::Direct);
+		%obj.damage(%this, %this.getPosition(), $MM::GPJCPunchDamage, $DamageType::Direct);
 
 		// echo("b");
 
@@ -188,7 +188,7 @@ package MM_JohnCena
 		%this.mountObject(%obj, 8);
 		%obj.dismount();
 
-		%vel = VectorAdd(%this.getVelocity(), VectorScale(%this.getEyeVector(), $MM::JCThrowVel));
+		%vel = VectorAdd(%this.getVelocity(), VectorScale(%this.getEyeVector(), $MM::GPJCThrowVel));
 		// echo(%vel);
 		%obj.schedule(1, setVelocity, %vel);
 		%obj.holder = "";

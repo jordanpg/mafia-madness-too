@@ -3,9 +3,9 @@
 
 $MM::LoadedRole_Cultist = true;
 
-$MM::CultistRecruitRecruitment = true; //cultist recruits will be able to recruit to the cult as well
-$MM::CultistOnlyCommAtNight = false; //cultists will only have access to cultist chat at night
-$MM::CultistFakeMafRecruit = true; //cultists will appear to attempt to recruit maf members (to avoid cultists being able to know who the maf is instantly)
+$MM::GPCultistRecruitRecruitment = true; //cultist recruits will be able to recruit to the cult as well
+$MM::GPCultistOnlyCommAtNight = false; //cultists will only have access to cultist chat at night
+$MM::GPCultistFakeMafRecruit = true; //cultists will appear to attempt to recruit maf members (to avoid cultists being able to know who the maf is instantly)
 
 $MM::Alignment[4] = "Cultist";
 $MM::AlignmentColour[4] = "<color:400040>";
@@ -139,7 +139,7 @@ function GameConnection::MM_canCultComm(%this)
 	if(!%this.MM_isCultist())
 		return false;
 
-	if(%mini.isDay && $MM::CultistOnlyCommAtNight)
+	if(%mini.isDay && $MM::GPCultistOnlyCommAtNight)
 		return false;
 
 	return true;
@@ -157,7 +157,7 @@ function GameConnection::MM_CultistChat(%this, %msg, %pre2)
 {
 	if(!(%c = %this.MM_canCultComm()))
 	{
-		messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)"); //gona just keep this message the same
+		// messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)"); //gona just keep this message the same
 		
 		return 1;
 	}
@@ -192,7 +192,7 @@ function GameConnection::MM_canCultRecruit(%this)
 	if(!%this.role.cultRecruit && !%mini.allRecruit)
 		return false;
 
-	if(%this.isRecruit && !$MM::CultistRecruitRecruitment)
+	if(%this.isRecruit && !$MM::GPCultistRecruitRecruitment)
 		return false;
 
 	if(%this.recruited[%mini.day])
@@ -234,7 +234,7 @@ function GameConnection::MM_CultRecruit(%cl, %src)
 	{
 		%mem = %mini.member[%i];
 
-		if(%mem.MM_isCultist())
+		if(%mem.MM_isCultist() && %mem.lives > 0)
 		{
 			messageClient(%mem, '', "<font:impact:24pt>\c3" @ %cl.getSimpleName() SPC "\c4has joined the cult as the" SPC %roleStr @ "\c4!");
 			%mem.MM_DisplayCultList(2);
@@ -253,7 +253,7 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 			messageClient(%this, '', "\c4You can only recruit at night!");
 		else if(%this.recruited[%mini.day])
 			messageClient(%this, '', "\c4You can only recruit once per night!");
-		else if(%this.isRecruit && !$MM::CultistRecruitRecruitment)
+		else if(%this.isRecruit && !$MM::GPCultistRecruitRecruitment)
 			messageClient(%this, '', "\c4Recruited cultists cannot recruit others to the cult!");
 		else
 			messageClient(%this, '', "\c4You cannot recruit!");
@@ -286,7 +286,7 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 
 	if(%ccl.role.getAlignment() != 0)
 	{
-		if(!$MM::CultistFakeMafRecruit)
+		if(!$MM::GPCultistFakeMafRecruit)
 			messageClient(%this, '', "\c4This player cannot be recruited because they are not a member of the innocents.");
 		else
 		{
@@ -345,7 +345,7 @@ function MMRole_Cultist::getHelpText(%this)
 {
 	%p = parent::getHelpText(%this);
 
-	if(!$MM::CultistRecruitRecruitment)
+	if(!$MM::GPCultistRecruitRecruitment)
 		%p = %p NL "\c3As a recruit to the cult, however, you would not have the power to recruit other innocents at night.";
 
 	return %p;
@@ -364,7 +364,7 @@ package MM_Cultist
 		{
 			messageClient(%this, '', "\c4You are a <color:400040>Cultist\c4! Your goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4!");
 			messageClient(%this, '', "\c4Cultists can also communicate with each other by starting their message with \c3^\c4.");
-			if($MM::CultistOnlyCommAtNight)
+			if($MM::GPCultistOnlyCommAtNight)
 				messageClient(%this, '', "\c4You can only use cultist chat at night, so make good use of it!");
 			messageClient(%this, '', "\c4Type \c3/cultList \c4to see the list of cult members again.");
 
@@ -393,6 +393,22 @@ package MM_Cultist
 		return %this.MM_CultistChat(%rMsg);
 	}
 
+	function MMRole::onTeamChat(%role, %mini, %this, %msg, %type)
+	{
+		%r = parent::onTeamChat(%role, %mini, %this, %msg, %type);
+
+		%mark = getSubStr(%msg, 0, 1);
+		if(%mark !$= "^")
+			return %r;
+
+		if(%type < 1)
+			return 1;
+
+		%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
+
+		return %this.MM_CultistChat(%rMsg);
+	}
+
 	function MinigameSO::MM_onDay(%this)
 	{
 		parent::MM_onDay(%this);
@@ -402,10 +418,16 @@ package MM_Cultist
 			%mem = %this.member[%i];
 
 			if(isObject(%mem.recruiter))
-			{
-
-			}
+				%mem.MM_CultRecruit(%mem.recruiter);
 		}
+	}
+
+	function GameConnection::MM_canComm(%this)
+	{
+		if(%this.role.getAlignment() == 4 && !($MM::GPCultistOnlyCommAtNight && getMiniGameFromObject(%this).isDay))
+			return 2;
+
+		return parent::MM_canComm(%this);
 	}
 };
 activatePackage(MM_Cultist);

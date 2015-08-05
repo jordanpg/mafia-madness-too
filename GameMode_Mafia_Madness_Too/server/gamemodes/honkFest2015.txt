@@ -1,0 +1,50 @@
+MMGAMEMODE Honk Fest 2015
+
+//Honk Fest 2015
+//By ottosparks
+
+MafRatio 0.2
+MinMaf 1
+
+//Temporary variables
+%teamClown 0.8
+
+//Mafia is all devils for no reason
+[SortGroup0_]
+RolePot LAW JOHNCENA
+isMaf 1
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+Ratio 1
+RatioVar mafs
+ForceMinMembers 1
+
+[SortGroup1_]
+RolePot J
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+Ratio 1
+RatioVar innos
+ForceMinMembers 1
+ForceMaxMembers 1
+
+//HENKA HENKA
+[SortGroup2_]
+RolePot CLOWN
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+Ratio %%teamClown
+RatioVar innos
+
+//fill the rest with amnesiacs and innos
+[SortGroup3_]
+RolePot I AM
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+Ratio 1
+RatioVar innos
+
+[]
+SortGroupCt 4
+
+NoExtraLives 1

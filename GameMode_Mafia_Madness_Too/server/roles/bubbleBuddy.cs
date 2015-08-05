@@ -3,15 +3,15 @@
 
 $MM::LoadedRole_BubbleBuddy = true;
 
-$MM::BubbleColour = "1 0.5 0.867";
-$MM::BubbleOpacity = 0.5;
-$MM::BubbleSearchRad = 4;
-$MM::BubbleBaseSize = 2.5;
-$MM::BubbleFadeInTime = 50;
-$MM::BubbleFadeOutTime = 500;
-$MM::BubbleSteps = 100;
-$MM::BubbleLifeTime = 3100;
-$MM::BubbleShooterRad = 2;
+$MM::GPBubbleColour = "1 0.5 0.867";
+$MM::GPBubbleOpacity = 0.5;
+$MM::GPBubbleSearchRad = 4;
+$MM::GPBubbleBaseSize = 2.5;
+$MM::GPBubbleFadeInTime = 50;
+$MM::GPBubbleFadeOutTime = 500;
+$MM::GPBubbleSteps = 100;
+$MM::GPBubbleLifeTime = 3100;
+$MM::GPBubbleShooterRad = 2;
 
 if(!isObject(MMRole_BubbleBuddy))
 {
@@ -163,7 +163,7 @@ function Player::MM_ActivateBubble(%this)
 							player = %this;
 						};
 
-	initContainerRadiusSearch(%pos, $MM::BubbleSearchRad, $TypeMasks::PlayerObjectType);
+	initContainerRadiusSearch(%pos, $MM::GPBubbleSearchRad, $TypeMasks::PlayerObjectType);
 	while(isObject(%obj = containerSearchNext()))
 	{
 		if(%obj == %this)
@@ -188,10 +188,10 @@ function Player::MM_ActivateBubble(%this)
 		%players = %players SPC %obj;
 	}
 
-	%this.bubbleShape.endSize = %size = $MM::BubbleBaseSize + %biggestDist;
+	%this.bubbleShape.endSize = %size = $MM::GPBubbleBaseSize + %biggestDist;
 
-	%this.bubbleShape.bubbleIn($MM::BubbleColour, %size, $MM::BubbleOpacity, $MM::BubbleFadeInTime, $MM::BubbleSteps);
-	%this.bubbleShape.kill = %this.bubbleShape.schedule($MM::BubbleLifeTime, fadeOut, $MM::BubbleColour, $MM::BubbleOpacity, $MM::BubbleFadeOutTime, $MM::BubbleSteps, true);
+	%this.bubbleShape.bubbleIn($MM::GPBubbleColour, %size, $MM::GPBubbleOpacity, $MM::GPBubbleFadeInTime, $MM::GPBubbleSteps);
+	%this.bubbleShape.kill = %this.bubbleShape.schedule($MM::GPBubbleLifeTime, fadeOut, $MM::GPBubbleColour, $MM::GPBubbleOpacity, $MM::GPBubbleFadeOutTime, $MM::GPBubbleSteps, true);
 
 	if(%players $= "")
 		%mini.MM_LogEvent(%cl.MM_GetName(1) @ "\c6's bubble activated.");
@@ -293,7 +293,7 @@ package MM_BubbleBuddy
 				MMDebug("Dist:" SPC %dist);
 
 				// talk(%dist);
-				if(%dist < $MM::BubbleShooterRad)
+				if(%dist < $MM::GPBubbleShooterRad)
 					return parent::damage(%this, %obj, %pos, %amt, %type);
 			}
 
@@ -325,13 +325,13 @@ package MM_BubbleBuddy
 			{
 				%dist = VectorDist(%spos, %pos2);
 
-				if(%dist < $MM::BubbleShooterRad)
+				if(%dist < $MM::GPBubbleShooterRad)
 					continue;
 			}
 
 			%dist = VectorDist(%pos, %pos2);
 
-			if(%dist < $MM::BubbleSearchRad && %pl.MM_ActivateBubble())
+			if(%dist < $MM::GPBubbleSearchRad && %pl.MM_ActivateBubble())
 			{
 				%found = true;
 				break;
@@ -368,7 +368,7 @@ package MM_BubbleBuddy
 		{
 			cancel(%bub.kill);
 
-			%bub.fadeOut($MM::BubbleColour, $MM::BubbleOpacity, $MM::BubbleFadeOutTime, $MM::BubbleSteps, true);
+			%bub.fadeOut($MM::GPBubbleColour, $MM::GPBubbleOpacity, $MM::GPBubbleFadeOutTime, $MM::GPBubbleSteps, true);
 		}
 	}
 };

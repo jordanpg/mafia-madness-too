@@ -4,7 +4,7 @@
 
 $MM::LoadedAHole = true;
 
-$MM::EnableAHoleCmds = true;
+$MM::GPEnableAholeCmds = true;
 
 function aholeCmdSayCheck(%client,%msg) {
 	switch$(strUpr(%msg)) {
@@ -167,7 +167,7 @@ package MM_AHole
 	{
 		%r = parent::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, %condition, %a0, %a1, %a2, %a3, %a4);
 
-		if(!$MM::EnableAHoleCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
+		if(!$MM::GPEnableAholeCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
 			return %r;
 
 		%rCl = (isObject(%obj.getControllingClient()) ? %obj.client : %this);
@@ -186,7 +186,7 @@ package MM_AHole
 
 	// function serverCmdMessageSent(%this, %msg)
 	// {
-	// 	if(!$MM::EnableAHoleCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
+	// 	if(!$MM::GPEnableAholeCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
 	// 		return parent::serverCmdMessageSent(%this, %msg);
 
 	// 	%mark = getSubStr(%msg, 0, 1);
@@ -202,7 +202,7 @@ package MM_AHole
 
 	// function serverCmdTeamMessageSent(%this, %msg)
 	// {
-	// 	if(!$MM::EnableAHoleCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
+	// 	if(!$MM::GPEnableAholeCmds || !$DefaultMinigame.running || %this.lives < 1 || %this.isGhost || !isObject(%this.player))
 	// 		return parent::serverCmdTeamMessageSent(%this, %msg);
 
 	// 	%mark = getSubStr(%msg, 0, 1);

@@ -12,7 +12,7 @@ $MM::ImpError[5] = "";
 $MM::ImpError[6] = "\c4You are no longer impersonating anyone.";
 $MM::ImpError[7] = "\c4That client is not part of the game!";
 
-$MM::VentGodfatherChat = true;
+$MM::GPVentGodfatherChat = true;
 
 if(!isObject(MMRole_Ventriloquist))
 {
@@ -222,7 +222,7 @@ package MM_Ventriloquist
 		%mark = getSubStr(%msg, 0, 1);
 		if(%mark $= "^")
 		{
-			if(!$MM::VentGodfatherChat)
+			if(!$MM::GPVentGodfatherChat)
 			{
 				messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)");
 				
@@ -283,7 +283,7 @@ package MM_Ventriloquist
 		%mark = getSubStr(%msg, 0, 1);
 		if(%mark $= "^")
 		{
-			if(!$MM::VentGodfatherChat)
+			if(!$MM::GPVentGodfatherChat)
 			{
 				messageClient(%this, '', "\c5You cannot use Godfather Chat because you are not the Godfather!  (^ is Godfather chat.)");
 				
@@ -317,7 +317,7 @@ package MM_Ventriloquist
 
 	function GameConnection::MM_canComm(%this)
 	{
-		if(%this.role.getCanImpersonate() && isObject(%this.MMImpersonate) && $MM::VentGodfatherChat)
+		if(%this.role.getCanImpersonate() && isObject(%this.MMImpersonate) && $MM::GPVentGodfatherChat)
 			return 2;
 
 		return parent::MM_canComm(%this);

@@ -6,7 +6,7 @@ if(!$MM::LoadedRole_Cultist)
 
 $MM::LoadedRole_ReviverCultitst = true;
 
-$MM::CultReviveTime = 3000;
+$MM::GPCultReviveTime = 3000;
 
 if(!isObject(MMRole_ZombieCultist))
 {
@@ -98,7 +98,7 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 {
 	cancel(%this.revSched);
 	
-	if(!isObject(%cl = %this.originalClient) || !%cl.isGhost || %cl.lives > 0)
+	if(!isObject(%cl = %this.originalClient) || !%cl.isGhost || %cl.lives > 0 || %ccl.MMIgnore)
 	{
 		if(isObject(%reviver))
 			%reviver.revived[getMiniGameFromObject(%reviver).day] = false;
@@ -147,7 +147,7 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 	{
 		%mem = %mini.member[%i];
 
-		if(%mem.MM_isCultist())
+		if(%mem.MM_isCultist() && %mem.lives > 0)
 		{
 			messageClient(%mem, '', "<font:impact:24pt>\c3" @ %cl.getSimpleName() SPC "\c4has joined the cult as the" SPC %roleStr @ "\c4!");
 			%mem.MM_DisplayCultList(2);
@@ -182,7 +182,7 @@ function serverCmdReviveCorpse(%this)
 		return;
 	}
 
-	if(%ccl.lives > 0 || !%ccl.isGhost)
+	if(%ccl.lives > 0 || !%ccl.isGhost || %ccl.MMIgnore)
 	{
 		messageClient(%this, '', "\c4This player cannot currently be revived! Either they are still alive (multiple lives) or they aren't in this round.");
 		return;
@@ -215,7 +215,7 @@ package MM_ReviverCultist
 		parent::MM_onCorpseThrow(%this, %obj);
 
 		if(isObject(%this.revive))
-			%this.revSched = %this.schedule($MM::CultReviveTime, MM_CultRevive, %this.revive);
+			%this.revSched = %this.schedule($MM::GPCultReviveTime, MM_CultRevive, %this.revive);
 	}
 
 	function MMRole::onCleanup(%this, %mini, %client)

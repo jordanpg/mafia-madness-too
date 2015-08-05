@@ -1,6 +1,8 @@
 //jester.cs
 //Code for the unaligned Jester role.
 
+$MM::GPJesterNoMafTrigger = true;
+
 if(!isObject(MMRole_Jester))
 {
 	new ScriptObject(MMRole_Jester)
@@ -46,7 +48,7 @@ function MMRole_Jester::SpecialWinCheck(%this, %mini, %client, %killed, %killer)
 	if(%killed == %killer || !isObject(%killer))
 		return %r;
 
-	if(%client == %killed && %client.lives < 1 && !%killer.MM_isMaf())
+	if(%client == %killed && %client.lives < 1 && !(%killer.MM_isMaf() && $MM::GPJesterNoMafTrigger))
 	{
 		// talk(%client.lives);
 		%mini.MM_LogEvent("<color:80FF80>HONK HONK");

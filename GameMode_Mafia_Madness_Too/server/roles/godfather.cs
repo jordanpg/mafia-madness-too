@@ -106,5 +106,21 @@ package MM_Godfather
 
 		return %this.MM_GodfatherChat(%rMsg);
 	}
+
+	function MMRole::onTeamChat(%role, %mini, %this, %msg, %type)
+	{
+		%r = parent::onTeamChat(%role, %mini, %this, %msg, %type);
+
+		%mark = getSubStr(%msg, 0, 1);
+		if(%mark !$= "^")
+			return %r;
+
+		if(%type < 1)
+			return 1;
+
+		%rMsg = getSubStr(%msg, 1, strLen(%msg) - 1);
+
+		return %this.MM_GodfatherChat(%rMsg);
+	}
 };
 activatePackage(MM_Godfather);

@@ -3,13 +3,14 @@
 
 $MM::InvStatus[2] = '\c3%1 \c4is quite a <color:808080>strange individual\c4.';
 
-$MM::ClownHornTimeout = 0.3;
-$MM::ClownForceCostume = true;
-$MM::ClownPush = true;
-$MM::ClownPushRange = 2;
-$MM::ClownPushForce = 5;
-$MM::ClownPushAirForce = 5;
-$MM::ClownPushTimeout = 2;
+$MM::GPClownHornTimeout = 0.3;
+$MM::GPClownForceCostume = true;
+$MM::GPClownPush = true;
+$MM::GPClownPushRange = 2;
+$MM::GPClownPushForce = 5;
+$MM::GPClownPushAirForce = 5;
+$MM::GPClownPushTimeout = 2;
+$MM::GPClownNoMafTrigger = false;
 
 if(!isObject(MMRole_Clown))
 {
@@ -105,7 +106,7 @@ function MMRole_Clown::onTrigger(%this, %mini, %client, %obj, %slot, %val)
 	if(!%val)
 		return;
 
-	if(%slot == 0 && ($Sim::Time - %obj.lastHorn) >= $MM::ClownHornTimeout)
+	if(%slot == 0 && ($Sim::Time - %obj.lastHorn) >= $MM::GPClownHornTimeout)
 	{
 		ServerPlay3D(ClownHornSound, %obj.getPosition());
 		%obj.lastHorn = $Sim::Time;
@@ -121,7 +122,7 @@ function MMRole_Clown::SpecialWinCheck(%this, %mini, %client, %killed, %killer)
 	if(%killed == %killer || !isObject(%killer))
 		return %r;
 
-	if(%client == %killed && %client.lives < 1)
+	if(%client == %killed && %client.lives < 1 && !(%killer.MM_isMaf() && $MM::GPClownNoMafTrigger))
 	{
 		// talk(%client.lives);
 		%mini.MM_LogEvent("<color:80FF80>HONK HONK");
@@ -141,7 +142,7 @@ function MMRole_Clown::applyOutfit(%this, %mini, %client, %day)
 {
 	%r = parent::applyOutfit(%this, %mini, %client, %day);
 
-	if(!$MM::ClownForceCostume)
+	if(!$MM::GPClownForceCostume)
 		return %r;
 
 	if(!isObject(%client.player))
@@ -180,12 +181,12 @@ package MM_Clown
 		if(!isObject(%cl.role) || nameToID(%cl.role) != nameToID(MMRole_Clown))
 			return %r;
 
-		if(!$MM::ClownPush || $Sim::Time - %this.lastPush < $MM::ClownPushTimeout)
+		if(!$MM::GPClownPush || $Sim::Time - %this.lastPush < $MM::GPClownPushTimeout)
 			return %r;
 
 		%start = %this.getEyePoint();
 		%eye = %this.getEyeVector();
-		%add = VectorScale(%eye, $MM::ClownPushRange);
+		%add = VectorScale(%eye, $MM::GPClownPushRange);
 		%ray = containerRayCast(%start, VectorAdd(%start, %add), $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %this);
 		%obj = firstWord(%ray);
 
@@ -194,7 +195,7 @@ package MM_Clown
 		if(!isObject(%obj) || !(%obj.getType() & $TypeMasks::PlayerObjectType) || %obj.isCorpse)
 			return %r;
 
-		%vel = VectorAdd(VectorScale(getWords(%eye, 0, 1), $MM::ClownPushForce), "0 0" SPC $MM::ClownPushAirForce);
+		%vel = VectorAdd(VectorScale(getWords(%eye, 0, 1), $MM::GPClownPushForce), "0 0" SPC $MM::GPClownPushAirForce);
 
 		%obj.addVelocity(%vel);
 

@@ -3,7 +3,7 @@
 
 $MM::LoadedChat = true;
 
-$MM::ChatRadiusMod = 1;
+$MM::GPChatRadiusMod = 1;
 
 function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, %condition, %a0, %a1, %a2, %a3, %a4)
 {
@@ -133,7 +133,7 @@ function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, 
 
 	// MMDebug("Checking Radius");
 
-	%rad *= $MM::ChatRadiusMod;
+	%rad *= $MM::GPChatRadiusMod;
 
 	%pos = %p.getEyePoint();
 

@@ -3,10 +3,10 @@
 
 $MM::LoadedRole_Crazy = true;
 
-$MM::CrazyReplaceName = "disfigured corpse";
-$MM::CrazyReplaceRole = "permanently retired";
+$MM::GPCrazyReplaceName = "disfigured corpse";
+$MM::GPCrazyReplaceRole = "permanently retired";
 
-$MM::DisfigureDecapitates = true;
+$MM::GPDisfigureDecapitates = true;
 
 if(!isObject(MMRole_Crazy))
 {
@@ -64,7 +64,7 @@ function AIPlayer::MM_DisfigureCorpse(%this, %obj, %ech)
 	%this.disfigured = true;
 	%this.disfiguringClient = %cl;
 
-	if($MM::DisfigureDecapitates)
+	if($MM::GPDisfigureDecapitates)
 		%this.hideNode("headSkin");
 }
 
@@ -95,7 +95,7 @@ package MM_Crazy
 			%this.disfigured = true;
 			%this.disfiguringClient = %oldCorpse.disfiguringClient;
 
-			if($MM::DisfigureDecapitates)
+			if($MM::GPDisfigureDecapitates)
 				%this.hideNode("headSkin");
 		}
 	}
@@ -103,7 +103,7 @@ package MM_Crazy
 	function AIPlayer::MM_getCorpseName(%this)
 	{
 		if(%this.disfigured)
-			return $MM::CrazyReplaceName;
+			return $MM::GPCrazyReplaceName;
 
 		return parent::MM_getCorpseName(%this);
 	}
@@ -111,7 +111,7 @@ package MM_Crazy
 	function AIPlayer::MM_getRoleName(%this)
 	{
 		if(%this.disfigured)
-			return $MM::CrazyReplaceRole;
+			return $MM::GPCrazyReplaceRole;
 
 		return parent::MM_getRoleName(%this);
 	}
@@ -167,7 +167,7 @@ package MM_Crazy
 	{
 		parent::applyMMSilhouette(%this);
 
-		if(%this.player.isCorpse && %this.player.disfigured && $MM::DisfigureDecapitates)
+		if(%this.player.isCorpse && %this.player.disfigured && $MM::GPDisfigureDecapitates)
 			%this.hideNode("headSkin");
 	}
 };

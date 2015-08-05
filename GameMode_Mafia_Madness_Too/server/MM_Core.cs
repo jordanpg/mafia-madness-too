@@ -6,7 +6,7 @@ $MM::LoadedCore = true;
 
 $MM::DediRoundDelay = 30000;
 
-$MM::DeadRising = 4;
+$MM::GPDeadRising = 4;
 
 $MM::DMEquipment[0] = nameToID(TrenchKnifeItem);
 // $MM::DMEquipment[1] = nameToID(TommyGunItem);
@@ -246,7 +246,7 @@ function MinigameSO::MM_AssignRoles(%this)
 
 				MMDebug("Init client" SPC %client SPC "with role" SPC %role);
 
-				%client.lives = 1 + %rl.additionalLives;
+				%client.lives = 1 + (!$MM::NoExtraLives ? %rl.additionalLives : 0);
 				%client.isGhost = false;
 
 				%this.forcedARole = true;
@@ -271,7 +271,7 @@ function MinigameSO::MM_AssignRoles(%this)
 		if(!isObject(%rl))
 			%rl = $MM::RoleKey[%rl];
 
-		%client.lives = 1 + %rl.additionalLives;
+		%client.lives = 1 + (!$MM::NoExtraLives ? %rl.additionalLives : 0);
 		%client.isGhost = false;
 	}
 }
@@ -504,9 +504,9 @@ function MinigameSO::MM_onNight(%this)
 
 function MinigameSO::MM_onTimeTransition(%this)
 {
-	if(%this.day >= $MM::DeadRising && $MM::DeadRising > 0)
+	if(%this.day >= $MM::GPDeadRising && $MM::GPDeadRising > 0)
 		%this.MM_RaiseDead();
-	else if((%this.day + 1) == $MM::DeadRising && $MM::DeadRising > 0 && !%this.isDay)
+	else if((%this.day + 1) == $MM::GPDeadRising && $MM::GPDeadRising > 0 && !%this.isDay)
 		messageAll('',"<color:CC2222>The dead rise at dawn...");
 }
 
@@ -1179,7 +1179,7 @@ package MM_Core
 
 	function serverCmdDropTool(%this, %slot)
 	{
-		if($DefaultMinigame.running && getMiniGameFromObject(%this).isMM)
+		if(getMiniGameFromObject(%this).isMM)
 			return;
 
 		parent::serverCmdDropTool(%this, %slot);

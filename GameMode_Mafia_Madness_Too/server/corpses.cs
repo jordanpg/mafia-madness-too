@@ -8,9 +8,9 @@ $MM::CauseOfDeath[0] = "Murder";
 $MM::CauseOfDeath[1] = "Suicide";
 $MM::CauseOfDeath[2] = "Falling";
 
-$MM::CorpseThrowSpeed = 5;
-$MM::CorpseGrabRange = 8;
-$MM::CorpseInvestigationRange = 5;
+$MM::GPCorpseThrowSpeed = 5;
+$MM::GPCorpseGrabRange = 8;
+$MM::GPCorpseInvestigationRange = 5;
 
 function AIPlayer::MM_getCorpseName(%this)
 {
@@ -98,7 +98,7 @@ function Player::MM_ThrowCorpse(%this)
 	%this.mountObject(%obj, 8);
 	%obj.dismount();
 
-	%vel = VectorAdd(%this.getVelocity(), VectorScale(%this.getEyeVector(), $MM::CorpseThrowSpeed));
+	%vel = VectorAdd(%this.getVelocity(), VectorScale(%this.getEyeVector(), $MM::GPCorpseThrowSpeed));
 	// echo(%vel);
 	%obj.schedule(1, setVelocity, %vel);
 	%obj.holder = "";
@@ -245,7 +245,7 @@ package MM_Corpses
 			case 0:
 				%start = %obj.getEyePoint();
 				%vec = %obj.getEyeVector();
-				%end = VectorAdd(%start, VectorScale(%vec, $MM::CorpseInvestigationRange));
+				%end = VectorAdd(%start, VectorScale(%vec, $MM::GPCorpseInvestigationRange));
 
 				%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 				%hObj = firstWord(%ray);
@@ -276,7 +276,7 @@ package MM_Corpses
 				{
 					%start = %obj.getEyePoint();
 					%vec = %obj.getEyeVector();
-					%end = VectorAdd(%start, VectorScale(%vec, $MM::CorpseGrabRange));
+					%end = VectorAdd(%start, VectorScale(%vec, $MM::GPCorpseGrabRange));
 
 					%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 					%hObj = firstWord(%ray);
@@ -305,7 +305,7 @@ package MM_Corpses
 
 		%start = %obj.getEyePoint();
 		%vec = %obj.getEyeVector();
-		%end = VectorAdd(%start, VectorScale(%vec, $MM::CorpseInvestigationRange));
+		%end = VectorAdd(%start, VectorScale(%vec, $MM::GPCorpseInvestigationRange));
 
 		%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
 		%hObj = firstWord(%ray);

@@ -6,9 +6,9 @@ if(!$MM::LoadedRole_Godfather)
 
 $MM::LoadedRole_Spy = true;
 
-$MM::SpyObfuscateMaxLenMod = 4;
-$MM::SpyObfuscateTable = "??abcdefghijklmnopqrstuvwxyz??ABCDEFGHIJKLMNOPQRSTUVWXYZ??0123456789??!@#$%^&*-+_??";
-$MM::SpyObfuscateMinLen = 3;
+$MM::GPSpyObfuscateMaxLenMod = 4;
+$MM::GPSpyObfuscateTable = "??abcdefghijklmnopqrstuvwxyz??ABCDEFGHIJKLMNOPQRSTUVWXYZ??0123456789??!@#$%^&*-+_??";
+$MM::GPSpyObfuscateMinLen = 3;
 
 if(!isObject(MMRole_Spy))
 {
@@ -118,7 +118,7 @@ package MM_Spy
 
 		%pre = "\c7[\c6Godfather\c7]";
 
-		%name = %this.getObfuscatedName($MM::SpyObfuscateTable, $MM:SpyObfuscateMaxLenMod, $MM::SpyObfuscateMinLen);
+		%name = %this.getObfuscatedName($MM::GPSpyObfuscateTable, $MM:SpyObfuscateMaxLenMod, $MM::GPSpyObfuscateMinLen);
 
 		%format = '%1\c5%2\c6: %3';
 
