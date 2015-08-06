@@ -396,8 +396,8 @@ function MM_InitModeMafiaMadnessToo(%this)
 	%this.allInv = false;
 }
 
-MM_RegisterGameMode("Original", "\c3Original Mafia Madness \c4: Standard\n\c4By \c3[]----[]\n\c4The original Mafia Madness gamemode. Only \c3A\c4, \c3V\c4, \c3G\c4, \c3C\c4, \c3F\c4, \c3O\c4, and \c3P \c4will appear.");
+//MM_RegisterGameMode("Original", "\c3Original Mafia Madness \c4: Standard\n\c4By \c3[]----[]\n\c4The original Mafia Madness gamemode. Only \c3A\c4, \c3V\c4, \c3G\c4, \c3C\c4, \c3F\c4, \c3O\c4, and \c3P \c4will appear.");
 MM_RegisterGameMode("Classic", "\c3Original Mafia Madness \c4: Classic\n\c4By \c3[]----[]\n\c4Classic MM with only innocents and mafia.");
 // MM_RegisterGameMode("Crazy");
 // MM_RegisterGameMode("StandardPlusLaw");
-MM_RegisterGameMode("MafiaMadnessToo", "\c3Mafia Madness (too) \c4: Standard\n\c4By \c3ottosparks\n\c4Standard gamemode for Mafia Madness Too, includes most newly added roles and a more randomised sorting method.");
+//MM_RegisterGameMode("MafiaMadnessToo", "\c3Mafia Madness (too) \c4: Standard\n\c4By \c3ottosparks\n\c4Standard gamemode for Mafia Madness Too, includes most newly added roles and a more randomised sorting method.");

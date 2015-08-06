@@ -1,21 +1,24 @@
 //MM_GameModes.cs
 //Gamemode system
 
+if(!$MM::LoadedGameModes)
+{
+	$MM::GameModes = 0;
+	$MM::CustomModes = 0;
+	$MM::CurrentMode = -1;
+}
+
 $MM::LoadedGameModes = true;
 
 $MM::GameMode[-1] = "Custom";
-$MM::GameModes = 0;
 
-$MM::DefaultGameMode = -1;
+$MM::DefaultGameMode = "Mafia Madness (too)";
 
 $MM::GMDir = $MM::Server @ "gamemodes/";
-$MM::CustomModes = 0;
-$MM::CurrentMode = -1;
 $MM::CustomFile = "mmtoo.mmgm";
 $MM::GamePrefStore = "config/server/mmGPStore.cs";
 $MM::ModeSearchPattern = "Add-Ons/*.mmgm";
 $MM::AutoFindGameModes = true;
-
 $MM::AdminOnlyGMList = false;
 
 /////////////////////////////////////
@@ -37,6 +40,11 @@ function serverCmdMMGameModes(%this)
 		messageClient(%this, '', %pattern, %i, $MM::GameMode[%i]);
 
 	messageClient(%this, '', "\c6Use \c3Page Up \c6and \c3Page Down \c6to scroll through the list. Use \c3/MMSetGameMode \c7[ID OR NAME] \c6to set the gamemode.");
+}
+
+function serverCmdGameModes(%this)
+{
+	serverCmdMMGameModes(%this);
 }
 
 function serverCmdMMSetGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
@@ -66,6 +74,11 @@ function serverCmdMMSetGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
 	%mini.MM_SetGameMode(%i);
 }
 
+function serverCmdSetGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
+{
+	serverCmdMMSetGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5);
+}
+
 function serverCmdDescribeGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
 {
 	if(!%this.isAdmin && $MM::AdminOnlyGMList)
@@ -74,21 +87,30 @@ function serverCmdDescribeGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
 		return;
 	}
 
-	if(%a0 $= "")
+	%name = trim(%a0 SPC %a1 SPC %a2 SPC %a3 SPC %a4 SPC %a5);
+
+	if(%name $= "")
 	{
 		if(!isObject(%mini = getMinigameFromObject(%this)) || !%mini.isMM)
 			return;
 
 		%a0 = %mini.gameMode;
+
+		if($MM::GameMode[%a0] $= "")
+			%a0 = MM_FindGameModeByName(%a0);
+
+		if(%a0 == -1 || $MM::GameMode[%a0] $= "")
+		{
+			messageClient(%this, '', "\c4Input a gamemode ID or name to get its description! (Some gamemodes may not provide a description)");
+			return;
+		}
 	}
 
 	%i = %a0;
-	if((%name = $MM::GameMode[%i]) $= "")
+	if((%n = $MM::GameMode[%i]) $= "")
 	{
-		%name = trim(%a0 SPC %a1 SPC %a2 SPC %a3 SPC %a4 SPC %a5);
-
 		if((%i = MM_FindGameModeByName(%name, true)) != -1)
-			%name = $MM::GameMode[%i];
+			%n = $MM::GameMode[%i];
 		else
 		{
 			messageClient(%this, '', "\c4Could not find gamemode '\c3" @ %name @ "\c4,' use \c3/MMGameModes \c4to get a list of gamemodes available.");
@@ -97,6 +119,11 @@ function serverCmdDescribeGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
 	}
 
 	%this.messageLines($MM::GameModeDesc[%i]);
+}
+
+function serverCmdDescribeGM(%this, %a0, %a1, %a2, %a3, %a4, %a5)
+{
+	serverCmdDescribeGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5);
 }
 
 /////////////////////////////////////
@@ -200,6 +227,12 @@ function MM_RegisterGameMode(%name, %desc, %customID)
 	if(!MM_isValidGameMode(%name) && %customID $= "")
 		return false;
 
+	if($MM::GameModeExists[%name])
+	{
+		warn("Gamemode by name of '" @ %name @ "' has already been registered!");
+		return false;
+	}
+
 	$MM::GameMode[$MM::GameModes] = %name;
 	$MM::GameModeDesc[$MM::GameModes] = %desc;
 	if(%customID !$= "")
@@ -209,6 +242,8 @@ function MM_RegisterGameMode(%name, %desc, %customID)
 	}
 	else
 		$MM::GameModeIsCustom[$MM::GameModes] = false;
+
+	$MM::GameModeExists[%name] = true;
 
 	$MM::GameModes++;
 
@@ -251,7 +286,7 @@ function MinigameSO::MM_SetGameMode(%this, %modeID)
 
 	if($MM::GameModeIsCustom[%modeID])
 	{
-		%this.gameMode = -1;
+		%this.gameMode = %modeID;
 
 		$MM::CurrentMode = $MM::GameModeCustomID[%modeID];
 	}
@@ -263,6 +298,46 @@ function MinigameSO::MM_SetGameMode(%this, %modeID)
 	}
 
 	messageAll('', "\c4The gamemode has been set to\c3" SPC %name);
+}
+
+function MinigameSO::MM_GetGameMode(%this)
+{
+	if((%this.gameMode | 0) $= %this.gameMode)
+	{
+		%i = %this.gameMode;
+
+		if($MM::GameModeIsCustom[%i])
+			%mode = $MM::GameMode[-1];
+		else
+			%mode = $MM::GameMode[%i];
+	}
+	else
+	{
+		%i = MM_FindGameModeByName(%this.gameMode);
+
+		if(%i != -1)
+		{
+			if($MM::GameModeIsCustom[%i])
+				%mode = $MM::GameMode[-1];
+			else
+				%mode = $MM::GameMode[%i];
+		}
+		else
+			%mode = %this.gameMode; //set up to fail but w/e
+	}
+
+	echo(%mode);
+
+	if(%mode $= "" || !MM_isValidGameMode(%mode))
+		return $MM::GameMode[$MM::DefaultGameMode];
+
+	if(isFunction(%r = "MM_ModeReady" @ %mode) && !call(%r, %this))
+	{
+		warn("MinigameSO::MM_GetGameMode : Mode" SPC %mode SPC "reports that it is not ready to run, using default gamemode.");
+		return $MM::GameMode[$MM::DefaultGameMode];
+	}
+
+	return %mode;
 }
 
 /////////////////////////////////////
@@ -371,7 +446,7 @@ function MM_RegisterModeFile(%filen)
 	%file.close();
 	%file.delete();
 
-	return MM_RegisterCustomMode(%name, %filen, %desc);
+	return MM_RegisterCustomMode(%name, %filen, collapseEscape(%desc));
 }
 
 function MM_RegisterAllModeFiles(%pattern)
@@ -404,7 +479,10 @@ function MM_LoadGameMode(%filen)
 	if(isFile($MM::GamePrefStore) && $MM::StoredGamePrefs) //restore default vars
 		exec($MM::GamePrefStore);
 	else if(!$MM::StoredGamePrefs)
+	{
 		MM_ExportGamePrefs($MM::GamePrefStore);
+		$MM::StoredGamePrefs = true;
+	}
 
 	%file = new FileObject();
 	%file.openForRead(%filen);
@@ -494,7 +572,7 @@ function MM_EvaluateCondition(%c)
 {
 	%status = false;
 	%str = %c;
-	echo(%c);
+	// echo(%c);
 
 	for(%i = 0; %str !$= ""; %i++)
 	{
@@ -502,8 +580,8 @@ function MM_EvaluateCondition(%c)
 
 		%cond = trim(%cond);
 
-		echo(%i SPC %str);
-		echo(%cond);
+		// echo(%i SPC %str);
+		// echo(%cond);
 
 		if(%i > 0)
 		{
@@ -574,7 +652,7 @@ function MM_EvaluateCondition(%c)
 		if(getSubStr(%c2, 0, 1) $= "%")
 			%c2 = $MMG[getSubStr(%c2, 1, strLen(%c2) - 1)];
 
-		echo(%c1 SPC %op SPC %c2);
+		// echo(%c1 SPC %op SPC %c2);
 
 		switch$(%op)
 		{
@@ -604,7 +682,7 @@ function MM_EvaluateCondition(%c)
 		else
 			%status = (%status || %r);
 
-		echo(%r SPC %status);
+		// echo(%r SPC %status);
 	}
 
 	return %status;
@@ -616,7 +694,10 @@ function MM_EvaluateCondition(%c)
 function MM_ModeReadyCustom(%this)
 {
 	if(!$MM::StoredGamePrefs)
+	{
 		MM_ExportGamePrefs($MM::GamePrefStore);
+		$MM::StoredGamePrefs = true;
+	}
 
 	if(!$MM::CustomManual)
 	{
@@ -915,8 +996,6 @@ function MM_InitModeCustom(%this)
 	%this.allBubble = $MM:GameModeAllBubble;
 	%this.allFingerprint = $MM::GMAllFingerprint;
 	%this.allRevive = $MM::GMAllRevive;
-
-	$MM::NoExtraLives = $MM::GMNoExtraLives;
-
+	
 	deleteVariables("$MMG*");
 }

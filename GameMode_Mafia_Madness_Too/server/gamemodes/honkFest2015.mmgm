@@ -5,6 +5,9 @@ MMGAMEMODE Honk Fest 2015
 ///\c4A fun gamemode for everyone. Around 80% of the innocents will be clowns, one will be jester, and the remainder will be amnesiac or innocent.
 ///\c4All maf are either The Law or John Cena.
 
+PREF NoExtraLives 1
+PREF JCSpeedMod 3
+
 MafRatio 0.2
 MinMaf 1
 
@@ -48,5 +51,3 @@ RatioVar innos
 
 []
 SortGroupCt 4
-
-NoExtraLives 1

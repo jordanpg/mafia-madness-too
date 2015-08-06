@@ -1,0 +1,102 @@
+MMGAMEMODE Rise of the Socks
+
+///\c3Mafia Madness (too) \c4: Rise of the Socks
+///\c4By \c3ottosparks
+///\c4A gamemode balanced to be maf/inno versus the cult.
+
+MafRatio 0.15
+MinMaf 0
+
+//Disable dead rising; reviver cultists are enough.
+PREF DeadRising 0
+
+PREF CultistRecruitRecruitment 1
+
+//Temporary variables
+%copRatio 0.2
+%cultRatio 0.2
+%miscRatio 0.125
+
+ForceMafOrder JOHNCENA A V G C D LAW
+ForceInnoOrder F O BB AM S RC CL ZC
+
+[SortGroup0_]
+RolePot A
+isMaf 1
+Ratio 1
+RatioVar mafs
+ForceMinMembers 1
+
+//Always make a fingerprint expert appear with more than three players.
+[SortGroup1_]
+Condition %members > 3
+RolePot F
+Ratio 1
+RatioVar members
+
+//Always make regular cop appear before any other cop variants
+[SortGroup2_]
+RolePot O
+Ratio %%copRatio
+RatioVar members
+
+//Protective innos, only appear after normal cop has appeared once
+[SortGroup3_]
+Condition %ctO > 0
+RolePot BB
+AllowMultipleDraw 1
+Ratio %%copRatio
+RatioVar members
+RatioModCount -1
+ForceMaxMembers 3
+
+//Handle godfather separately
+[SortGroup4_]
+Condition %mafs > 1, and ? 0 2 > 0
+RolePot G
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+//Special maf roles
+[SortGroup5_]
+Condition %mafs > 1
+RolePot V C C C D D
+Ratio 1
+RatioVar mafs
+RatioModCount -1
+
+//Some neutral roles and weird innos
+[SortGroup6_]
+RolePot AM S
+RoleCondition_S %ctG > 0
+Ratio %%miscRatio
+RatioVar members
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+RandomCount 1
+
+//Cultists
+[SortGroup8_]
+RolePot RC CL CL
+AllowMultipleDraw 1
+Ratio %%cultistRatio
+RatioVar innos
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+ForceMinMembers 2
+
+//Extra Fingerprinters for RC
+[SortGroup9_]
+Condition %ctRC > 0
+RolePot F
+AllowMultipleDraw 1
+Ratio %%copRatio
+RatioVar members
+RatioModCount -1
+ForceMaxMembers 3
+
+[]
+SortGroupCt 10

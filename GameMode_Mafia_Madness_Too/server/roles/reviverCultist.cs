@@ -197,6 +197,10 @@ function serverCmdReviveCorpse(%this)
 	%this.player.heldCorpse.revive = %this;
 	%this.revived[%mini.day] = true;
 
+	for(%i = 0; %i < %mini.numMembers; %i++)
+		if(%mini.member[%i].MM_isCultist() && %mini.member[%i] != %this)
+			messageClient(%mini.member[%i], '', "\c3" @ %this.getSimpleName() SPC "\c4is attempting to revive\c3" SPC %ccl.getSimpleName() @ "\c4...");
+
 	messageClient(%this, '', "\c4Reviving \c3" @ %this.player.heldCorpse.originalClient.getSimpleName() SPC "\c4as a" SPC MMRole_ZombieCultist.getColour(1) @ MMRole_ZombieCultist.getRoleName() @ "\c4. Drop the corpse and they will wake up in three seconds.");
 }
 

@@ -3,7 +3,7 @@
 
 $MM::LoadedRole_Cultist = true;
 
-$MM::GPCultistRecruitRecruitment = true; //cultist recruits will be able to recruit to the cult as well
+$MM::GPCultistRecruitRecruitment = false; //cultist recruits will be able to recruit to the cult as well
 $MM::GPCultistOnlyCommAtNight = false; //cultists will only have access to cultist chat at night
 $MM::GPCultistFakeMafRecruit = true; //cultists will appear to attempt to recruit maf members (to avoid cultists being able to know who the maf is instantly)
 
@@ -102,7 +102,7 @@ function GameConnection::MM_DisplayCultList(%this, %centrePrint)
 		if(!isObject(%r = %mini.role[%cl]))
 			continue;
 
-		%str = (isObject(%cl) ? %cl.MM_GetName() : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
+		%str = (isObject(%cl) ? %cl.MM_GetName(false, true) : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
 
 		if(%centrePrint != 2)
 			messageClient(%this, '', %str);
@@ -165,7 +165,7 @@ function GameConnection::MM_CultistChat(%this, %msg, %pre2)
 	if(%c == 2)
 		return 1;
 
-	%pre2 = %pre2 @ "\c7[\c6Cult\c7]";
+	%pre2 = %pre2 @ "\c7[<color:400040>Cult\c7]";
 
 	%this.MM_Chat(%this.player, -1, %msg, "", %pre2, MM_CultCheck);
 
@@ -282,16 +282,29 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 		return;
 	}
 
+	if(%ccl.MM_isCultist())
+	{
+		messageClient(%this, '', "\c4This player cannot be recruited because they are a fellow cultist.");
+		return;
+	}
+
 	%msg = "\c4Attempting to recruit\c3" SPC %ccl.getSimpleName() SPC "\c4into the cult. They will join at dawn.";
+
+	%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6attempted to recruit" SPC %ccl.MM_GetName(1));
 
 	if(%ccl.role.getAlignment() != 0)
 	{
+
 		if(!$MM::GPCultistFakeMafRecruit)
 			messageClient(%this, '', "\c4This player cannot be recruited because they are not a member of the innocents.");
 		else
 		{
 			messageClient(%this, '', %msg);
 			%this.recruited[%mini.day] = true;
+
+			for(%i = 0; %i < %mini.numMembers; %i++)
+				if(%mini.member[%i].MM_isCultist() && %mini.member[%i] != %this)
+					messageClient(%mini.member[%i], '', "\c3" @ %this.getSimpleName() SPC "\c4is attempting to recruit\c3" SPC %ccl.getSimpleName() @ "\c4...");
 		}
 
 		return;
@@ -299,6 +312,10 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 
 	%this.recruited[%mini.day] = true;
 	%ccl.recruiter = %this;
+
+	for(%i = 0; %i < %mini.numMembers; %i++)
+		if(%mini.member[%i].MM_isCultist() && %mini.member[%i] != %this)
+			messageClient(%mini.member[%i], '', "\c3" @ %this.getSimpleName() SPC "\c4is attempting to recruit\c3" SPC %ccl.getSimpleName() @ "\c4...");
 
 	messageClient(%this, '', %msg);
 }
@@ -428,6 +445,17 @@ package MM_Cultist
 			return 2;
 
 		return parent::MM_canComm(%this);
+	}
+
+	function MMRole::onCleanup(%this, %mini, %client)
+	{
+		parent::onCleanup(%this, %mini, %client);
+
+		%client.isRecruit = false;
+		%client.recruiter = "";
+
+		for(%i = 0; %i < %mini.day; %i++)
+			%client.recruited[%i] = false;
 	}
 };
 activatePackage(MM_Cultist);

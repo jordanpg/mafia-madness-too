@@ -91,27 +91,6 @@ function MinigameSO::MM_GetNumPlayers(%this)
 	return %ct;
 }
 
-function MinigameSO::MM_GetGameMode(%this)
-{
-	if((%this.gameMode | 0) $= %this.gameMode)
-		%mode = $MM::GameMode[%this.gameMode];
-	else
-		%mode = %this.gameMode;
-
-	echo(%mode);
-
-	if(%mode $= "" || !MM_isValidGameMode(%mode))
-		return $MM::GameMode[$MM::DefaultGameMode];
-
-	if(isFunction(%r = "MM_ModeReady" @ %mode) && !call(%r, %this))
-	{
-		warn("MinigameSO::MM_GetGameMode : Mode" SPC %mode SPC "reports that it is not ready to run, using default gamemode.");
-		return $MM::GameMode[$MM::DefaultGameMode];
-	}
-
-	return %mode;
-}
-
 function MinigameSO::MM_SetRole(%this, %client, %role)
 {
 	if(!isObject(%client))
@@ -238,7 +217,7 @@ function MinigameSO::MM_AssignRoles(%this)
 
 				MMDebug("Init client" SPC %client SPC "with role" SPC %role);
 
-				%client.lives = 1 + (!$MM::NoExtraLives ? %rl.additionalLives : 0);
+				%client.lives = 1 + (!$MM::GPNoExtraLives ? %rl.additionalLives : 0);
 				%client.isGhost = false;
 
 				%this.forcedARole = true;
@@ -263,7 +242,7 @@ function MinigameSO::MM_AssignRoles(%this)
 		if(!isObject(%rl))
 			%rl = $MM::RoleKey[%rl];
 
-		%client.lives = 1 + (!$MM::NoExtraLives ? %rl.additionalLives : 0);
+		%client.lives = 1 + (!$MM::GPNoExtraLives ? %rl.additionalLives : 0);
 		%client.isGhost = false;
 	}
 }
@@ -745,13 +724,13 @@ function MinigameSO::MM_getPeriodIndex(%this)
 	return (%this.day - 1) * 2 + (!%this.isDay | 0);
 }
 
-function GameConnection::MM_GetName(%this, %forceNorm)
+function GameConnection::MM_GetName(%this, %forceNorm, %noLetter)
 {
 	%pre = "";
 	if(isObject(%this.role))
 		%pre = %this.role.getColour(%forceNorm);
 
-	return %pre @ %this.getSimpleName();
+	return %pre @ %this.getSimpleName() @ ((!%noLetter && isObject(%this.role)) ? " \c6(\c3" @ %this.role.getLetter() @ "\c6)" : "");
 }
 
 function GameConnection::MM_isMaf(%this)
@@ -798,7 +777,7 @@ function GameConnection::MM_DisplayMafiaList(%this, %centrePrint)
 		if(!isObject(%r = %mini.role[%cl]))
 			continue;
 
-		%str = (isObject(%cl) ? %cl.MM_GetName() : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
+		%str = (isObject(%cl) ? %cl.MM_GetName(false, true) : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
 
 		if(%centrePrint != 2)
 			messageClient(%this, '', %str);

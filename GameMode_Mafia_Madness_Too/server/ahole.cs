@@ -4,7 +4,7 @@
 
 $MM::LoadedAHole = true;
 
-$MM::GPEnableAholeCmds = true;
+$MM::GPEnableAholeCmds = false;
 
 function aholeCmdSayCheck(%client,%msg) {
 	switch$(strUpr(%msg)) {
