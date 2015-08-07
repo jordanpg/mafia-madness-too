@@ -5,6 +5,9 @@ MMGAMEMODE Mafia Madness (too)
 ///\c4By \c3ottosparks
 ///\c4Standard gamemode for Mafia Madness Too, includes most newly added roles and a more randomised sorting method.
 
+//Load required scripts
+LOADCS mmtoo.cs
+
 MafRatio 0.285714
 MinMaf 1
 
@@ -99,7 +102,7 @@ RatioRandomMin 0
 RatioRandomMax 1
 RandomCount 1
 
-//Cultists
+//Special Cultists
 [SortGroup8_]
 Condition ? ~ < %cultistChance
 RolePot RC CL
@@ -109,6 +112,18 @@ RatioAddRandom 1
 RatioRandomMin 0
 RatioRandomMax 1
 RandomCount 1
+
+//Regular Cultists
+[SortGroup9_]
+Condition %ctRC > 0, or %ctCL > 0
+RolePot CM
+AllowMultipleDraw 1
+Ratio %%traitorRatio
+RatioVar members
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+RatioModCount -1
 
 []
 SortGroupCt 9

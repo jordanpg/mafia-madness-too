@@ -1,0 +1,15 @@
+MMGAMEMODE Classic
+
+///\c3Original Mafia Madness \c4: Classic
+///\c4By \c3[]----[]
+///\c4Classic MM with only innocents and mafia.
+
+MafRatio 0.285714
+MinMaf 1
+
+//dummy group, default settings will achieve what we want
+[SortGroup0_]
+RolePot
+
+[]
+SortGroupCt 1

@@ -94,16 +94,20 @@ function GameConnection::MM_RememberRole(%this, %role)
 		{
 			%mem = %mini.member[%i];
 
-			if(%a && %mem.MM_isMaf() && %mem.lives > 0)
+			if(%a && (%isa = (%mem.MM_isMaf() && %mem.lives > 0)))
 			{
 				messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c4has joined the mafia as the" SPC %roleStr @ "\c4!");
-				%mem.MM_DisplayMafiaList(2);
+
+				if(%isa)
+					%mem.MM_DisplayMafiaList(2);
 			}
 
-			if(%c && isFunction(GameConnection, MM_isCultist) && %mem.MM_isCultist() && %mem.lives > 0)
+			if(%c && isFunction(GameConnection, MM_isCultist) && (%isc = (%mem.MM_isCultist() && %mem.lives > 0)))
 			{
 				messageClient(%mem, '', "<font:impact:24pt>\c3" @ %this.getSimpleName() SPC "\c4has joined the cult as the" SPC %roleStr @ "\c4!");
-				%mem.MM_DisplayCultList(2);
+
+				if(%isc)
+					%mem.MM_DisplayCultList(2);
 			}
 		}
 	}

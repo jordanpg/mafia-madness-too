@@ -1,5 +1,5 @@
-MM_RegisterModeFile("./mmtoo.mmgm");
-MM_RegisterModeFile("./mmtoo_att.mmgm");
+// MM_RegisterModeFile("./mmtoo.mmgm");
+// MM_RegisterModeFile("./mmtoo_att.mmgm");
 
 function MMGameMode_MMTTransformRoles(%this)
 {

@@ -3,14 +3,16 @@
 
 $MM::LoadedRole_Cultist = true;
 
-$MM::GPCultistRecruitRecruitment = false; //cultist recruits will be able to recruit to the cult as well
 $MM::GPCultistOnlyCommAtNight = false; //cultists will only have access to cultist chat at night
-$MM::GPCultistFakeMafRecruit = true; //cultists will appear to attempt to recruit maf members (to avoid cultists being able to know who the maf is instantly)
+$MM::GPCultistFakeMafRecruit = true; //cultist leader will appear to attempt to recruit maf members (to avoid cultists being able to know who the maf is instantly)
+$MM::GPCultistRecruitUnaligned = false; //cultist leader can recruit unaligned roles
+$MM::GPCultistRecruitRole = "CM"; //role that the cultist leader recruits people as
+$MM::GPCultistRecruitNotifySpectators = true; //spectators will receive notifications of people joining the cult
 
 $MM::Alignment[4] = "Cultist";
 $MM::AlignmentColour[4] = "<color:400040>";
 
-$MM::InvStatus[4] = '\c3%1 \c4has a bit of a <color:400040>strange disposition\c4.';
+$MM::InvStatus[4] = '\c3%1 \c4has a bit of a <color:400040>frightening disposition\c4.';
 
 if(!isObject(MMRole_Cultist))
 {
@@ -19,10 +21,10 @@ if(!isObject(MMRole_Cultist))
 		class = "MMRole";
 
 		name = "Cultist";
-		corpseName = "devout gospeler";
+		corpseName = "devout murderer";
 		displayName = "Cultist";
 
-		letter = "CL";
+		letter = "CM"; //cult member??
 
 		colour = "<color:400040>";
 		nameColour = "0.376 0 0.376";
@@ -35,12 +37,40 @@ if(!isObject(MMRole_Cultist))
 
 		alignment = 4;
 
-		helpText = 	"\c4At night, the <color:400040>Cultist \c4can choose any \c2innocent \c4to recruit into the cult." NL
+		description = 	"\c4The <color:400040>Cultist \c4is basic role whose goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4.";
+	};
+}
+
+if(!isObject(MMRole_CultLeader))
+{
+	new ScriptObject(MMRole_CultLeader)
+	{
+		class = "MMRole_Cultist";
+		superClass = "MMRole";
+
+		name = "Cult Leader";
+		corpseName = "devout gospeler";
+		displayName = "Cult Leader";
+
+		letter = "CL";
+
+		colour = "<color:9500B3>";
+		nameColour = "0.584 0 0.702";
+
+		canAbduct = false;
+		canInvestigate = false;
+		canImpersonate = false;
+		canCommunicate = false;
+		canFingerprint = false;
+
+		alignment = 4;
+
+		helpText = 	"\c4At night, the <color:9500B3>Cult Leader \c4can choose any \c2innocent \c4to recruit into the cult." NL
 					"\c4The selected player will become a cultist at dawn, losing their former role and all its powers." NL
 					"\c4To select a player for recruitment, use the \c3/recruit \c7[PLAYER NAME] \c4command at night.";
 
-		description = 	"\c4The <color:400040>Cultist \c4is basic role whose goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4." NL
-						"\c4At night, the <color:400040>Cultist \c4can choose any \c2innocent \c4to recruit into the cult." NL
+		description = 	"\c4The <color:9500B3>Cult Leader \c4is <color:400040>Cultist whose goal is to expand their team." NL
+						"\c4At night, the <color:9500B3>Cult Leader \c4can choose any \c2innocent \c4to recruit into the cult." NL
 						"\c4The selected player will become a cultist at dawn, losing their former role and all its powers.";
 
 		cultRecruit = true;
@@ -102,7 +132,7 @@ function GameConnection::MM_DisplayCultList(%this, %centrePrint)
 		if(!isObject(%r = %mini.role[%cl]))
 			continue;
 
-		%str = (isObject(%cl) ? %cl.MM_GetName(false, true) : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
+		%str = (isObject(%cl) ? %cl.MM_GetName(false, true) : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getLetter() @ ")";
 
 		if(%centrePrint != 2)
 			messageClient(%this, '', %str);
@@ -215,12 +245,16 @@ function GameConnection::MM_CultRecruit(%cl, %src)
 	if(!isObject(%mini = getMiniGameFromObject(%cl)))
 		return;
 
-	%roleStr = MMRole_Cultist.getColour(1) @ MMRole_Cultist.getRoleName();
+	%role = $MM::RoleKey[$MM::GPCultistRecruitRole];
+	if(!isObject(%role))
+		%role = MMRole_Cultist;
+
+	%roleStr = %role.getColour(1) @ %role.getRoleName();
 
 	%mini.MM_LogEvent(%src.MM_getName(1) SPC "\c6recruited" SPC %cl.MM_getName(1) SPC "\c6into the" SPC %roleStr);
 
-	%cl.lives = 1 + MMRole_Cultist.additionalLives;
-	%cl.MM_setRole(MMRole_Cultist);
+	%cl.lives = 1 + %role.additionalLives;
+	%cl.MM_setRole(%role);
 
 	%cl.MM_UpdateUI();
 	%cl.MM_DisplayStartText();
@@ -234,10 +268,12 @@ function GameConnection::MM_CultRecruit(%cl, %src)
 	{
 		%mem = %mini.member[%i];
 
-		if(%mem.MM_isCultist() && %mem.lives > 0)
+		if((%isc = (%mem.MM_isCultist() && %mem.lives > 0)) || (%mem.lives < 1 && $MM::GPCultistRecruitNotifySpectators))
 		{
 			messageClient(%mem, '', "<font:impact:24pt>\c3" @ %cl.getSimpleName() SPC "\c4has joined the cult as the" SPC %roleStr @ "\c4!");
-			%mem.MM_DisplayCultList(2);
+
+			if(%isc)
+				%mem.MM_DisplayCultList(2);
 		}
 	}
 }
@@ -292,13 +328,12 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 
 	%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6attempted to recruit" SPC %ccl.MM_GetName(1));
 
-	if(%ccl.role.getAlignment() != 0)
+	if(%ccl.role.getAlignment() != 0 && !(%ccl.role.getAlignment() != 1 && $MM::GPCultistRecruitUnaligned))
 	{
-
 		if(!$MM::GPCultistFakeMafRecruit)
 			messageClient(%this, '', "\c4This player cannot be recruited because they are not a member of the innocents.");
 		else
-		{
+		{ //there's probably a way to restructure this so i don't have these five/six lines repeated but i can't be bothered sorry for being bad at coding
 			messageClient(%this, '', %msg);
 			%this.recruited[%mini.day] = true;
 

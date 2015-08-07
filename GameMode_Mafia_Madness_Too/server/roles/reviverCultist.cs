@@ -7,6 +7,8 @@ if(!$MM::LoadedRole_Cultist)
 $MM::LoadedRole_ReviverCultitst = true;
 
 $MM::GPCultReviveTime = 3000;
+$MM::GPCultReviveRole = "ZC"; //role to revive players into
+$MM::GPCultRevivePlayDead = true; //revived players will not stand up automatically
 
 if(!isObject(MMRole_ZombieCultist))
 {
@@ -114,16 +116,20 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 		return;
 	}
 
-	%roleStr = MMRole_ZombieCultist.getColour(1) @ MMRole_ZombieCultist.getRoleName();
+	%role = $MM::RoleKey[$MM::GPCultReviveRole];
+	if(!isObject(%role))
+		%role = MMRole_ZombieCultist;
+
+	%roleStr = %role.getColour(1) @ %role.getRoleName();
 
 	if(isObject(%reviver))
 		%mini.MM_LogEvent(%reviver.MM_getName(1) SPC "\c6revived" SPC %cl.MM_getName(1) SPC "\c6into the" SPC %roleStr);
 	else
 		%mini.MM_LogEvent(%cl.MM_getName(1) SPC "\c6revived into the" SPC %roleStr);
 
-	%cl.lives = 1 + MMRole_ZombieCultist.additionalLives;
+	%cl.lives = 1 + %role.additionalLives;
 	%cl.isGhost = false;
-	%cl.MM_setRole(MMRole_ZombieCultist);
+	%cl.MM_setRole(%role);
 
 	if(isObject(%cl.player) && %cl.player.isGhost)
 		%cl.player.delete();
@@ -134,7 +140,8 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 
 	%this.unMountImage(0);
 	%this.isCorpse = false;
-	%this.playThread(3, "root");
+	if(!$MM::GPCultRevivePlayDead)
+		%this.playThread(3, "root");
 	%this.revive = "";
 	%this.isRisenCorpse = true;
 
@@ -147,10 +154,12 @@ function AIPlayer::MM_CultRevive(%this, %reviver)
 	{
 		%mem = %mini.member[%i];
 
-		if(%mem.MM_isCultist() && %mem.lives > 0)
+		if((%isc = (%mem.MM_isCultist() && %mem.lives > 0)) || (%mem.lives < 1 && $MM::GPCultistRecruitNotifySpectators))
 		{
 			messageClient(%mem, '', "<font:impact:24pt>\c3" @ %cl.getSimpleName() SPC "\c4has joined the cult as the" SPC %roleStr @ "\c4!");
-			%mem.MM_DisplayCultList(2);
+
+			if(%isc)
+				%mem.MM_DisplayCultList(2);
 		}
 	}
 }
@@ -201,7 +210,14 @@ function serverCmdReviveCorpse(%this)
 		if(%mini.member[%i].MM_isCultist() && %mini.member[%i] != %this)
 			messageClient(%mini.member[%i], '', "\c3" @ %this.getSimpleName() SPC "\c4is attempting to revive\c3" SPC %ccl.getSimpleName() @ "\c4...");
 
-	messageClient(%this, '', "\c4Reviving \c3" @ %this.player.heldCorpse.originalClient.getSimpleName() SPC "\c4as a" SPC MMRole_ZombieCultist.getColour(1) @ MMRole_ZombieCultist.getRoleName() @ "\c4. Drop the corpse and they will wake up in three seconds.");
+	%role = $MM::RoleKey[$MM::GPCultReviveRole];
+	if(!isObject(%role))
+		%role = MMRole_ZombieCultist;
+
+	%roleStr = %role.getColour(1) @ %role.getRoleName();
+
+	messageClient(%this, '', "\c4Reviving \c3" @ %this.player.heldCorpse.originalClient.getSimpleName() SPC "\c4as a" SPC %roleStr @ "\c4. Drop the corpse and they will wake up in three seconds.");
+	messageClient(%ccl, '', "\c3" @ %this.getSimpleName() SPC "\c4is attempting to revive you as a " @ %roleStr @ "\c4! Be ready to take action!");
 }
 
 //HOOKS

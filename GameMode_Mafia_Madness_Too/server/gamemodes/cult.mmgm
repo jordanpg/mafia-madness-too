@@ -4,21 +4,19 @@ MMGAMEMODE Rise of the Socks
 ///\c4By \c3ottosparks
 ///\c4A gamemode balanced to be maf/inno versus the cult.
 
-MafRatio 0.15
+MafRatio 0.2
 MinMaf 0
 
 //Disable dead rising; reviver cultists are enough.
 PREF DeadRising 0
 
-PREF CultistRecruitRecruitment 1
-
 //Temporary variables
 %copRatio 0.2
-%cultRatio 0.2
+%cultistRatio 0.2
 %miscRatio 0.125
 
 ForceMafOrder JOHNCENA A V G C D LAW
-ForceInnoOrder F O BB AM S RC CL ZC
+ForceInnoOrder F O BB AM S RC CL CM ZC
 
 [SortGroup0_]
 RolePot A
@@ -77,26 +75,39 @@ RatioRandomMin 0
 RatioRandomMax 1
 RandomCount 1
 
-//Cultists
+//Special Cultists
 [SortGroup8_]
 RolePot RC CL CL
+Ratio %%cultistRatio
+AllowMultipleDraw 1
+RatioVar innos
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+ForceMinMembers 1
+
+//Regular Cultists
+[SortGroup9_]
+Condition %ctRC > 0, and %ctCL > 0
+RolePot CM
 AllowMultipleDraw 1
 Ratio %%cultistRatio
 RatioVar innos
 RatioAddRandom 1
 RatioRandomMin 0
 RatioRandomMax 1
-ForceMinMembers 2
+RatioModCount -1
+ForceMinMembers 1
 
 //Extra Fingerprinters for RC
-[SortGroup9_]
+[SortGroup10_]
 Condition %ctRC > 0
 RolePot F
 AllowMultipleDraw 1
 Ratio %%copRatio
 RatioVar members
 RatioModCount -1
-ForceMaxMembers 3
+ForceMaxMembers 2
 
 []
-SortGroupCt 10
+SortGroupCt 11

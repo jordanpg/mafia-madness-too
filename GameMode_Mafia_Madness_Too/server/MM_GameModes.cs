@@ -14,12 +14,20 @@ $MM::GameMode[-1] = "Custom";
 
 $MM::DefaultGameMode = "Mafia Madness (too)";
 
-$MM::GMDir = $MM::Server @ "gamemodes/";
+$MM::ModeDir = $MM::Server @ "gamemodes/";
 $MM::CustomFile = "mmtoo.mmgm";
 $MM::GamePrefStore = "config/server/mmGPStore.cs";
 $MM::ModeSearchPattern = "Add-Ons/*.mmgm";
 $MM::AutoFindGameModes = true;
 $MM::AdminOnlyGMList = false;
+
+//WARNING: THE FOLLOWING BEING SET TO 'TRUE' OR '1' MAY BE REQUIRED FOR SOME THIRD-PARTY GAMEMODES
+//The LOADCS command allows gamemodes to execute scripts from within the same directory, which lets content creators expand the gamemode without touching the base code.
+//The ability to load scripts, of course, also allows for nefarious purposes. The flag is on by default in good faith that:
+//a) Content creators will be responsible with the ability to load code
+//b) The current add-on quality control methods (fail bin, CRC bans) will prevent harmful mods from staying around for long
+//Disable this command only if you know what you're doing. Remember: code that isn't there can't hurt you.
+$MM::AllowGameModeExec = true; //allow gamemodes to use the LOADCS command
 
 /////////////////////////////////////
 ///////////CONTROL COMMAND///////////
@@ -71,7 +79,7 @@ function serverCmdMMSetGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
 
 	echo(%this.getSimpleName() SPC "set the gamemode to" SPC %name);
 
-	%mini.MM_SetGameMode(%i);
+	%mini.MM_SetGameMode(%i, $MM::SilentSetGamemode);
 }
 
 function serverCmdSetGameMode(%this, %a0, %a1, %a2, %a3, %a4, %a5)
@@ -129,6 +137,18 @@ function serverCmdDescribeGM(%this, %a0, %a1, %a2, %a3, %a4, %a5)
 /////////////////////////////////////
 ///////////GENERAL SUPPORT///////////
 /////////////////////////////////////
+function MM_InitGameModes()
+{
+	if($MM::AutoFindGameModes && !$MM::FoundModes)
+	{
+		MM_ClearGameModes();
+		MM_RegisterAllModeFiles($MM::ModeSearchPattern);
+		$MM::FoundModes = true;
+	}
+
+	exec($MM::ModeDir @ "main.cs");
+}
+
 function MM_isValidGameMode(%modeName)
 {
 	if(!isFunction("MM_InitMode" @ %modeName))
@@ -276,7 +296,7 @@ function MM_ClearGameModes()
 	MM_ClearCustomGameModes();
 }
 
-function MinigameSO::MM_SetGameMode(%this, %modeID)
+function MinigameSO::MM_SetGameMode(%this, %modeID, %silent)
 {
 	if(!%this.isMM)
 		return false;
@@ -297,7 +317,8 @@ function MinigameSO::MM_SetGameMode(%this, %modeID)
 		$MM::CurrentMode = -1;
 	}
 
-	messageAll('', "\c4The gamemode has been set to\c3" SPC %name);
+	if(!%silent)
+		messageAll('', "\c4The gamemode has been set to\c3" SPC %name);
 }
 
 function MinigameSO::MM_GetGameMode(%this)
@@ -431,10 +452,24 @@ function MM_RegisterModeFile(%filen)
 	}
 
 	%name = restWords(%line);
-
+	%path = filePath(%filen) @ "/"; 
 	while(!%file.isEOF())
 	{
 		%line = %file.readLine();
+
+		if(firstWord(%line) $= "LOADCS")
+		{
+			if(!$MM::AllowGameModeExec)
+				continue;
+
+			%fn = %path @ restWords(%line);
+			warn("---Custom Mode '" @ %name @ "' is loading script '" @ %fn @ "' ...");
+
+			exec(%fn);
+
+			continue;
+		}
+
 
 		if(getSubStr(%line, 0, 3) !$= "///")
 			continue;
@@ -705,17 +740,17 @@ function MM_ModeReadyCustom(%this)
 		{
 			if(isFile(%f = MM_GetCustomModeFile($MM::CurrentMode)))
 				$MM::CustomFile = %f;
-			else if(isFile(%f = $MM::GMDir @ %f))
+			else if(isFile(%f = $MM::ModeDir @ %f))
 				$MM::CustomFile = %f;
 		}
 
 		if(!isFile($MM::CustomFile))
 		{
-			if(isFile(%f = $MM::GMDir @ $MM::CustomFile))
+			if(isFile(%f = $MM::ModeDir @ $MM::CustomFile))
 				$MM::CustomFile = %f;
 			else if(isFile($Pref::Server::MMCustomFile))
 				$MM::CustomFile = $Pref::Server::MMCustomFile;
-			else if(isFile(%f = $MM::GMDir @ $Pref::Server::MMCustomFile))
+			else if(isFile(%f = $MM::ModeDir @ $Pref::Server::MMCustomFile))
 				$MM::CustomFile = %f;
 			else
 				return false;
@@ -743,12 +778,16 @@ function MM_InitModeCustom(%this)
 
 	// %mafs = mFloor(%members / 3.5);
 	$MMGmafs = mFloor($MMGmembers * $MM::GMMafRatio);
-	if($MMGmafs < $MM::GMMinMaf)
+	if($MM::GMMinMaf !$= "" && $MMGmafs < $MM::GMMinMaf && $MM::GMMinMaf >= 0)
 		$MMGmafs = $MM::GMMinMaf;
+	if($MM::GMMaxMaf !$= "" && $MMGmafs > $MM::GMMaxMaf && $MM::GMMaxMaf >= $MM::GMMinMaf)
+		$MMGmafs = $MM::GMMaxMaf;
 
 	$MMGinnos = $MMGmembers - $MMGmafs;
 
 	MMDebug("   +Mafias:" SPC $MMGmafs);
+	MMDebug("   -+Ratio:" SPC $MM::GMMafRatio);
+	MMDebug("   -+Min, Max:" SPC ($MM::GMMinMaf | 0) @ "," SPC ($MM::GMMaxMaf | 0));
 
 	// %roles = "A V G C M F O P I";
 
@@ -776,6 +815,10 @@ function MM_InitModeCustom(%this)
 		}
 
 		%pot = $MM::GMSortGroup[%i, "RolePot"];
+
+		if(%pot $= "")
+			continue;
+
 		$MMGmaf = $MM::GMSortGroup[%i, "isMaf"];
 
 		MMDebug("   --+Pot:" SPC %pot);

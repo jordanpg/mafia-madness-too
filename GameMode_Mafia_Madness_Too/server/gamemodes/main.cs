@@ -1,6 +1,10 @@
+//Under normal conditions, none of these should be loaded.
+
 if(!$MM::LoadedGameModes)
 	exec($MM::Server @ "MM_GameModes.cs");
 
-exec("./oldGameModes.cs");
+if($MM::LoadOldGameModes)
+	exec("./oldGameModes.cs");
 
-exec("./mmtoo.cs");
+if(!$MM::AllowGameModeExec)
+	exec("./mmtoo.cs");

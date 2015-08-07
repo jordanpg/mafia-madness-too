@@ -125,6 +125,9 @@ function MinigameSO::MM_SetRole(%this, %client, %role)
 
 	%role.onAssign(%this, %client);
 
+	if(%this.running)
+		%this.MM_WinCheck();
+
 	return true;
 }
 
@@ -777,7 +780,7 @@ function GameConnection::MM_DisplayMafiaList(%this, %centrePrint)
 		if(!isObject(%r = %mini.role[%cl]))
 			continue;
 
-		%str = (isObject(%cl) ? %cl.MM_GetName(false, true) : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getRoleName() @ ")";
+		%str = (isObject(%cl) ? %cl.MM_GetName(false, true) : %mini.memberCacheName[%mini.memberCacheKey[%cl]]) SPC "(" @ %r.getLetter() @ ")";
 
 		if(%centrePrint != 2)
 			messageClient(%this, '', %str);
