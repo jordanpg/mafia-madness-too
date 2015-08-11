@@ -5,6 +5,7 @@ exec("./innocent.cs");
 exec("./mafia.cs");
 
 exec("./abductor.cs");
+exec("./alarmist.cs");
 exec("./amnesiac.cs");
 exec("./bubbleBuddy.cs");
 exec("./clown.cs");

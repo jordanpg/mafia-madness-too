@@ -133,6 +133,9 @@ function serverCmdInv(%this, %v0, %v1, %v2, %v3, %v4)
 		return;
 
 	%v = trim(%v0 SPC %v1 SPC %v2 SPC %v3 SPC %v4);
+	if(%v $= "")
+		return;
+
 	%target = findClientByName(%v);
 
 	if(!isObject(%target))

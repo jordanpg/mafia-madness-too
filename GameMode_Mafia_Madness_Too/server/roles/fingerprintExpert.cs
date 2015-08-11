@@ -28,11 +28,11 @@ if(!isObject(MMRole_FingerprintExpert))
 
 		helpText = 	"\c4You are also the <color:C9FFF2>Fingerprint Expert\c4! When you examine (click) a corpse, you will get a list of fingerprints!" NL
 					"\c4Whenever someone picks up a corpse, they will leave a fingerprint on the corpse." NL
-					"\c4You are the only Fingerprint Expert in the game, so if someone else claims to be one, there's a strong chance they're Mafia!";
+					"\c4There is normally only one Fingerprint Expert in the game, so if someone else claims to be one, there's a strong chance they're Mafia!";
 
 		description = 	"\c4When the <color:C9FFF2>Fingerprint Expert\c4 examines (clicks) a corpse, they will get a list of fingerprints!" NL
 						"\c4Whenever someone picks up a corpse, they will leave a fingerprint on the corpse." NL
-						"\c4There is only one Fingerprint Expert in the game, so if someone else claims to be one, there's a strong chance they're Mafia!";
+						"\c4There is normally only one Fingerprint Expert in the game, so if someone else claims to be one, there's a strong chance they're Mafia!";
 	};
 }
 

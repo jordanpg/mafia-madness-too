@@ -18,6 +18,19 @@ $MM::SpectatorMafList = true;
 // $MMGameModeName[6] = "brackets, think of the name -ottosparks (6)"; //wtf is this one
 // $MMGameModes = 6;
 
+function serverCmdPassTime(%this)
+{
+	if(!%this.isSuperAdmin)
+		return;
+
+	if(!isObject(%mini = getMinigameFromObject(%this)) || !%mini.isMM || !%mini.running)
+		return;
+
+	echo(%this.getSimpleName() SPC "passed to the next day/night period.");
+
+	%mini.MM_DayCycle(!%mini.isDay);
+}
+
 function serverCmdClearInv(%this, %target)
 {
 	if(!%this.isAdmin)
@@ -627,6 +640,12 @@ function serverCmdClaim(%this, %claim)
 	if(!isObject(%this.player))
 		return;
 
+	if(%this.lives < 1 || %this.isGhost)
+	{
+		messageClient(%this, '', "\c4You are dead and cannot claim a role!");
+		return;
+	}
+
 	if(!isObject(%role = $MM::RoleKey[%claim]))
 	{
 		messageClient(%this, '', "\c4That role doesn\'t exist!");
@@ -642,6 +661,7 @@ function serverCmdClaim(%this, %claim)
 	%this.MMClaimTimeout = $Sim::Time;
 	%this.player.setShapeNameColor(%role.getNameColour());
 	%this.player.claimRole = %role;
+	messageClient(%this, '', "\c4Your claimed role has been set to the" SPC %role.getColour(1) @ %role.getRoleName());
 }
 
 package MM_IsolatedChat

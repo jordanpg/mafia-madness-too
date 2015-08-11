@@ -7,6 +7,9 @@ MMGAMEMODE Original MM
 MafRatio 0.285714
 MinMaf 1
 
+ForceMafOrder A V G C
+ForceInnoOrder F O P
+
 //Force the game to always make an abductor appear.
 [SortGroup0_]
 RolePot A

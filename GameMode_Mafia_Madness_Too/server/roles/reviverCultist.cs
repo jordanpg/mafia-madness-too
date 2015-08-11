@@ -37,7 +37,7 @@ if(!isObject(MMRole_ZombieCultist))
 		helpText = "";
 
 		description = 	"\c4The <color:400040>Zombie Cultist \c4is basic role whose goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4." NL
-						"\c4It is like the regular <color:400040>Cultist\c4, however it cannot recruit members at night.";
+						"\c4It is simply a <color:400040>Cultist\c4 that has been revived by the <color:408040>Reviver Cultist\c4.";
 	};
 }
 

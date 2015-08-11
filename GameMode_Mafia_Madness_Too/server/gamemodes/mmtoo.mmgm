@@ -125,8 +125,16 @@ RatioRandomMin 0
 RatioRandomMax 1
 RatioModCount -1
 
+//Anti-Cult
+[SortGroup10_]
+RolePot AL
+RoleCondition_AL %ctCL > 0
+Ratio %%miscRatio
+RatioVar innos
+RandomCount 1
+
 []
-SortGroupCt 9
+SortGroupCt 11
 
 //Call the joke role transformation function. This can be commented out to disable joke roles entirely.
 PostSortCall MMTTransformRoles

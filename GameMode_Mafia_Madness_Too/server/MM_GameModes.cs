@@ -960,6 +960,9 @@ function MM_InitModeCustom(%this)
 	{
 		%newOrder = "";
 
+		MMDebug("   +Forcing maf pot...");
+		MMDebug("   --+Current Pot:" SPC $MMGmafRoles);
+
 		%ct = getWordCount($MM::GMForceMafOrder);
 		for(%i = 0; %i < %ct; %i++)
 		{
@@ -969,6 +972,8 @@ function MM_InitModeCustom(%this)
 			%mhas[%r] = true;
 		}
 
+		MMDebug("   --+Force Order:" SPC %newOrder);
+
 		%ct = getWordCount($MMGmafRoles);
 		for(%i = 0; %i < %ct; %i++)
 		{
@@ -976,17 +981,24 @@ function MM_InitModeCustom(%this)
 
 			if(!%mhas[%r])
 			{
+				MMDebug("   --+Found unlisted role:" SPC %r);
+
 				%newOrder = trim(%newOrder SPC %r);
 				%mhas[%r] = true;
 			}
 		}
 
-		$MMGmafRoles = $MM::GMForceMafOrder;
+		MMDebug("   --+Final Order:" SPC %newOrder);
+
+		$MMGmafRoles = %newOrder;
 	}
 
 	if($MM::GMForceInnoOrder !$= "")
 	{
 		%newOrder = "";
+
+		MMDebug("   +Forcing inno pot...");
+		MMDebug("   --+Current Pot:" SPC $MMGinnoRoles);
 
 		%ct = getWordCount($MM::GMForceInnoOrder);
 		for(%i = 0; %i < %ct; %i++)
@@ -997,6 +1009,8 @@ function MM_InitModeCustom(%this)
 			%ihas[%r] = true;
 		}
 
+		MMDebug("   --+Force Order:" SPC %newOrder);
+
 		%ct = getWordCount($MMGinnoRoles);
 		for(%i = 0; %i < %ct; %i++)
 		{
@@ -1004,12 +1018,16 @@ function MM_InitModeCustom(%this)
 
 			if(!%ihas[%r])
 			{
+				MMDebug("   --+Found unlisted role:" SPC %r SPC %i);
+
 				%newOrder = trim(%newOrder SPC %r);
 				%ihas[%r] = true;
 			}
 		}
 
-		$MMGinnoRoles = $MM::GMForceInnoOrder;
+		MMDebug("   --+Final Order:" SPC %newOrder);
+
+		$MMGinnoRoles = %newOrder;
 	}
 
 	%ct = getWordCount($MMGmafRoles);

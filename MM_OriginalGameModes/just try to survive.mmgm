@@ -1,0 +1,54 @@
+MMGAMEMODE Just Try to Survive
+
+///\c3Original Mafia Madness \c4: Just Try to Survive
+///\c4By \c3[]----[]
+///\c4A gamemode where all mafia can abduct.
+
+MafRatio 0.285714
+MinMaf 1
+
+AllAbduct 1
+
+ForceMafOrder A V G C D
+ForceInnoOrder F O P N
+
+[SortGroup0_]
+RolePot C
+isMaf 1
+Ratio 1
+RatioVar mafs
+ForceMinMembers 1
+
+[SortGroup1_]
+Condition %members > 3, and %mafs <= 1
+RolePot F
+Ratio 1
+RatioVar members
+
+[SortGroup2_]
+Condition %members > 3, and %mafs > 1
+RolePot G
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+[SortGroup3_]
+Condition %members > 3, and %mafs > 1
+isMaf 1
+RolePot V
+RoleCondition_V %mafs >= 3, or ? 0 1 == 1
+Ratio 1
+RatioVar mafs
+RatioModCount -1
+
+[SortGroup4_]
+Condition %members > 3, and %mafs > 1
+RolePot F O P N
+RoleCondition_F %members > 11
+RoleCondition_P %members > 8
+RoleCondition_N %members > 8
+Ratio 1
+RatioVar members
+
+[]
+SortGroupCt 5

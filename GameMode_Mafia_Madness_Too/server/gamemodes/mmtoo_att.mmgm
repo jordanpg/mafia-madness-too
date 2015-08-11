@@ -110,8 +110,28 @@ RatioRandomMin 0
 RatioRandomMax 1
 RandomCount 1
 
+//Regular Cultists
+[SortGroup8_]
+Condition %ctRC > 0, or %ctCL > 0
+RolePot CM
+AllowMultipleDraw 1
+Ratio %%traitorRatio
+RatioVar members
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+RatioModCount -1
+
+//Anti-Cult
+[SortGroup9_]
+RolePot AL
+RoleCondition_AL %ctCL > 0
+Ratio %%miscRatio
+RatioVar innos
+RandomCount 1
+
 []
-SortGroupCt 8
+SortGroupCt 10
 
 //Call the joke role transformation function. This can be commented out to disable joke roles entirely.
 PostSortCall MMTTransformRoles

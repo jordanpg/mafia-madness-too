@@ -5,6 +5,7 @@ $MM::LoadedRole_Cultist = true;
 
 $MM::GPCultistOnlyCommAtNight = false; //cultists will only have access to cultist chat at night
 $MM::GPCultistFakeMafRecruit = true; //cultist leader will appear to attempt to recruit maf members (to avoid cultists being able to know who the maf is instantly)
+$MM::GPCultistFakeDeadRecruit = true; //similar to above, but for dead players.
 $MM::GPCultistRecruitUnaligned = false; //cultist leader can recruit unaligned roles
 $MM::GPCultistRecruitRole = "CM"; //role that the cultist leader recruits people as
 $MM::GPCultistRecruitNotifySpectators = true; //spectators will receive notifications of people joining the cult
@@ -71,7 +72,8 @@ if(!isObject(MMRole_CultLeader))
 
 		description = 	"\c4The <color:9500B3>Cult Leader \c4is <color:400040>Cultist whose goal is to expand their team." NL
 						"\c4At night, the <color:9500B3>Cult Leader \c4can choose any \c2innocent \c4to recruit into the cult." NL
-						"\c4The selected player will become a cultist at dawn, losing their former role and all its powers.";
+						"\c4The selected player will become a cultist at dawn, losing their former role and all its powers." NL
+						"\c4To select a player for recruitment, use the \c3/recruit \c7[PLAYER NAME] \c4command at night.";
 
 		cultRecruit = true;
 	};
@@ -222,9 +224,6 @@ function GameConnection::MM_canCultRecruit(%this)
 	if(!%this.role.cultRecruit && !%mini.allRecruit)
 		return false;
 
-	if(%this.isRecruit && !$MM::GPCultistRecruitRecruitment)
-		return false;
-
 	if(%this.recruited[%mini.day])
 		return false;
 
@@ -302,8 +301,13 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 
 	if(!isObject(%ccl))
 	{
-		messageClient(%this, '', "\c4Could not find a player by the name of '\c3" @ %tname @ "\c4.'");
-		return;
+		%ccl = findClientByBL_ID($Pref::Server::MMNicknames[%tname]);
+
+		if(!isObject(%ccl))
+		{
+			messageClient(%this, '', "\c4Could not find a player by the name of '\c3" @ %tname @ "\c4.'");
+			return;
+		}
 	}
 
 	if(!isObject(%ccl.role))
@@ -314,8 +318,13 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 
 	if(%ccl.lives < 1 || %ccl.isGhost)
 	{
-		messageClient(%this, '', "\c4This player cannot be recruited because they are dead.");
-		return;
+		if(!$MM::GPCultistFakeDeadRecruit)
+		{
+			messageClient(%this, '', "\c4This player cannot be recruited because they are dead.");
+			return;
+		}
+		else
+			%fakeRecruit = true;
 	}
 
 	if(%ccl.MM_isCultist())
@@ -324,35 +333,29 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 		return;
 	}
 
-	%msg = "\c4Attempting to recruit\c3" SPC %ccl.getSimpleName() SPC "\c4into the cult. They will join at dawn.";
-
-	%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6attempted to recruit" SPC %ccl.MM_GetName(1));
-
 	if(%ccl.role.getAlignment() != 0 && !(%ccl.role.getAlignment() != 1 && $MM::GPCultistRecruitUnaligned))
 	{
 		if(!$MM::GPCultistFakeMafRecruit)
+		{
 			messageClient(%this, '', "\c4This player cannot be recruited because they are not a member of the innocents.");
-		else
-		{ //there's probably a way to restructure this so i don't have these five/six lines repeated but i can't be bothered sorry for being bad at coding
-			messageClient(%this, '', %msg);
-			%this.recruited[%mini.day] = true;
-
-			for(%i = 0; %i < %mini.numMembers; %i++)
-				if(%mini.member[%i].MM_isCultist() && %mini.member[%i] != %this)
-					messageClient(%mini.member[%i], '', "\c3" @ %this.getSimpleName() SPC "\c4is attempting to recruit\c3" SPC %ccl.getSimpleName() @ "\c4...");
+			return;
 		}
-
-		return;
+		else
+			%fakeRecruit = true;
 	}
 
+	%mini.MM_LogEvent(%this.MM_GetName(1) SPC "\c6attempted to recruit" SPC %ccl.MM_GetName(1));
+
 	%this.recruited[%mini.day] = true;
-	%ccl.recruiter = %this;
+
+	if(!%fakeRecruit)
+		%ccl.recruiter = %this;
 
 	for(%i = 0; %i < %mini.numMembers; %i++)
 		if(%mini.member[%i].MM_isCultist() && %mini.member[%i] != %this)
 			messageClient(%mini.member[%i], '', "\c3" @ %this.getSimpleName() SPC "\c4is attempting to recruit\c3" SPC %ccl.getSimpleName() @ "\c4...");
 
-	messageClient(%this, '', %msg);
+	messageClient(%this, '', "\c4Attempting to recruit\c3" SPC %ccl.getSimpleName() SPC "\c4into the cult. They will join at dawn.");
 }
 
 //HOOKS

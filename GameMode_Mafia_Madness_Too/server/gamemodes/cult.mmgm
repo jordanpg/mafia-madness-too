@@ -12,8 +12,9 @@ PREF DeadRising 0
 
 //Temporary variables
 %copRatio 0.2
-%cultistRatio 0.2
+%cultistRatio 0.15
 %miscRatio 0.125
+%alarmistChance 0.5
 
 ForceMafOrder JOHNCENA A V G C D LAW
 ForceInnoOrder F O BB AM S RC CL CM ZC
@@ -60,6 +61,7 @@ RatioVar mafs
 [SortGroup5_]
 Condition %mafs > 1
 RolePot V C C C D D
+isMaf 1
 Ratio 1
 RatioVar mafs
 RatioModCount -1
@@ -97,7 +99,6 @@ RatioAddRandom 1
 RatioRandomMin 0
 RatioRandomMax 1
 RatioModCount -1
-ForceMinMembers 1
 
 //Extra Fingerprinters for RC
 [SortGroup10_]
@@ -109,5 +110,13 @@ RatioVar members
 RatioModCount -1
 ForceMaxMembers 2
 
+//Anti-Cult
+[SortGroup11_]
+Condition ? ~ < %alarmistChance, or %ctCL > 1
+RolePot AL
+RoleCondition_AL %ctCL > 0
+Ratio 1
+RatioVar innos
+
 []
-SortGroupCt 11
+SortGroupCt 12

@@ -1,0 +1,33 @@
+MMGAMEMODE hahahahahahahahahahahaha
+
+///\c3Original Mafia Madness \c4: hahahahahahahahahahahaha
+///\c4By \c3[]----[]
+///\c4A gamemode where all mafs are ventriloquists, and all innos are cops (half normal, half paranoid).
+
+MafRatio 0.285714
+MinMaf 1
+
+[SortGroup0_]
+RolePot V
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+[SortGroup1_]
+RolePot O
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+Ratio 0.5
+RatioVar innos
+
+[SortGroup2_]
+RolePot P
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+Ratio 0.5
+RatioVar innos
+
+[]
+SortGroupCt 3
