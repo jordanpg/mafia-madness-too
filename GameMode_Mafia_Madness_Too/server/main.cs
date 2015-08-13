@@ -27,7 +27,9 @@ exec("./afterlife.cs");
 exec("./ahole.cs");
 exec("./chat.cs");
 exec("./cmd.cs");
+exec("./admin.cs");
 exec("./help.cs");
 exec("./corpses.cs");
+exec("./voting.cs");
 
 exec("./guiHook.cs");

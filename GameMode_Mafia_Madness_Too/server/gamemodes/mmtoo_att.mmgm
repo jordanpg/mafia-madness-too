@@ -73,6 +73,7 @@ ForceMaxMembers 3
 [SortGroup4_]
 Condition %mafs > 1
 RolePot V V V C C D
+isMaf 1
 Ratio 1
 RatioVar mafs
 

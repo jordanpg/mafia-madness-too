@@ -19,7 +19,7 @@ $MM::CustomFile = "mmtoo.mmgm";
 $MM::GamePrefStore = "config/server/mmGPStore.cs";
 $MM::ModeSearchPattern = "Add-Ons/*.mmgm";
 $MM::AutoFindGameModes = true;
-$MM::AdminOnlyGMList = false;
+// $MM::AdminOnlyGMList = false;
 
 //WARNING: THE FOLLOWING BEING SET TO 'TRUE' OR '1' MAY BE REQUIRED FOR SOME THIRD-PARTY GAMEMODES
 //The LOADCS command allows gamemodes to execute scripts from within the same directory, which lets content creators expand the gamemode without touching the base code.
@@ -47,7 +47,13 @@ function serverCmdMMGameModes(%this)
 	for(%i = 0; %i < $MM::GameModes; %i++)
 		messageClient(%this, '', %pattern, %i, $MM::GameMode[%i]);
 
-	messageClient(%this, '', "\c6Use \c3Page Up \c6and \c3Page Down \c6to scroll through the list. Use \c3/MMSetGameMode \c7[ID OR NAME] \c6to set the gamemode.");
+	messageClient(%this, '', "\c6Use \c3Page Up \c6and \c3Page Down \c6to scroll through the list.");
+
+	if(%this.isSuperAdmin)
+		messageClient(%this, '', "\c6Use \c3/MMSetGameMode \c7[ID OR NAME] \c6to set the gamemode.");
+
+	if($MM::LoadedVoting && $MM::VoteAllowed)
+		messageClient(%this, '', "\c6Use \c3/voteGameMode \c7[ID OR NAME] \c6to vote for a gamemode change.");
 }
 
 function serverCmdGameModes(%this)

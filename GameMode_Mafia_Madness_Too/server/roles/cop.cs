@@ -42,13 +42,13 @@ if(!isObject(MMRole_Cop))
 
 		helpText = 	"\c4You are also the <color:1122CC>Cop\c4!  Type /inv [name] to find out whether someone is inno or mafia!" NL
 					"\c4If there's a P in the roles list however, there's a chance you might be <color:CC4444>Paranoid\c4 (always gets a suspicious results)." NL
-					"\c4You may also be <color:58C2FF>Naive (gets innocent results)\c4if you see an N, or <color:FF40FF>Insane\c4 (gets random results) if there\'s an IC." NL
+					"\c4You may also be <color:58C2FF>Naive (gets innocent results) \c4if you see an N, or <color:FF40FF>Insane\c4 (gets random results) if there\'s an IC." NL
 					"\c4But surely you aren't, right?" NL
 					"\c2...Right?";
 
 		description = 	"\c4The <color:1122CC>Cop\c4 can type /inv [name] to find out whether someone is inno or mafia!" NL
 						"\c4If there's a P in the roles list however, there's a chance they might be <color:CC4444>Paranoid\c4 (always gets a suspicious results)." NL
-						"\c4They may also be <color:58C2FF>Naive (gets innocent results)\c4if there's an N, or <color:FF40FF>Insane\c4 (gets random results) if there\'s an IC.";
+						"\c4They may also be <color:58C2FF>Naive (gets innocent results) \c4if there's an N, or <color:FF40FF>Insane\c4 (gets random results) if there\'s an IC.";
 
 		forceInvResult = -1;
 	};

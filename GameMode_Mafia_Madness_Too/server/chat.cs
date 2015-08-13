@@ -63,6 +63,7 @@ function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, 
 
 	%ct = ClientGroup.getCount();
 
+	%sPre = %pre;
 	%pre = %pre @ %this.clanPrefix;
 
 	if(%condition $= "")
@@ -70,7 +71,7 @@ function GameConnection::MM_Chat(%this, %obj, %type, %msg, %excludeList, %pre2, 
 
 	%pre_2 = %pre2 @ %pre;
 
-	echo(%this.getPlayerName() SPC ":" SPC %msg);
+	echo(stripMLControlChars(%pre2 @ %sPre) @ %this.getPlayerName() SPC ":" SPC %msg);
 
 	if(%rad <= 0)
 	{

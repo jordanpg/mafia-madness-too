@@ -16,12 +16,14 @@ MinMaf 1
 %miscRatio 0.142857
 %traitorRatio 0.1
 
+//Variables for joke roles
 %bringTheLaw 1
 %lawChance 0.1
 %honkHonk 1
 %honkHonkChance 0.2
 %johnCena 1
 %johnCenaChance 0.07
+
 %cultistChance 0.5
 
 //This is done so that:
@@ -74,6 +76,7 @@ RatioVar mafs
 [SortGroup5_]
 Condition %mafs > 1
 RolePot V V V C C D
+isMaf 1
 Ratio 1
 RatioVar mafs
 RatioModCount -1

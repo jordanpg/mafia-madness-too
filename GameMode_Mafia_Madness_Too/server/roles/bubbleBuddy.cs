@@ -199,6 +199,7 @@ function Player::MM_ActivateBubble(%this)
 	{
 		%ct = getWordCount(%players);
 		%ct1 = %ct - 1;
+
 		for(%i = 0; %i < %ct; %i++)
 		{
 			%p = getWord(%players, %i);
@@ -213,7 +214,7 @@ function Player::MM_ActivateBubble(%this)
 				else
 					%str = %str @ " \c6and";
 			}
-			else if(%i > 0)
+			else if(%i > 0 && %ct > 2)
 				%str = %str @ "\c6,";
 
 			%str = %str SPC %c.MM_GetName(1);
@@ -252,20 +253,39 @@ package MM_BubbleBuddy
 
 		// talk(%this.startedDying);
 
-		if(!isObject(%cl = %this.getControllingClient()))
+		%cl = %this.getControllingClient();
+
+		MMDebug("Attempting to activate bubble for" SPC %cl.getSimpleName());
+
+		if(!isObject(%cl))
+		{
+			MMDebug("No client.");
 			return parent::damage(%this, %obj, %pos, %amt, %type);
+		}
 
 		if(!$DefaultMinigame.running || !(%mini = getMiniGameFromObject(%cl)).isMM)
+		{
+			MMDebug("No MM minigame running.");
 			return parent::damage(%this, %obj, %pos, %amt, %type);
+		}
 
 		if(!%mini.bubbleBuddy)
+		{
+			MMDebug("No BB present in minigame.");
 			return parent::damage(%this, %obj, %pos, %amt, %type);
+		}
 
 		if((%this.dying && %this.startedDying != $Sim::Time) || %this.isGhost || %this.client.lives < 1 || (%this.isCorpse && !isObject(%this.getControllingClient())))
+		{
+			MMDebug("Player is not eligible for BB ability.");
 			return parent::damage(%this, %obj, %pos, %amt, %type);
+		}
 
 		if(%type $= $DamageType::Impact || %type $= $DamageType::Fall || %type $= $DamageType::Direct || %type $= $DamageType::Suicide || %type $= $DamageType::CombatKnife)
+		{
+			MMDebug("Damage type is not compatible.");
 			return parent::damage(%this, %obj, %pos, %amt, %type);
+		}
 
 		if(isObject(%obj.sourceClient))
 			%scl = %obj.sourceClient;
@@ -278,7 +298,6 @@ package MM_BubbleBuddy
 		if(isObject(%spl))
 			%spos = %spl.getHackPosition();
 
-		MMDebug("Attempting to activate bubble for" SPC %cl.getSimpleName());
 		if(isObject(%scl))
 			MMDebug("Source Client:" SPC %scl SPC %scl.getSimpleName());
 		if(isObject(%spl))
@@ -294,7 +313,10 @@ package MM_BubbleBuddy
 
 				// talk(%dist);
 				if(%dist < $MM::GPBubbleShooterRad)
+				{
+					MMDebug("Distance too low.");
 					return parent::damage(%this, %obj, %pos, %amt, %type);
+				}
 			}
 
 			if(%this.startedDying == $Sim::Time)
@@ -307,7 +329,10 @@ package MM_BubbleBuddy
 			}
 
 			if(%this.MM_ActivateBubble())
+			{
+				MMDebug("Activation success on BB.");
 				return;
+			}
 		}
 
 		for(%i = 0; %i < %mini.numMembers; %i++)
@@ -326,13 +351,18 @@ package MM_BubbleBuddy
 				%dist = VectorDist(%spos, %pos2);
 
 				if(%dist < $MM::GPBubbleShooterRad)
+				{
+					MMDebug("Distance too low.");
 					continue;
+				}
 			}
 
 			%dist = VectorDist(%pos, %pos2);
 
 			if(%dist < $MM::GPBubbleSearchRad && %pl.MM_ActivateBubble())
 			{
+				MMDebug("Activation success on BB.");
+
 				%found = true;
 				break;
 			}

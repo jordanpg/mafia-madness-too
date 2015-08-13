@@ -10,6 +10,7 @@ CONTENT base
 	\c6-\c34\c6. \c3Offenses \c6: A list of some things that might get you banned
 	\c6-\c35\c6. \c3Terminology \c6: Some common terms and what they mean
 	\c6-\c36\c6. \c3Customs \c6: Common strategies and expectations.
+	\c6-\c37\c6. \c3Gamemodes \c6: Information on gamemodes in Mafia Madness
 	\c4To access a topic, do \c3/rules \c7[TOPIC NUMBER OR NAME]
 END CONTENT
 
@@ -168,4 +169,18 @@ ALIAS customs
 	\c6Pulling out a gun for no reason or shooting at something for no reason will most likely get you shot.
 	\c6Finally, disguising yourself as a body (avatar entirely red, default blocko) is very suspicious and might get you shot.
 	\c4========\c3CUSTOMS\c4========
+END CONTENT
+
+CONTENT 7
+ALIAS gamemodes
+	\c4========\c3GAMEMODES\c4========
+	\c6Gamemodes in Mafia Madness are sets of different 'rules' that the game uses to distribute roles and govern game function.
+	\c6Some gamemodes may completely change the dynamics of Mafia Madness to the extent that it plays like an entirely different game!
+	\c6To get a list of all gamemodes currently available, you can use the \c3/MMGameModes \c6command.
+	\c6If you want to get a description of a gamemode, you can use \c3/describeGameMode \c7[ID OR NAME]\c6. Using this command with no argument will describe the current gamemode.
+	\c4====\c3Gamemode Voting\c4====
+	\c6Sometimes, a vote will occur to change the gamemode. When this happens, you can use the \c3/voteGameMode \c7[ID OR NAME] \c6command to place your vote.
+	\c6This should never happen in the middle of a game, though! Voting periods should only ever happen during the DM period.
+	\c6If a vote is not currently happening, the \c3/voteGameMode \c6command can be used to vote for a gamemode change.
+	\c4========\c3GAMEMODES\c4========
 END CONTENT

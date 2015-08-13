@@ -3,6 +3,9 @@
 
 function MMGameMode_MMTTransformRoles(%this)
 {
+	if($MM::DisableMMTJokeRoles)
+		return;
+
 	if($MMGctC > 0 && $MMGbringTheLaw && getRandom() < $MMGlawChance)
 	{
 		$MMGctC--;
