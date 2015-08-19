@@ -118,6 +118,10 @@ package MM_Abductor
 
 		%client.abducted[%mini.day] = true;
 
+		for(%i = 0; %i < %mini.numMembers; %i++)
+			if(%mini.member[%i].MM_isMaf() && %mini.member[%i] != %client)
+				messageClient(%mini.member[%i], '', "\c3" @ %client.getSimpleName() SPC "\c4is abducting\c3" SPC %aObj.client.getSimpleName() @ "\c4...");
+
 		%mini.MM_LogEvent(%client.MM_GetName(1) SPC "\c6abducted" SPC %cl.MM_GetName(1));
 		messageClient(%client, '', "\c2Abducted\c3" SPC %cl.getSimpleName() @ "\c2.");
 	}

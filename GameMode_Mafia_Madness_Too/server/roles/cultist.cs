@@ -9,6 +9,8 @@ $MM::GPCultistFakeDeadRecruit = true; //similar to above, but for dead players.
 $MM::GPCultistRecruitUnaligned = false; //cultist leader can recruit unaligned roles
 $MM::GPCultistRecruitRole = "CM"; //role that the cultist leader recruits people as
 $MM::GPCultistRecruitNotifySpectators = true; //spectators will receive notifications of people joining the cult
+$MM::GPCultistTouchRecruit = true; //cult leaders recruit with right-click rather than /recruit
+$MM::GPCultistRecruitmentRange = 8;
 
 $MM::Alignment[4] = "Cultist";
 $MM::AlignmentColour[4] = "<color:400040>";
@@ -68,12 +70,14 @@ if(!isObject(MMRole_CultLeader))
 
 		helpText = 	"\c4At night, the <color:9500B3>Cult Leader \c4can choose any \c2innocent \c4to recruit into the cult." NL
 					"\c4The selected player will become a cultist at dawn, losing their former role and all its powers." NL
-					"\c4To select a player for recruitment, use the \c3/recruit \c7[PLAYER NAME] \c4command at night.";
+					"\c4To select a player for recruitment, right-click them at night." NL
+					"\c4You may, in some gamemodes, have to instead use the \c3/recruit \c7[PLAYER NAME] \c4command at night for recruitment instead.";
 
 		description = 	"\c4The <color:9500B3>Cult Leader \c4is <color:400040>Cultist whose goal is to expand their team." NL
 						"\c4At night, the <color:9500B3>Cult Leader \c4can choose any \c2innocent \c4to recruit into the cult." NL
 						"\c4The selected player will become a cultist at dawn, losing their former role and all its powers." NL
-						"\c4To select a player for recruitment, use the \c3/recruit \c7[PLAYER NAME] \c4command at night.";
+						"\c4To select a player for recruitment, right-click them at night." NL
+						"\c4You may, in some gamemodes, have to instead use the \c3/recruit \c7[PLAYER NAME] \c4command at night for recruitment instead.";
 
 		cultRecruit = true;
 	};
@@ -282,6 +286,12 @@ function serverCmdRecruit(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 	if(!isObject(%this.player) || !isObject(%mini = getMiniGameFromObject(%this)))
 		return;
 
+	if($MM::GPCultistTouchRecruit)
+	{
+		messageClient(%this, '', "\c4Right-click a player to select them for recruitment!");
+		return;
+	}
+
 	if(!%this.MM_canCultRecruit())
 	{
 		if(%mini.isDay)
@@ -396,16 +406,6 @@ function MMRole_Cultist::SpecialWinCheck(%this, %mini, %client, %killed, %killer
 	return 4;
 }
 
-function MMRole_Cultist::getHelpText(%this)
-{
-	%p = parent::getHelpText(%this);
-
-	if(!$MM::GPCultistRecruitRecruitment)
-		%p = %p NL "\c3As a recruit to the cult, however, you would not have the power to recruit other innocents at night.";
-
-	return %p;
-}
-
 package MM_Cultist
 {
 	function GameConnection::MM_DisplayAlignmentDetails(%this, %alignment)
@@ -494,6 +494,44 @@ package MM_Cultist
 
 		for(%i = 0; %i < %mini.day; %i++)
 			%client.recruited[%i] = false;
+	}
+
+	function MMRole::onTrigger(%this, %mini, %client, %obj, %slot, %val) //ok we're not just making a class thing since we need to also account for allAbduct
+	{
+		parent::onTrigger(%this, %mini, %client, %obj, %slot, %val); //Call base MMRole functionality (most likely nothing)
+
+		if(!$MM::GPCultistTouchRecruit || !isObject(%client.player) || %client.getControlObject() != %client.player || !%client.MM_canCultRecruit())
+			return;
+
+		// talk(%slot SPC %val);
+		if(%slot != 4 || !%val)
+			return;
+
+		%start = %obj.getEyePoint();
+		%vec = %obj.getEyeVector();
+		%end = VectorAdd(%start, VectorScale(%vec, $MM::GPCultistRecruitmentRange));
+
+		%ray = containerRayCast(%start, %end, $Typemasks::PlayerObjectType | $Typemasks::FXbrickObjectType | $Typemasks::TerrainObjectType | $Typemasks::InteriorObjectType | $TypeMasks::VehicleObjectType, %obj);
+		%aObj = firstWord(%ray);
+		if(!isObject(%aObj) || %aObj.getClassName() !$= "Player" || !isObject(%cl = %aObj.getControllingClient()))
+			return;
+
+		if(isObject(%aObj.client) && %aObj.client.MM_isCultist())
+		{
+			messageClient(%client, '', "\c3" SPC %aObj.client.getSimpleName() SPC "\c4is a fellow cultist! You can't recruit them!");
+			return;
+		}
+
+		%mini.MM_LogEvent(%client.MM_GetName(1) SPC "\c6attempted to recruit" SPC %aObj.client.MM_GetName(1));
+
+		%client.recruited[%mini.day] = true;
+		%aObj.client.recruiter = %client;
+
+		for(%i = 0; %i < %mini.numMembers; %i++)
+			if(%mini.member[%i].MM_isCultist() && %mini.member[%i] != %client)
+				messageClient(%mini.member[%i], '', "\c3" @ %client.getSimpleName() SPC "\c4is attempting to recruit\c3" SPC %aObj.client.getSimpleName() @ "\c4...");
+
+		messageClient(%client, '', "\c4Attempting to recruit\c3" SPC %aObj.client.getSimpleName() SPC "\c4into the cult. They will join at dawn.");
 	}
 };
 activatePackage(MM_Cultist);

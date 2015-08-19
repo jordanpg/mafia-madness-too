@@ -219,6 +219,27 @@ function MinigameSO::MM_EndGameModeVote(%this)
 	{
 		messageAll('', "\c2No vote winner could be resolved!");
 
+		if($MM::VoteAutoStartAfter > 0)
+			%this.nextVote = %this.schedule($MM::VoteAutoStartAfter, MM_BeginGameModeVote);
+
+		if(%this.MMDedi)
+		{
+			if($MM::VoteDediPeriod)
+			{
+				messageAll('', "\c4The round will start in a few moments!");
+
+				MMDebug("Scheduling next game (vote ended)", %this);
+				%this.MMNextGame = %this.schedule($MM::DediRoundDelay, MM_InitRound);
+			}
+			else
+				%this.MM_InitRound();
+		}
+
+		%this.runVote = false;
+		%this.voteCount = 0;
+		%this.voteActive = false;
+		deleteVariables("$MMvote*");
+
 		return;
 	}
 

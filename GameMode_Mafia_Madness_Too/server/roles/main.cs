@@ -21,6 +21,7 @@ exec("./johnCena.cs");
 exec("./miller.cs");
 exec("./reviverCultist.cs");
 exec("./spy.cs");
+exec("./cultSpy.cs");
 exec("./theLaw.cs");
 // exec("./traitor.cs");
 exec("./ventriloquist.cs");

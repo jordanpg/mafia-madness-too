@@ -110,7 +110,7 @@ RatioVar members
 RatioModCount -1
 ForceMaxMembers 2
 
-//Anti-Cult
+//Inno Anti-Cult
 [SortGroup11_]
 Condition ? ~ < %alarmistChance, or %ctCL > 1
 RolePot AL
@@ -118,5 +118,13 @@ RoleCondition_AL %ctCL > 0
 Ratio 1
 RatioVar innos
 
+//Maf Anti-Cult
+[SortGroup12_]
+Condition ? ~ < %alarmistChance, or %ctCM > 0
+RolePot H
+isMaf 1
+Ratio 1
+RatioVar mafs
+
 []
-SortGroupCt 12
+SortGroupCt 13

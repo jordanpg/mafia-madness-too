@@ -1,0 +1,11 @@
+{
+	"version": "1.0.0",
+	"channel": "beta",
+	"repositories":
+	[
+		{
+			"url": "http://ottosparks.github.io/updater",
+			"format": "JSON"
+		}
+	]
+}
