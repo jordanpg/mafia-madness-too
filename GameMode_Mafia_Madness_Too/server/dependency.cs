@@ -116,6 +116,15 @@ function isInList(%list, %search)
 	return false;
 }
 
+function searchWord(%list, %search)
+{
+	%ct = getWordCount(%list);
+	for(%i = 0; %i < %ct; %i++)
+		if(getWord(%list, %i) $= %search) return %i;
+
+	return -1;
+}
+
 function bracketsHatesTGE(%data) //i super-hate that this is necessary but we need the jump and air control modifications :(
 {
 	if(!isObject(%data))

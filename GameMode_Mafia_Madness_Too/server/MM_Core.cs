@@ -1127,7 +1127,10 @@ package MM_Core
 	function MinigameSO::removeMember(%this, %client)
 	{
 		if(%this.isMM && %client.lives > 0 && isObject(%client.player))
+		{
+			%client.lives = 1;
 			%client.player.kill();
+		}
 
 		return parent::removeMember(%this, %client);
 	}

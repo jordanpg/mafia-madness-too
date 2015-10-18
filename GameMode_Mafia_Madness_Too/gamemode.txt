@@ -81,3 +81,4 @@ $MiniGame::StartEquipName4 0
 $Server::WelcomeMessage <font:impact:32pt>\c5Read the \c2/rules\c5 before playing.
 
 $Pref::Server::TTAmmo 2
+$Pref::Server::MMExecOldGuns 1

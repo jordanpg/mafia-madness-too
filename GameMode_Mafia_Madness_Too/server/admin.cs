@@ -39,12 +39,14 @@ function serverCmdClearInv(%this, %target)
 	messageClient(%this, '', "\c4Cleared \c3" @ %cl.getSimpleName() @ "\c4's inventory.");
 }
 
-function serverCmdChat(%this, %target)
+function serverCmdIsolateChat(%this, %v0, %v1, %v2, %v3, %v4, %v5)
 {
 	if(!%this.isSuperAdmin)
 		return;
 
 	%name = %this.getPlayerName();
+
+	%target = trim(%v0 SPC %v1 SPC %v2 SPC %v3 SPC %v4 SPC %v5);
 
 	if(%target $= "")
 	{
@@ -89,15 +91,33 @@ function serverCmdChat(%this, %target)
 
 	$MM::IsolateChat = true;
 
-	%obj.isolated = true;
-
-	$MM::IsolateChatMem[$MM::IsolateChatMems | 0] = %obj;
-	$MM::IsolateChatMems++;
-
 	%oName = %obj.getPlayerName();
-	messageAll('', "<font:impact:24>\c3" @ %name SPC "\c0added \c3" @ %oName SPC "\c0to isolated chat.");
-	echo(%name SPC "added " @ %oName SPC "to isolated chat.");
 
+	if(!%obj.isolated)
+	{
+		%obj.isolated = true;
+
+		$MM::IsolateChatMems = trim($MM::IsolateChatMems SPC %obj);
+
+		messageAll('', "<font:impact:24>\c3" @ %name SPC "\c0added \c3" @ %oName SPC "\c0to isolated chat.");
+		echo(%name SPC "added " @ %oName SPC "to isolated chat.");
+	}
+	else
+	{
+		%obj.isolated = false;
+
+		if((%i = searchWord($MM::IsolateChatMems, %obj)) != -1)
+			$MM::IsolateChatMems = removeWord($MM::IsolateChatMems, %i);
+
+		messageAll('', "<font:impact:24>\c3" @ %name SPC "\c0removed \c3" @ %oName SPC "\c0from isolated chat.");
+		echo(%name SPC "removed " @ %oName SPC "from isolated chat.");
+	}
+
+}
+
+function serverCmdChat(%this, %v0, %v1, %v2, %v3, %v4, %v5)
+{
+	serverCmdIsolateChat(%this, %v0, %v1, %v2, %v3, %v4, %v5);
 }
 
 function serverCmdFindOwner(%this, %initial)
