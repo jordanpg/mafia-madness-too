@@ -69,6 +69,11 @@ function MM_getInvResult(%cop, %target)
 	return %target.role.getAlignment();
 }
 
+function MMRole::getCanInvestigate(%this)
+{
+	return %this.canInvestigate ? true : false;
+}
+
 function GameConnection::MM_canInvestigate(%this, %target)
 {
 	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)

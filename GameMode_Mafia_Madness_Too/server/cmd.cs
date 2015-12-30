@@ -25,7 +25,7 @@ function serverCmdRoles(%this)
 	if(!(%mini = getMinigameFromObject(%this)).running)
 		return;
 
-	messageClient(%this, '', "\c5Roles\c6:" SPC %mini.MM_GetRolesList());
+	messageClient(%this, '', "\c5Roles\c6:" SPC MM_ColourCodeRoles(%mini.MM_GetRolesList()));
 }
 
 function serverCmdMMDay(%this)

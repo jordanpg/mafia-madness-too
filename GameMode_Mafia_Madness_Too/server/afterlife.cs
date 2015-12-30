@@ -100,7 +100,7 @@ function Camera::setSpecPlayer(%this, %cl, %specCl)
 	else
 		%str = "<just:left>\c5Claim: \c6NONE";
 
-	%cl.bottomPrint("\c5Spectating:\c6" SPC %specCl.getSimpleName() @ "<just:right>\c5ROLES\c6:" SPC %cl.minigame.MM_getRolesList() @ " " NL %str);
+	%cl.bottomPrint("\c5Spectating:\c6" SPC %specCl.getSimpleName() @ "<just:right>\c5ROLES\c6:" SPC MM_ColourCodeRoles(%cl.minigame.MM_getRolesList()) @ " " NL %str);
 }
 
 function Camera::MM_activateSpectator(%obj, %cl, %backward)

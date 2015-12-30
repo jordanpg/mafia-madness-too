@@ -54,6 +54,11 @@ if(!isObject(MMRole_Ventriloquist))
 }
 
 //SUPPORT
+function MMRole::getCanImpersonate(%this)
+{
+	return %this.canImpersonate ? true : false;
+}
+
 function GameConnection::MM_canImpersonate(%this, %target)
 {
 	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)

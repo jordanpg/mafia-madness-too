@@ -33,3 +33,7 @@ exec("./corpses.cs");
 exec("./voting.cs");
 
 exec("./guiHook.cs");
+
+exec("./expansion.cs");
+
+schedule(0, 0, MM_LoadExpansions);

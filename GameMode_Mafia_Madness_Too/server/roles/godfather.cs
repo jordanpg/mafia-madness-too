@@ -45,6 +45,11 @@ if(!isObject(MMRole_Godfather))
 }
 
 //SUPPORT
+function MMRole::getCanCommunicate(%this)
+{
+	return %this.canCommunicate ? true : false;
+}
+
 function GameConnection::MM_canComm(%this)
 {
 	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)

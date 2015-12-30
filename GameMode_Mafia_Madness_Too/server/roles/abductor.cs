@@ -5,6 +5,7 @@ $MM::LoadedRole_Abductor = true;
 
 $MM::GPAbductionRange = 8;
 $MM::GPAbductionDelay = 3000;
+$MM::GPAbductionGags = true;
 
 if(!isObject(MMRole_Abductor))
 {
@@ -52,6 +53,11 @@ function MM_getAbductionPos()
 	}
 
 	return MMAbductionSpawns.getObject(getRandom(%ct - 1)).getTransform();
+}
+
+function MMRole::getCanAbduct(%this)
+{
+	return %this.canAbduct ? true : false;
 }
 
 function GameConnection::MM_canAbduct(%this)
@@ -113,7 +119,7 @@ package MM_Abductor
 			return;
 		}
 
-		%aObj.gagged = true;
+		%aObj.gagged = $MM::GPAbductionGags ? true : false;
 		%aObj.schedule($MM::GPAbductionDelay, MM_Abduct, %mini, %obj);
 
 		%client.abducted[%mini.day] = true;

@@ -37,6 +37,11 @@ if(!isObject(MMRole_FingerprintExpert))
 }
 
 //SUPPORT
+function MMRole::getCanFingerprint(%this)
+{
+	return %this.canFingerprint ? true : false;
+}
+
 function GameConnection::MM_canFingerprint(%this)
 {
 	if(!isObject(%mini = getMiniGameFromObject(%this)) || !%mini.isMM || !%mini.running)

@@ -55,31 +55,6 @@ function MMRole::getNameColor(%this)
 	return %this.getNameColour();
 }
 
-function MMRole::getCanAbduct(%this)
-{
-	return %this.canAbduct ? true : false;
-}
-
-function MMRole::getCanInvestigate(%this)
-{
-	return %this.canInvestigate ? true : false;
-}
-
-function MMRole::getCanImpersonate(%this)
-{
-	return %this.canImpersonate ? true : false;
-}
-
-function MMRole::getCanCommunicate(%this)
-{
-	return %this.canCommunicate ? true : false;
-}
-
-function MMRole::getCanFingerprint(%this)
-{
-	return %this.canFingerprint ? true : false;
-}
-
 function MMRole::getAlignment(%this)
 {
 	return %this.alignment;

@@ -17,7 +17,7 @@ $MM::DefaultGameMode = "Mafia Madness (too)";
 $MM::ModeDir = $MM::Server @ "gamemodes/";
 $MM::CustomFile = "mmtoo.mmgm";
 $MM::GamePrefStore = "config/server/mmGPStore.cs";
-$MM::ModeSearchPattern = "Add-Ons/*.mmgm";
+$MM::ModeSearchPattern = $MM::Root @ "*.mmgm"; //only auto-load files in this gamemode since the shiny new extension system lets users decide what to load now!
 $MM::AutoFindGameModes = true;
 // $MM::AdminOnlyGMList = false;
 
@@ -465,6 +465,8 @@ function MM_RegisterModeFile(%filen)
 
 		if(firstWord(%line) $= "LOADCS")
 		{
+			//%line = getSubStr(%line, 0, strStr(%line, "//"));
+
 			if(!$MM::AllowGameModeExec)
 				continue;
 
@@ -494,7 +496,7 @@ function MM_RegisterAllModeFiles(%pattern)
 {
 	%start = $MM::CustomModes;
 
-	warn("Finding Mafia Madness gamemodes...");
+	warn("Finding Mafia Madness gamemodes with" SPC %pattern SPC "...");
 	MMDebug("--+Pattern:" SPC %pattern);
 	for(%i = findFirstFile(%pattern); isFile(%i); %i = findNextFile(%pattern))
 	{
@@ -543,8 +545,7 @@ function MM_LoadGameMode(%filen)
 	{
 		%line = trim(%file.readLine());
 
-		if(getSubStr(%line, 0, 2) $= "//")
-			continue;
+		//%line = getSubStr(%line, 0, strStr(%line, "//"));
 
 		%substr = getSubStr(%line, 0, 1);
 		if(%substr $= "[")
@@ -1066,3 +1067,16 @@ function MM_InitModeCustom(%this)
 	
 	deleteVariables("$MMG*");
 }
+
+package MM_GameModes
+{
+	function MM_onDestroy()
+	{
+		parent::MM_onDestroy();
+
+		echo("Cleaning up MMT gamemodes...");
+		$MM::FoundModes = false;
+		MM_ClearGameModes();
+	}
+};
+activatePackage(MM_GameModes);

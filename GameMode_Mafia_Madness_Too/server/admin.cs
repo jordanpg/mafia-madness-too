@@ -6,6 +6,9 @@ $MM::LoadedAdmin = true;
 $MM::AdminToolsMidGame = true;
 $MM::NotifyHostMidGame = true;
 
+$MM::AnnounceByPrefix = true;
+$MM::AnnouncePrefix = "#";
+
 function serverCmdPassTime(%this)
 {
 	if(!%this.isSuperAdmin)
@@ -580,6 +583,20 @@ function serverCmdMMIgnoreMe(%this)
 	messageAll('', "\c3" @ %this.getPlayerName() SPC "\c1is" SPC (!%this.MMIgnore ? "now" : "no longer") SPC "being included in Mafia Madness games.");
 }
 
+function serverCmdMMAnnounce(%this, %m0, %m1, %m2, %m3, %m4, %m5, %m6, %m7, %m8, %m9, %m10, %m11, %m12, %m13, %m14, %m15)
+{
+	%msg = trim(%m0 SPC %m1 SPC %m2 SPC %m3 SPC %m4 SPC %m5 SPC %m6 SPC %m7 SPC %m8 SPC %m9 SPC %m10 SPC %m11 SPC %m12 SPC %m13 SPC %m14 SPC %m15);
+
+	%pattern = '\c0[A] \c7%1\c3%2\c7%3\c6: %4';
+
+	messageAll('', %pattern, %this.clanPrefix, %this.getPlayerName(), %this.clanSuffix, %msg);
+}
+
+function serverCmdMMAnn(%this, %m0, %m1, %m2, %m3, %m4, %m5, %m6, %m7, %m8, %m9, %m10, %m11, %m12, %m13, %m14, %m15)
+{
+	serverCmdMMAnnounce(%this, %m0, %m1, %m2, %m3, %m4, %m5, %m6, %m7, %m8, %m9, %m10, %m11, %m12, %m13, %m14, %m15);
+}
+
 package MM_IsolatedChat
 {
 	function serverCmdMessageSent(%this, %msg)
@@ -610,3 +627,18 @@ package MM_IsolatedChat
 		parent::serverCmdTeamMessageSent(%this, %msg);
 	}
 };
+
+package MM_Admin
+{
+	function serverCmdMessageSent(%this, %msg)
+	{
+		if(%this.isSuperAdmin && $MM::AnnounceByPrefix && getSubStr(%msg, 0, 1) $= $MM::AnnouncePrefix)
+		{
+			serverCmdMMAnnounce(%this, getSubStr(%msg, 1, strLen(%msg)));
+			return;
+		}
+
+		parent::serverCmdMessageSent(%this, %msg);
+	}
+};
+activatePackage(MM_Admin);

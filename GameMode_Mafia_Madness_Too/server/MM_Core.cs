@@ -28,6 +28,13 @@ function MM_clearForceRoles()
 		ClientGroup.getObject(%i).forceRole = "";
 }
 
+function MM_onDestroy()
+{
+	echo("Clearing MMT roles...");
+	MMRoles.delete();
+	deleteVariables("$MM::RoleKey*");
+}
+
 function MinigameSO::MM_Init(%this)
 {
 	if(isObject(MMRoles))
@@ -702,10 +709,20 @@ function MinigameSO::MM_getRolesList(%this)
 		{
 			%r = getWord(%str, %i);
 
-			if(%r.getAlignment() == 1)
+
+			%alg = %r.getAlignment();
+			if(%alg == 1)
 				%mStr = %mStr SPC %r.getLetter();
 			else
+			{
+				// if(%currAlg $= "" || %currAlg != %alg)
+				// {
+				// 	%iStr = %iStr @ $MM::AlignmentColour[%alg];
+				// 	%currAlg = %alg;
+				// }
+
 				%iStr = %iStr SPC %r.getLetter();
+			}
 		}
 
 		return (%this.forcedRoleStr = trim(%mStr) SPC trim(%iStr));
@@ -754,7 +771,7 @@ function GameConnection::MM_UpdateUI(%client)
 
 	%role = %client.role.getColour(%client.knowsFullRole) @ (%client.knowsFullRole ? %client.role.getRoleName() : %client.role.getDisplayName());
 
-	%client.bottomPrint("\c5You are:" SPC %role SPC "<just:right>\c5ROLES\c6:" SPC %client.minigame.MM_getRolesList() @ " ");
+	%client.bottomPrint("\c5You are:" SPC %role SPC "<just:right>\c5ROLES\c6:" SPC MM_ColourCodeRoles(%client.minigame.MM_getRolesList()) @ " ");
 }
 
 function GameConnection::MM_DisplayMafiaList(%this, %centrePrint)
@@ -955,6 +972,35 @@ function GameConnection::applyMMSilhouette(%this)
 	%player.setDecalName("AAA-None");
 }
 
+function MM_ColourCodeRoles(%str)
+{
+	%nStr = "";
+	%currAlg = "";
+	%ct = getWordCount(%str);
+	for(%i = 0; %i < %ct; %i++)
+	{
+		%rw = getWord(%str, %i);
+
+		%r = $MM::RoleKey[%rw];
+		if(!isObject(%r))
+		{
+			%nStr = %nStr SPC "\c6" @ %rw;
+			continue;
+		}
+
+		%alg = %r.getAlignment();
+		if(%currAlg $= "" || %currAlg !$= %alg)
+		{
+			%nStr = %nStr @ $MM::AlignmentColour[%alg];
+			%currAlg = %alg;
+		}
+
+		%nStr = %nStr SPC %rw;
+	}
+
+	return %nStr;
+}
+
 package MM_Core
 {
 	// function MinigameSO::onAdd(%this)
@@ -1083,7 +1129,9 @@ package MM_Core
 
 			%s = %srcClient.MM_GetName(1) SPC "\c6killed" SPC %this.MM_GetName(1) @ %d;
 
-			%str = "\c5You were killed by:" SPC $MM::AlignmentColour[%srcClient.role.getAlignment()] @ %srcClient.getSimpleName();
+			%alg = %srcClient.role.getAlignment();
+
+			%str = "\c5You were killed by:" SPC $MM::AlignmentColour[%alg] @ %srcClient.getSimpleName() SPC "\c5(" @ $MM::AlignmentColour[%alg] @ $MM::Alignment[%alg] @ "\c5)";
 
 			%this.bottomPrint(%str);
 			messageClient(%this, '', %str);
@@ -1266,6 +1314,13 @@ package MM_Core
 		}
 
 		return %r;
+	}
+
+	function destroyServer()
+	{
+		MM_onDestroy();
+
+		return parent::destroyServer();
 	}
 };
 activatePackage(MM_Core);
