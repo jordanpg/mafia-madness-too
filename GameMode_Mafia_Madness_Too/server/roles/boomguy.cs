@@ -28,6 +28,7 @@ if(!isObject(MMRole_BoomGuy))
 		canFingerprint = false;
 
 		alignment = 0;
+		isEvil = 1;
 
 		helpText = "";
 

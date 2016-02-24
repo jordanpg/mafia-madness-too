@@ -185,6 +185,19 @@ package MM_Chat
 {
 	function serverCmdMessageSent(%this, %msg)
 	{
+
+		if(getSubStr(%msg, 0, 1) $= "|" && %this.isAdmin)
+		{
+			if(strLen(%msg) < 50)
+				%time = 6;
+			else
+				%time = 8;
+			
+			CenterPrintAll("<font:Palatino Linotype:30>\c0[Admin] \c7" @ %this.clanPrefix @ "\c3" @ %this.name @ "\c7" @ %this.clanSuffix @ "<color:ffffff>: " @ getSubStr(%msg, 1, strLen(%msg)), %time);
+			messageAll('MsgAdminForce', "\c0[Admin] \c7" @ %this.clanPrefix @ "\c3" @ %this.name @ "\c7" @ %this.clanSuffix @ "\c6: " @ getSubStr(%msg, 1, strLen(%msg)));
+			return;
+		}
+		
 		if(!$DefaultMinigame.running || !(%mini = getMiniGameFromObject(%this).isMM) || $DefaultMinigame.resolved)
 			return parent::serverCmdMessageSent(%this, %msg);
 

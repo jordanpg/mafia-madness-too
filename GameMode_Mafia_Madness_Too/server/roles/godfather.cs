@@ -25,6 +25,7 @@ if(!isObject(MMRole_Godfather))
 		canFingerprint = false;
 
 		alignment = 1;
+		isEvil = 1;
 
 		helpText = 	"\c4You are also the \c6Godfather\c4!  As the leader of the mafia, your hands are clean in all affairs!" NL
 					"\c4If the <color:1122CC>Cop\c4 investigates you, he won't be able to find anything on you - you will appear \c2\Innocent\c4!" NL

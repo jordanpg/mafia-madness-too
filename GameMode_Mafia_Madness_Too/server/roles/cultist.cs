@@ -39,6 +39,7 @@ if(!isObject(MMRole_Cultist))
 		canFingerprint = false;
 
 		alignment = 4;
+		isEvil = 1;
 
 		description = 	"\c4The <color:400040>Cultist \c4is basic role whose goal is to eliminate both the \c2Innocents \c4and the \c0Mafia\c4.";
 	};

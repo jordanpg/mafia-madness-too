@@ -28,6 +28,7 @@ if(!isObject(MMRole_Abductor))
 		canCommunicate = false;
 
 		alignment = 1;
+		isEvil = 1;
 
 		helpText = 	"\c4You are also the <color:2d1a4a>Abductor\c4!  Right click someone once per night to make them disappear... permanently." NL
 					"\c4Your special ability is best used on Innocents with special powers, like the Cop or Fingerprint Expert." NL

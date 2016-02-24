@@ -21,7 +21,6 @@ ADDON Projectile_Pong
 ADDON Brick_Teledoor
 ADDON Light_Ambient
 ADDON Gamemode_Mafia_Madness_Too
-ADDON Script_TsuEval
 
 //MUSIC LIIIIIST
 MUSIC Gravity_Hurts

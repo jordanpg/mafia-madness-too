@@ -32,6 +32,7 @@ if(!isObject(MMRole_Devil))
 		canFingerprint = false;
 
 		alignment = 1;
+		isEvil = 1;
 
 		helpText = 	"\c4You are also the <color:B40450>Devil\c4!  Type /inv [name] once per night to find out an Innocent's role." NL
 					"\c4Use your supernatural powers to find out the identities of the Innocent Special Roles, and tell the other mafia so they can eliminate them.";

@@ -36,6 +36,7 @@ if(!isObject(MMRole_JohnCena))
 		canFingerprint = false;
 
 		alignment = 1;
+		isEvil = 1;
 
 		helpText = 	"\c4YOU ARE <color:800080>JOHN CENAAAAAAAAAAAAAAAAAAAAAAAAAAA" NL
 					"\c4You can pick people up and throw them! You also have three lives and can punch people!";

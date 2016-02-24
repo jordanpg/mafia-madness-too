@@ -33,6 +33,7 @@ if(!isObject(MMRole_Traitor))
 		canFingerprint = false;
 
 		alignment = 3;
+		isEvil = 1;
 
 		helpText = "";
 

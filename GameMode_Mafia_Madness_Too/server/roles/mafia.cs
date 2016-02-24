@@ -25,6 +25,7 @@ if(!isObject(MMRole_Mafia))
 		canFingerprint = false;
 
 		alignment = 1;
+		isEvil = 1;
 
 		helpText = "";
 

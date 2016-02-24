@@ -585,11 +585,14 @@ function serverCmdMMIgnoreMe(%this)
 
 function serverCmdMMAnnounce(%this, %m0, %m1, %m2, %m3, %m4, %m5, %m6, %m7, %m8, %m9, %m10, %m11, %m12, %m13, %m14, %m15)
 {
+	if(!%this.isAdmin && !%this.isSuperAdmin)
+		return;
+
 	%msg = trim(%m0 SPC %m1 SPC %m2 SPC %m3 SPC %m4 SPC %m5 SPC %m6 SPC %m7 SPC %m8 SPC %m9 SPC %m10 SPC %m11 SPC %m12 SPC %m13 SPC %m14 SPC %m15);
 
 	%pattern = '\c0[A] \c7%1\c3%2\c7%3\c6: %4';
 
-	messageAll('', %pattern, %this.clanPrefix, %this.getPlayerName(), %this.clanSuffix, %msg);
+	messageAll('MsgAdminForce', %pattern, %this.clanPrefix, %this.getPlayerName(), %this.clanSuffix, %msg);
 }
 
 function serverCmdMMAnn(%this, %m0, %m1, %m2, %m3, %m4, %m5, %m6, %m7, %m8, %m9, %m10, %m11, %m12, %m13, %m14, %m15)
@@ -632,7 +635,7 @@ package MM_Admin
 {
 	function serverCmdMessageSent(%this, %msg)
 	{
-		if(%this.isSuperAdmin && $MM::AnnounceByPrefix && getSubStr(%msg, 0, 1) $= $MM::AnnouncePrefix)
+		if((%this.isAdmin || %this.isSuperAdmin) && $MM::AnnounceByPrefix && getSubStr(%msg, 0, 1) $= $MM::AnnouncePrefix)
 		{
 			serverCmdMMAnnounce(%this, getSubStr(%msg, 1, strLen(%msg)));
 			return;

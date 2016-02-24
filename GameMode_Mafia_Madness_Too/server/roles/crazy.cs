@@ -30,6 +30,7 @@ if(!isObject(MMRole_Crazy))
 		canFingerprint = false;
 
 		alignment = 1;
+		isEvil = 1;
 
 		helpText = 	"\c4You are also the \c0Crazy\c4!  That means you get an extra weapon - a knife!" NL
 					"\c4Your knife is not very useful compared to a gun, but by hitting a corpse with it, you can make a corpse unrecognizable." NL

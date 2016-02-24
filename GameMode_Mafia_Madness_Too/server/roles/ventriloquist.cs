@@ -36,6 +36,7 @@ if(!isObject(MMRole_Ventriloquist))
 		canFingerprint = false;
 
 		alignment = 1;
+		isEvil = 1;
 
 		helpText = 	"\c4You are also the \c7Ventriloquist\c4!  You have the power to impersonate another's voice!" NL
 					"\c4Type \"/imp\" (short for Impersonate) followed by the name of the person you want to impersonate." NL

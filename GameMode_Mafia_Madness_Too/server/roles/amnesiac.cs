@@ -25,6 +25,7 @@ if(!isObject(MMRole_Amnesiac))
 		canFingerprint = false;
 
 		alignment = 2;
+		isEvil = 1;
 
 		helpText = 	"\c4You are the <color:D0D0D0>Amnesiac\c4! Starting out, \c3you are neither innocent nor mafia!" NL
 					"\c4At some point in the game, \c3you can decide to take the role from a corpse by holding it and typing \c6/takeRole\c4." NL

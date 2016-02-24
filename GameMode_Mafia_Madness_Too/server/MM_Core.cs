@@ -771,7 +771,7 @@ function GameConnection::MM_UpdateUI(%client)
 
 	%role = %client.role.getColour(%client.knowsFullRole) @ (%client.knowsFullRole ? %client.role.getRoleName() : %client.role.getDisplayName());
 
-	%client.bottomPrint("\c5You are:" SPC %role SPC "<just:right>\c5ROLES\c6:" SPC MM_ColourCodeRoles(%client.minigame.MM_getRolesList()) @ " ");
+	%client.bottomPrint("\c5You are:" SPC %role SPC "<just:right>\c5ROLES\c6 (" @ getMiniGameFromObject(%client).MM_GetNumPlayers() @ "):" SPC MM_ColourCodeRoles(%client.minigame.MM_getRolesList()) @ " ");
 }
 
 function GameConnection::MM_DisplayMafiaList(%this, %centrePrint)

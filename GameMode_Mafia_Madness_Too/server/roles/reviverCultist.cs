@@ -33,6 +33,7 @@ if(!isObject(MMRole_ZombieCultist))
 		canFingerprint = false;
 
 		alignment = 4;
+		isEvil = 1;
 
 		helpText = "";
 
