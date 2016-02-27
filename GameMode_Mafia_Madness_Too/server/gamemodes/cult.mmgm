@@ -7,6 +7,8 @@ MMGAMEMODE Rise of the Socks
 MafRatio 0.2
 MinMaf 0
 
+AllComm 1
+
 //Disable dead rising; reviver cultists are enough.
 PREF DeadRising 0
 

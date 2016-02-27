@@ -4,7 +4,7 @@
 
 $MM::LoadedCmd = true;
 
-$MM::SpectatorMafList = true;
+$MM::SpectatorMafList = false;
 
 // $MMGameModeName[0] = "Standard";
 // $MMGameModeName[1] = "Classic";

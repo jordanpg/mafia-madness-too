@@ -14,7 +14,7 @@ MinMaf 1
 //Temporary variables
 %copRatio 0.2
 %miscRatio 0.142857
-%traitorRatio 0.1
+%traitorRatio 0
 
 //Variables for joke roles
 %bringTheLaw 1

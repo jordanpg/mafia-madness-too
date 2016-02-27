@@ -72,13 +72,13 @@ if(!isObject(MMRole_CultLeader))
 		helpText = 	"\c4At night, the <color:9500B3>Cult Leader \c4can choose any \c2innocent \c4to recruit into the cult." NL
 					"\c4The selected player will become a cultist at dawn, losing their former role and all its powers." NL
 					"\c4To select a player for recruitment, right-click them at night." NL
-					"\c4You may, in some gamemodes, have to instead use the \c3/recruit \c7[PLAYER NAME] \c4command at night for recruitment instead.";
+					"\c4You may, in some gamemodes, have to instead use the \c3/recruit \c7[PLAYER NAME] \c4command at night for recruitment.";
 
 		description = 	"\c4The <color:9500B3>Cult Leader \c4is <color:400040>Cultist whose goal is to expand their team." NL
 						"\c4At night, the <color:9500B3>Cult Leader \c4can choose any \c2innocent \c4to recruit into the cult." NL
 						"\c4The selected player will become a cultist at dawn, losing their former role and all its powers." NL
 						"\c4To select a player for recruitment, right-click them at night." NL
-						"\c4You may, in some gamemodes, have to instead use the \c3/recruit \c7[PLAYER NAME] \c4command at night for recruitment instead.";
+						"\c4You may, in some gamemodes, have to instead use the \c3/recruit \c7[PLAYER NAME] \c4command at night for recruitment.";
 
 		cultRecruit = true;
 	};

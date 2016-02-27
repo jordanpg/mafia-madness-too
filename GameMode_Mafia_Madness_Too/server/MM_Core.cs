@@ -7,6 +7,8 @@ $MM::LoadedCore = true;
 $MM::DediRoundDelay = 30000;
 
 $MM::GPDeadRising = 4;
+$MM::GPDayLength = 315;
+$MM::GPNightLength = 210;
 
 $MM::DMEquipment[0] = nameToID(TrenchKnifeItem);
 // $MM::DMEquipment[1] = nameToID(TommyGunItem);
@@ -448,7 +450,7 @@ function MinigameSO::MM_DayCycle(%this, %day)
 	{
 		$EnvGuiServer::DayCycleFile = "Add-Ons/DayCycle_MafiaMadness/MMDay.daycycle";
 		loadDayCycle($EnvGuiServer::DayCycleFile);
-		$EnvGuiServer::DayLength = 315;
+		$EnvGuiServer::DayLength = $MM::GPDayLength;
 		DayCycle.setDayLength($EnvGuiServer::DayLength);
 		setDayCycleTime(0);
 
@@ -459,7 +461,7 @@ function MinigameSO::MM_DayCycle(%this, %day)
 		$EnvGuiServer::DayCycleFile = "Add-Ons/DayCycle_MafiaMadness/MMNight.daycycle";
 		loadDayCycle($EnvGuiServer::DayCycleFile);
 		// talk(calculateDayCycleTime());
-		$EnvGuiServer::DayLength = 210;
+		$EnvGuiServer::DayLength = $MM::GPNightLength;
 		DayCycle.setDayLength($EnvGuiServer::DayLength);
 		setDayCycleTime(0);
 

@@ -46,12 +46,18 @@ function AIPlayer::MM_onCorpseSpawn(%this, %mini, %client, %killerClient, %damag
 
 function AIPlayer::MM_onCorpsePickUp(%this, %obj)
 {
+	if(!isObject(%cl = %obj.getControllingClient()))
+		return;
 
+	%cl.MM_GunLog(%cl.MM_getName(1) SPC "picked up the corpse of" SPC %this.role.getColour(1) @ %this.name);
 }
 
 function AIPlayer::MM_onCorpseThrow(%this, %obj)
 {
+	if(!isObject(%cl = %obj.getControllingClient()))
+		return;
 	
+	%cl.MM_GunLog(%cl.MM_getName(1) SPC "threw up the corpse of" SPC %this.role.getColour(1) @ %this.name);
 }
 
 function AIPlayer::MM_onCorpseReSpawn(%this, %mini, %client, %killerClient, %oldCorpse, %damageType)

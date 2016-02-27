@@ -13,7 +13,7 @@ AllComm 1
 //Temporary variables
 %copRatio 0.2
 %miscRatio 0.142857
-%traitorRatio 0.1
+%traitorRatio 0
 
 %bringTheLaw 1
 %lawChance 0.1
