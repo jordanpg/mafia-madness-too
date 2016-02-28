@@ -30,9 +30,16 @@ function MM_LoadExpansions()
 
 	for(%i = 0; %i < $MM::ExpansionsCt; %i++)
 	{
-		if($MMExpansion_[fixFileName(fileBase($MM::Expansions[%i]))] != 1)
+		%fn = fixFileName(fileBase($MM::Expansions[%i]));
+		if($MMExpansion_[%fn] != 1)
+		{
+			$MMExpansion_[%fn] = -1;
 			continue;
+		}
 
 		MM_LoadExpansion($MM::Expansions[%i]);
 	}
+
+	if(!isFile($MM::ExpansionConfig))
+		export("$MMExpansion_*", $MM::ExpansionConfig);
 }

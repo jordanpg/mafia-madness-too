@@ -24,8 +24,9 @@ function MMTGameGui::onWake(%this)
 	{
 		%ext = $MM::Expansions[%i];
 		%n = fileBase(%ext);
+		%fn = fixFileName(%n);
 
-		echo(%n);
+		// echo(%n);
 
 		%new = new GuiCheckBoxCtrl()
 		{
@@ -38,20 +39,21 @@ function MMTGameGui::onWake(%this)
 			enabled = "1";
 			visible = "1";
 			clipToParent = "1";
-			variable = "$MMTGameGui::Enabled" @ fixFileName(%n);
+			variable = "$MMTGameGui::Enabled" @ %fn;
 			//command = "CustomGameGui.clickAddOnItem();";
 			text = %n;
 			groupNum = "-1";
 			buttonType = "ToggleButton";
-			varName = fixFileName(%n);
+			varName = %fn;
 		};
 
-		%new.resize(10, %i * 47, 898, 47);
+		%new.resize(10, %i * ImpactCheckProfile.fontSize, 898, ImpactCheckProfile.fontSize);
+		%new.setValue($MMExpansion_[%fn] == 1);
 
 		MMTGameGui_ExtensionsBox.add(%new);
 	}
 
-	MMTGameGui_ExtensionsBox.resize(0, 0, 918, 47 * %i);
+	MMTGameGui_ExtensionsBox.resize(0, 0, 918, ImpactCheckProfile.fontSize * %i);
 }
 
 function MMTGameGui::clickBack(%this)
