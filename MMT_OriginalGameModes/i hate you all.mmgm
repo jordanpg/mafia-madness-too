@@ -1,0 +1,26 @@
+MMGAMEMODE I Hate You All
+
+///\c3Original Mafia Madness \c4: I Hate You All
+///\c4By \c3[]----[]
+///\c4A gamemode where all mafia are abductors, and all innocents are fingerprint experts.
+
+MafRatio 0.285714
+MinMaf 1
+
+[SortGroup0_]
+RolePot A
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+[SortGroup1_]
+RolePot F
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+Ratio 1
+RatioVar innos
+
+[]
+SortGroupCt 2

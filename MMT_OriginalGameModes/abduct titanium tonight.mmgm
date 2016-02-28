@@ -1,0 +1,76 @@
+MMGAMEMODE Abduct Titanium Tonight
+
+///\c3Original Mafia Madness \c4: Abduct Titanium Tonight
+///\c4By \c3[]----[]
+///\c4A gamemode where all mafia can use godfather chat.
+
+MafRatio 0.285714
+MinMaf 1
+
+AllComm 1
+
+[SortGroup0_]
+Condition %mafs == 1, or %mafs > 2
+RolePot A
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+[SortGroup1_]
+Condition %mafs > 1
+RolePot V D
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+[SortGroup2_]
+Condition %mafs > 1
+RolePot O P
+Ratio 1
+RatioVar innos
+
+[SortGroup3_]
+Condition %mafs > 2
+RolePot C
+isMaf 1
+RoleCondition_C ? 0 1 == 1
+Ratio 1
+RatioVar mafs
+
+//really this could probably go in the previous group but w/e man
+[SortGroup4_]
+Condition %mafs > 2
+RolePot D
+isMaf 1
+RoleCondition_D %ctC < 1
+Ratio 1
+RatioVar mafs
+
+[SortGroup5_]
+Condition %mafs > 2
+RolePot F
+Ratio 1
+RatioVar innos
+
+[SortGroup6_]
+Condition %mafs > 3
+RolePot D C
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+[SortGroup7_]
+Condition %mafs > 3
+RolePot N
+Ratio 1
+RatioVar innos
+
+[SortGroup8_]
+Condition %mafs > 4
+RolePot G
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+[]
+SortGroupCt 9

@@ -1,0 +1,3 @@
+Title: Mafia Madness (too) Reputation Extension
+Author: ottosparks
+Adds a reputation system to the game similar to the karma system found in Trouble in Terrorist Town.

@@ -1,0 +1,130 @@
+MMGAMEMODE Deathville, USA
+
+///\c3Mafia Madness (too) \c4: Deathville, USA
+///\c4By \c3ottosparks
+///\c4A gamemode centered around the rising dead.
+///\c4Dead rising begins after the first day on night transitions.
+///\c4Corpses will have a random chance to rise as zombies.
+///\c4Day cycles are shorter.
+
+DeathvilleUSA 1
+
+MafRatio 0
+MinMaf 0
+
+PREF DeadRising 2
+PREF DayLength 120
+PREF NightLength 90
+
+//Temporary variables
+%copRatio 0.4
+%cultistRatio 0.125
+%miscRatio 0.125
+%alarmistChance 0.5
+%zombieRatio 0.1
+
+ForceMafOrder JOHNCENA A V G C D LAW
+ForceInnoOrder F O BB AM S RC CL CM ZC
+
+[SortGroup0_]
+RolePot A
+isMaf 1
+Ratio 1
+RatioVar mafs
+ForceMinMembers 1
+
+//Always make a fingerprint expert appear with more than three players.
+[SortGroup1_]
+Condition %members > 3
+RolePot F
+Ratio 1
+RatioVar members
+
+[SortGroup2_]
+RolePot ZD
+Ratio %%copRatio
+RatioVar members
+ForceMinMembers 1
+
+//Protective innos
+[SortGroup3_]
+RolePot BB O ZD ZD
+RoleCondition_ZD %ctZD < 2
+AllowMultipleDraw 1
+Ratio %%copRatio
+RatioVar members
+RatioModCount -1
+ForceMaxMembers 3
+
+//Handle godfather separately
+[SortGroup4_]
+Condition %mafs > 1, and ? 0 2 > 0
+RolePot G
+isMaf 1
+Ratio 1
+RatioVar mafs
+
+//Special maf roles
+[SortGroup5_]
+Condition %mafs > 1
+RolePot V C C C D D
+isMaf 1
+Ratio 1
+RatioVar mafs
+RatioModCount -1
+
+//Some neutral roles and weird innos
+[SortGroup6_]
+RolePot AM S
+RoleCondition_S %ctG > 0
+Ratio %%miscRatio
+RatioVar members
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+RandomCount 1
+
+//Infected
+[SortGroup7_]
+RolePot IN
+Ratio %%zombieRatio
+AllowMultipleDraw 1
+KeepDrawnRoles 1
+RatioVar innos
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+ForceMinMembers 1
+
+//Special Cultists
+[SortGroup8_]
+RolePot RC CL CL CL
+Ratio %%cultistRatio
+RatioVar innos
+RatioAddRandom 1
+RatioRandomMin 0
+RatioRandomMax 1
+ForceMinMembers 1
+
+//Extra Fingerprinters for RC
+[SortGroup9_]
+Condition %ctRC > 0
+RolePot F
+AllowMultipleDraw 1
+Ratio %%copRatio
+RatioVar members
+RatioModCount -1
+ForceMaxMembers 2
+
+//more infected!!!!
+[SortGroup10_]
+Condition %ctZD > 1
+RolePot IN
+Ratio 1
+RatioVar innos
+RatioAddRandom 1
+RatioRandomMin -1
+RatioRandomMax 0
+
+[]
+SortGroupCt 11

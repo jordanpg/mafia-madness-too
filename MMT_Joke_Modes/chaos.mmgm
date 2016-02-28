@@ -1,0 +1,17 @@
+MMGAMEMODE Chaos Mode
+
+///\c3Mafia Madness (too)\c4: Chaos Mode
+///\c4By \c3ottosparks
+///\c4Completely random role list.
+
+MafRatio 0
+MinMaf 0
+
+//dummy group
+[SortGroup0_]
+RolePot
+
+[]
+SortGroupCt 1
+
+PostSortCall MTTChaosMode
