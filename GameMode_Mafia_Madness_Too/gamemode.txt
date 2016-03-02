@@ -16,10 +16,19 @@ ADDON Brick_PrintPlates
 ADDON Brick_Print_Icons
 ADDON Brick_Halloween
 ADDON Brick_Large_Cubes
+ADDON Brick_Arch
+ADDON Brick_V15
+ADDON Brick_ModTer_BasicPack
+ADDON Brick_ModTer_InvertedPack
+ADDON Support_Doors
+ADDON Brick_Doors
+ADDON Brick_Christmas_Tree
+ADDON Brick_Poster_8x
 ADDON Print_Letters_Default
 ADDON Projectile_Pong
 ADDON Brick_Teledoor
 ADDON Light_Ambient
+ADDON Sound_Blockland
 ADDON Gamemode_Mafia_Madness_Too
 
 //MUSIC LIIIIIST
